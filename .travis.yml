@@ -2,9 +2,10 @@ language: java
 
 jdk:
   - openjdk6
+#  - oraclejdk7
 
 script :
   ./gradlew check
 
-after_success:
-  - coveralls
+#after_success:
+#  - ./gradlew jacocoTestReport coveralls
