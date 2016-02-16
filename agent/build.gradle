@@ -1,0 +1,23 @@
+apply plugin: 'java'
+
+jar {
+    baseName = 'light.agent'
+    version = '0.0.1'
+
+    manifest {
+        attributes 'Boot-Class-Path': baseName + "-" + version + ".jar",
+                'Premain-Class' : 'com.geeksaga.light.agent.JavaAgent',
+                'Can-Redefine-Classes' : true,
+                'Implementation-Title': 'GeekSaga Light Agent',
+                'Implementation-Version': version,
+                'Implementation-Vendor' : 'geeksaga.com',
+                'Specification-Title' : 'GeekSaga Light APM Tools',
+                'Specification-Version' : '0.0.1',
+                'Specification-Vendor' : 'geeksaga.com',
+                'Main-Class': 'com.geeksaga.light.Main'
+    }
+}
+
+dependencies {
+    compile 'org.ow2.asm:asm:5.0.4'
+}

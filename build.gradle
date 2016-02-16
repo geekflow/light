@@ -1,0 +1,69 @@
+apply plugin: 'base'
+
+buildscript {
+    ext {
+        lightVersion = '0.0.1-SNAPSHOT'
+        javaVersion = 1.6
+        slf4jVersion = '1.7.16'
+        log4jVersion = '2.1'
+        jodaTimeVersion = '2.6'
+        mockitoVersion = '1.10.19'
+        hamcrestVersion = '1.3'
+    }
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+    }
+}
+
+allprojects {
+    group = 'com.geeksaga.light'
+}
+
+version = lightVersion
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://repo.spring.io/libs-release" }
+        maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+
+    dependencies {
+        compile "org.slf4j:slf4j-api:$slf4jVersion"
+        // complie "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+        // complie "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        // compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        // compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        // compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+        compile "joda-time:joda-time:$jodaTimeVersion"
+
+        testCompile "junit:junit:4.+"
+        testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+        testCompile "org.mockito:mockito-all:$mockitoVersion"
+    }
+
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    version = lightVersion
+
+    jar {
+        manifest.attributes provider: 'geeksaga'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}

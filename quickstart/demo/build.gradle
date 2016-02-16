@@ -1,0 +1,11 @@
+apply plugin: 'java'
+
+jar {
+    baseName = 'light.demo'
+    version = '0.0.1'
+
+    manifest.attributes 'Main-Class': 'com.geeksaga.light.demo.Main'
+}
+
+dependencies {
+}
