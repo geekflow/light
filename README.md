@@ -1,6 +1,6 @@
 ##Light APM
 
-[![Build Status](https://travis-ci.org/geekflow/light.svg?branch=master)](https://travis-ci.org/geekflow/light)
+[![Build Status](https://travis-ci.org/geekflow/light.svg?branch=master)](https://travis-ci.org/geekflow/light) [![Coverage Status](https://coveralls.io/repos/github/geekflow/light/badge.svg?branch=master)](https://coveralls.io/github/geekflow/light?branch=master)
 
 ## License
 Light is licensed under the Apache License, Version 2.0.
