@@ -112,7 +112,7 @@ subprojects {
             xml.enabled = true
         }
 
-//        setOnlyIf { true }
+        setOnlyIf { true }
     }
 
     coveralls {
