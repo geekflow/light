@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.org/geekflow/light.svg?branch=master)](https://travis-ci.org/geekflow/light) [![Coverage Status](https://coveralls.io/repos/github/geekflow/light/badge.svg?branch=master)](https://coveralls.io/github/geekflow/light?branch=master)
 
+## Goal
+Try to writing code using github for personal study.
+
 ## License
 Light is licensed under the Apache License, Version 2.0.
 See [LICENSE](LICENSE) for full license text.

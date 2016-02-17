@@ -17,8 +17,10 @@ package com.geeksaga.light.agent;
 
 import com.geeksaga.light.Product;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 /**
@@ -43,15 +45,25 @@ public class JavaAgent {
     }
 
     private static void init(String options, Instrumentation instrumentation) {
-        logger.info(Product.NAME + " options:" + options);
+        if(options != null) {
+            logger.info(Product.NAME + " options:" + options);
+        }
 
         if (updateStatusAndCheckDuplicate()) {
-            failAgentLoad();
+            failAgentInitialize();
             return;
         }
 
         JavaAgent.instrumentation = instrumentation;
         JavaAgent.instrumentation.addTransformer(new LightClassFileTransformer());
+
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.initialize();
+    }
+
+    private static void appendToBootstrapClassLoader(String options, Instrumentation instrumentation) throws IOException
+    {
+        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile("./lib/asm.5.0.4.jar"));
     }
 
     private static boolean updateStatusAndCheckDuplicate() {
@@ -64,9 +76,9 @@ public class JavaAgent {
         }
     }
 
-    private static void failAgentLoad() {
+    private static void failAgentInitialize() {
         System.err.println("***********************************************************");
-        System.err.println("* Light Agent load failure");
+        System.err.println("* Light Agent Initialize failure");
         System.err.println("***********************************************************");
     }
 }

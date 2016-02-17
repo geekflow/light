@@ -72,7 +72,7 @@ subprojects {
         // compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
         // compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
         // compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
-        compile "joda-time:joda-time:$jodaTimeVersion"
+        // compile "joda-time:joda-time:$jodaTimeVersion"
 
         testCompile "junit:junit:4.+"
         testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
@@ -108,6 +108,12 @@ subprojects {
         }
     }
 
+    task copyToLibrary(type: Copy) {
+        into "${rootProject.rootDir}/build/libs"
+        from configurations.testRuntime
+    }
+
+    jar.finalizedBy(project.tasks.copyToLibrary)
     // test.finalizedBy(project.tasks.jacocoTestReport)
 }
 

@@ -48,28 +48,4 @@ public class JavaAgentTest {
             }
         }
     }
-
-    private Map<String, String> parseAgentArgs(String str) {
-        Map<String, String> map = new HashMap<String, String>();
-
-        if (str == null || str.isEmpty()) {
-            return map;
-        }
-
-        Scanner scanner = new Scanner(str);
-        scanner.useDelimiter("\\s*,\\s*");
-
-        while (scanner.hasNext()) {
-            String token = scanner.next();
-            int assign = token.indexOf('=');
-
-            if (assign == -1) {
-                map.put(token, "");
-            } else {
-                map.put(token.substring(0, assign), token.substring(assign + 1));
-            }
-        }
-        scanner.close();
-        return Collections.unmodifiableMap(map);
-    }
 }
