@@ -12,5 +12,6 @@ env:
   - TERM=dumb
 
 after_success:
-  - ./gradlew jacocoTestReport coveralls
+  - ./gradlew check coveralls
+#  - ./gradlew jacocoTestReport coveralls
 #  - ./gradlew cobertura coveralls
