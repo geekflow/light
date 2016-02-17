@@ -14,13 +14,14 @@ buildscript {
     repositories {
         mavenCentral()
         mavenLocal()
+        jcenter()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
 
     dependencies {
-        classpath "net.saliman:gradle-cobertura-plugin:2.3.0"
+//        classpath "net.saliman:gradle-cobertura-plugin:2.3.0"
         classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
     }
 }
@@ -34,22 +35,36 @@ version = lightVersion
 subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
-    apply plugin: "net.saliman.cobertura"
+    apply plugin: 'jacoco'
+//    apply plugin: "net.saliman.cobertura"
     apply plugin: "com.github.kt3k.coveralls"
 
     repositories {
         mavenCentral()
         mavenLocal()
+        jcenter()
         maven { url "https://repo.spring.io/libs-release" }
         maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
         maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
     }
 
+    /*
     cobertura {
         coverageFormats = ['html', 'xml']
         coverageIgnoreTrivial = true
         coverageIgnores = ['org.slf4j.Logger.*']
-        coverageReportDir = new File("$buildDir/reports/cobertura")
+    }
+    */
+
+    jacoco {
+        toolVersion = '0.7.1.201405082137'
+    }
+
+    jacocoTestReport {
+        reports {
+            html.enabled = true
+            xml.enabled = true
+        }
     }
 
     dependencies {
@@ -77,6 +92,7 @@ subprojects {
         manifest.attributes provider: 'geeksaga'
     }
 
+    /*
     test {
         filter {
             includeTestsMatching "*Test"
@@ -84,6 +100,27 @@ subprojects {
     }
 
     test.finalizedBy(project.tasks.cobertura)
+    */
+
+    task jacocoRootReport(type: JacocoReport) {
+        dependsOn = subprojects.test
+        sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+        classDirectories =  files(sourceSets.main.output)
+        executionData = files(jacocoTestReport.executionData)
+        reports {
+            html.enabled = true
+            xml.enabled = true
+            csv.enabled = false
+        }
+
+        setOnlyIf { true }
+    }
+
+    coveralls {
+        sourceDirs = files(sourceSets.main.allSource.srcDirs).files.absolutePath
+    }
+
+    test.finalizedBy(project.tasks.jacocoRootReport)
 }
 
 task wrapper(type: Wrapper) {
