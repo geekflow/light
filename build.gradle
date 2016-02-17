@@ -115,11 +115,9 @@ subprojects {
 //        setOnlyIf { true }
     }
 
-/*
     coveralls {
         sourceDirs = files(sourceSets.main.allSource.srcDirs).files.absolutePath
     }
-*/
 
     test.finalizedBy(project.tasks.jacocoRootReport)
 //    check.finalizedBy(project.tasks.coveralls)
