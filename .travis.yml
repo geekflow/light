@@ -1,11 +1,12 @@
 language: java
 
 jdk:
-  - openjdk6
-#  - oraclejdk7
+  - oraclejdk7
+#  - openjdk6
 
 script :
-  ./gradlew check
+  - ./gradlew check
 
-#after_success:
+after_success:
+  - ./gradlew cobertura coveralls
 #  - ./gradlew jacocoTestReport coveralls
