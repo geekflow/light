@@ -18,6 +18,7 @@ package com.geeksaga.light.demo;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -27,6 +28,6 @@ public class MainTest {
     @Test
     public void testForJacocoReport()
     {
-        assertThat(true, is(true));
+        assertThat(new Main(), is(notNullValue()));
     }
 }

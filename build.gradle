@@ -27,7 +27,18 @@ buildscript {
 }
 
 allprojects {
+    apply plugin: 'jacoco'
+    apply plugin: "com.github.kt3k.coveralls"
+
     group = 'com.geeksaga.light'
+
+    repositories {
+        jcenter()
+    }
+
+    jacoco {
+        toolVersion = '0.7.1.201405082137'
+    }
 }
 
 version = lightVersion
@@ -35,9 +46,7 @@ version = lightVersion
 subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
-    apply plugin: 'jacoco'
 //    apply plugin: "net.saliman.cobertura"
-    apply plugin: "com.github.kt3k.coveralls"
 
     repositories {
         mavenCentral()
@@ -55,17 +64,6 @@ subprojects {
         coverageIgnores = ['org.slf4j.Logger.*']
     }
     */
-
-    jacoco {
-        toolVersion = '0.7.1.201405082137'
-    }
-
-    jacocoTestReport {
-        reports {
-            html.enabled = true
-            xml.enabled = true
-        }
-    }
 
     dependencies {
         compile "org.slf4j:slf4j-api:$slf4jVersion"
@@ -102,26 +100,33 @@ subprojects {
     test.finalizedBy(project.tasks.cobertura)
     */
 
-    task jacocoRootReport(type: JacocoReport) {
-        dependsOn = subprojects.test
-        sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-        classDirectories =  files(sourceSets.main.output)
-        executionData = files(jacocoTestReport.executionData)
+    jacocoTestReport {
         reports {
             html.enabled = true
             xml.enabled = true
-            xml.destination ="${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+            csv.enabled = false
         }
-
-        setOnlyIf { true }
     }
 
-    coveralls {
-        sourceDirs = files(sourceSets.main.allSource.srcDirs).files.absolutePath
+    test.finalizedBy(project.tasks.jacocoTestReport)
+}
+
+task jacocoRootReport(type: JacocoReport) {
+    dependsOn = subprojects.test
+    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories =  files(subprojects.sourceSets.main.output.classesDir)
+    executionData = files(subprojects.jacocoTestReport.executionData)
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        xml.destination ="${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
 
-    test.finalizedBy(project.tasks.jacocoRootReport)
-//    check.finalizedBy(project.tasks.coveralls)
+    setOnlyIf { true }
+}
+
+coveralls {
+    sourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs).files.absolutePath
 }
 
 task wrapper(type: Wrapper) {
