@@ -108,7 +108,7 @@ subprojects {
         }
     }
 
-    test.finalizedBy(project.tasks.jacocoTestReport)
+    // test.finalizedBy(project.tasks.jacocoTestReport)
 }
 
 task jacocoRootReport(type: JacocoReport) {
