@@ -12,34 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package com.geeksaga.light.agent;
 
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * @author geeksaga
  */
-public class JavaAgentTest {
+public class AgentClassPathResolverTest {
+    private String LIGHT_AGENT_JAR = "light.agent-0.0.1-SNAPSHOT.jar";
+    private String LIGHT_AGENT_JAR_PATH = System.getProperty("user.dir");
+    private String CLASS_PATH = System.getProperty("java.class.path") + File.pathSeparator + LIGHT_AGENT_JAR_PATH + File.separator + LIGHT_AGENT_JAR;
 
     @Test
-    public void testDuplicateInitializeCalls() {
-        assertThat(JavaAgent.STATUS.get(), is(false));
+    public void testFindAgentJar() {
+        AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
+        assertThat(true, is(resolver.findAgentJar()));
 
-        JavaAgent.premain("", new DummyInstrumentation());
-
-        for (int i = 0; i < 3; i++) {
-            assertThat(JavaAgent.STATUS.get(), is(true));
-
-            if (!JavaAgent.STATUS.get()) {
-                JavaAgent.premain("", new DummyInstrumentation());
-
-                fail();
-            }
-        }
+        assertThat(resolver.getAgentJarName(), is(LIGHT_AGENT_JAR));
+        assertThat(resolver.getAgentJarPath(), is(LIGHT_AGENT_JAR_PATH));
+        assertThat(resolver.getAgentCoreJarName(), nullValue());
     }
 }

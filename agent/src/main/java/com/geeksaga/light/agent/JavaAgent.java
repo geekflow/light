@@ -45,10 +45,6 @@ public class JavaAgent {
     }
 
     private static void init(String options, Instrumentation instrumentation) {
-        if(options != null) {
-            logger.info(Product.NAME + " options:" + options);
-        }
-
         if (updateStatusAndCheckDuplicate()) {
             failAgentInitialize();
             return;

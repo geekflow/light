@@ -27,6 +27,14 @@ public class Bootstrap {
     public void initialize() {
         logger.info("initialize...");
 
+        AgentClassPathResolver classPathResolver = new AgentClassPathResolver();
+
+        //
+        classPathResolver.findAgentJar();
+
+        //
+        classPathResolver.getAgentCoreJarName();
+
         ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactory()
         {
             public Thread newThread(Runnable runnable)
