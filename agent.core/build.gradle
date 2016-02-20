@@ -1,14 +1,11 @@
 apply plugin: 'java'
 
 jar {
-    baseName = 'light.agent'
+    baseName = 'light.agent.core'
     version = '0.0.1'
 
     manifest {
         attributes 'Boot-Class-Path': baseName + "-" + version + ".jar",
-                'Premain-Class' : 'com.geeksaga.light.agent.JavaAgent',
-                'Agent-Class' : 'com.geeksaga.light.agent.JavaAgent',
-                'Can-Redefine-Classes' : true,
                 'Implementation-Title': 'GeekSaga Light Agent',
                 'Implementation-Version': version,
                 'Implementation-Vendor' : 'GeekSaga, Inc.',

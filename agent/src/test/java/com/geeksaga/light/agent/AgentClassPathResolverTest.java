@@ -22,7 +22,9 @@ import java.io.File;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author geeksaga
@@ -37,8 +39,14 @@ public class AgentClassPathResolverTest {
         AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
         assertThat(true, is(resolver.findAgentJar()));
 
+        assertThat(resolver, hasProperty("agentJarName"));
+        assertThat(resolver, hasProperty("agentJarPath"));
+        assertThat(resolver, hasProperty("agentCoreJarName"));
+
         assertThat(resolver.getAgentJarName(), is(LIGHT_AGENT_JAR));
         assertThat(resolver.getAgentJarPath(), is(LIGHT_AGENT_JAR_PATH));
         assertThat(resolver.getAgentCoreJarName(), nullValue());
+
+        assertThat(resolver.getAgentJarName(), containsString("light.agent"));
     }
 }

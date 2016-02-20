@@ -15,7 +15,11 @@
  */
 package com.geeksaga.light.agent;
 
+import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.util.concurrent.*;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -23,6 +27,14 @@ import java.util.logging.Logger;
  */
 public class Bootstrap {
     private static final Logger logger = Logger.getLogger(Bootstrap.class.getName());
+
+    private final String options;
+    private final Instrumentation instrumentation;
+
+    public Bootstrap(String options, Instrumentation instrumentation) {
+        this.options = options;
+        this.instrumentation = instrumentation;
+    }
 
     public void initialize() {
         logger.info("initialize...");
@@ -33,12 +45,21 @@ public class Bootstrap {
         classPathResolver.findAgentJar();
 
         //
-        classPathResolver.getAgentCoreJarName();
+        final String agentCoreJarName = classPathResolver.getAgentCoreJarName();
+        if (agentCoreJarName == null) {
+            logger.info("light.agent.core-x.x.x(-SNAPSHOT).jar not found.");
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactory()
-        {
-            public Thread newThread(Runnable runnable)
-            {
+            failInitialize();
+
+            return;
+        }
+
+        appendToBootstrapClassLoaderSearch(classPathResolver.getJarFile(classPathResolver.getAgentCoreJarName()));
+
+        instrumentation.addTransformer(new LightClassFileTransformer());
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactory() {
+            public Thread newThread(Runnable runnable) {
                 Thread thread = new Thread(runnable);
                 thread.setName("Light-Bootstrap ");
                 thread.setDaemon(true);
@@ -58,5 +79,23 @@ public class Bootstrap {
         });
 
         executorService.submit(future);
+    }
+
+    public String getOptions()
+    {
+        return options;
+    }
+
+
+    private void appendToBootstrapClassLoaderSearch(JarFile jarFile)
+    {
+        instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
+//        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile("./lib/asm.5.0.4.jar"));
+    }
+
+    private void failInitialize() {
+        System.err.println("***********************************************************");
+        System.err.println("* Light Agent Initialize failure");
+        System.err.println("***********************************************************");
     }
 }

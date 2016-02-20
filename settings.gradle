@@ -1,2 +1,6 @@
 rootProject.name = 'build'
-include 'agent', 'quickstart/demo'
+include 'agent'
+include 'agent.core'
+include 'common'
+include 'profiler'
+include 'quickstart/demo'

@@ -46,20 +46,14 @@ public class JavaAgent {
 
     private static void init(String options, Instrumentation instrumentation) {
         if (updateStatusAndCheckDuplicate()) {
-            failAgentInitialize();
+            failInitialize();
             return;
         }
 
         JavaAgent.instrumentation = instrumentation;
-        JavaAgent.instrumentation.addTransformer(new LightClassFileTransformer());
 
-        Bootstrap bootstrap = new Bootstrap();
+        Bootstrap bootstrap = new Bootstrap(options, instrumentation);
         bootstrap.initialize();
-    }
-
-    private static void appendToBootstrapClassLoader(String options, Instrumentation instrumentation) throws IOException
-    {
-        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile("./lib/asm.5.0.4.jar"));
     }
 
     private static boolean updateStatusAndCheckDuplicate() {
@@ -72,7 +66,7 @@ public class JavaAgent {
         }
     }
 
-    private static void failAgentInitialize() {
+    private static void failInitialize() {
         System.err.println("***********************************************************");
         System.err.println("* Light Agent Initialize failure");
         System.err.println("***********************************************************");

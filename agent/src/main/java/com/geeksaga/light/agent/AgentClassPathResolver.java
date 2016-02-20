@@ -18,7 +18,10 @@ package com.geeksaga.light.agent;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,15 +86,20 @@ public class AgentClassPathResolver {
 
         for (String path : classPaths) {
             if (path.contains(agentJarName)) {
-                return parseAgentJarPath(path);
+                return parseAgentJarPathOrCurrentPath(path);
             }
         }
 
         return null;
     }
 
-    private String parseAgentJarPath(String path) {
+    private String parseAgentJarPathOrCurrentPath(String path) {
         int index = path.lastIndexOf(File.separator);
+
+        if (index == -1)
+        {
+            return "." + File.separator;
+        }
 
         return path.substring(0, index);
     }
@@ -106,10 +114,20 @@ public class AgentClassPathResolver {
         });
 
         // FIXME If a redundant module exist to load the module in the final version.
-        if (files== null || files.length == 0) {
+        if (files == null || files.length == 0) {
             return null;
         } else if (files.length == 1) {
             return files[0].getAbsolutePath();
+        }
+
+        return null;
+    }
+
+    public JarFile getJarFile(String name) {
+        try {
+            return new JarFile(name);
+        } catch (IOException ioException) {
+            logger.log(Level.INFO, name + " file not found.", ioException);
         }
 
         return null;
