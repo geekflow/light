@@ -22,6 +22,10 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -45,13 +49,13 @@ public class MethodTransformer implements ClassFileTransformer {
 
         ClassWrapper classWrapper = new ClassWrapper();
         ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-
         reader.accept(new ClassVisitor(Opcodes.ASM5, classWrapper) {
             @Override
             public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-                return new MethodAdapter(access, name, desc, new JSRInlinerAdapter(super.visitMethod(access, name, desc, signature, exceptions), access, name, desc, signature, exceptions));
+                MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+                return new MethodAdapter(access, name, desc, mv);
             }
-        }, new Attribute[0], 0);
+        }, ClassReader.EXPAND_FRAMES);
 
         return ASMUtil.toBytes(classWrapper);
 
@@ -75,13 +79,13 @@ class MethodAdapter extends AdviceAdapter {
     protected void onMethodEnter() {
         System.out.println("onMethodEnter " + name);
 
-        visitLabel(timeStart);
+        mv.visitLabel(timeStart);
         int time = newLocal(Type.getType("J"));
         visitLocalVariable("time", "J", null, timeStart, timeEnd, time);
 
-        super.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream");
-        super.visitLdcInsn("Enter " + name);
-        super.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", INVOKEVIRTUAL == Opcodes.INVOKEINTERFACE);
+        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+        mv.visitLdcInsn("Enter " + name);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
     }
 
     @Override
@@ -93,7 +97,10 @@ class MethodAdapter extends AdviceAdapter {
 
     @Override
     protected void onMethodExit(int opcode) {
-        if(opcode != ATHROW) {
+        System.out.println("onMethodExit " + name);
+
+        if (opcode != ATHROW) {
+            mv.visitVarInsn(Opcodes.ALOAD, 42);
             // FIXME finally
         }
     }
