@@ -22,7 +22,6 @@ buildscript {
     }
 
     dependencies {
-//        classpath "net.saliman:gradle-cobertura-plugin:2.3.0"
         classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
     }
 }
@@ -47,7 +46,6 @@ version = lightVersion
 subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
-//    apply plugin: "net.saliman.cobertura"
 
     repositories {
         mavenCentral()
@@ -58,27 +56,17 @@ subprojects {
         maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
     }
 
-    /*
-    cobertura {
-        coverageFormats = ['html', 'xml']
-        coverageIgnoreTrivial = true
-        coverageIgnores = ['org.slf4j.Logger.*']
-    }
-    */
-
     dependencies {
         compile "org.slf4j:slf4j-api:$slf4jVersion"
-        // complie "org.slf4j:jcl-over-slf4j:$slf4jVersion"
-        // complie "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        // compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
-        // compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-        // compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+//        complie "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+//        complie "org.slf4j:slf4j-log4j12:$slf4jVersion"
+        compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
         // compile "joda-time:joda-time:$jodaTimeVersion"
 
         testCompile "junit:junit:$junitVersion"
-        testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
         testCompile "org.hamcrest:hamcrest-all:$hamcrestVersion"
-//        testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
         testCompile "org.mockito:mockito-all:$mockitoVersion"
     }
 
@@ -93,15 +81,11 @@ subprojects {
         manifest.attributes provider: 'geeksaga'
     }
 
-    /*
     test {
         filter {
             includeTestsMatching "*Test"
         }
     }
-
-    test.finalizedBy(project.tasks.cobertura)
-    */
 
     jacocoTestReport {
         reports {
@@ -112,12 +96,13 @@ subprojects {
     }
 
     task copyToLibrary(type: Copy) {
+        from configurations.runtime
         into "${rootProject.rootDir}/build/libs"
-        from configurations.testRuntime
+
+        exclude 'light.**.jar'
     }
 
     jar.finalizedBy(project.tasks.copyToLibrary)
-    // test.finalizedBy(project.tasks.jacocoTestReport)
 }
 
 project(':agent') {
@@ -126,15 +111,21 @@ project(':agent') {
     }
 }
 
+project(':profiler') {
+    dependencies {
+        compile project(':agent.core')
+    }
+}
+
 task jacocoRootReport(type: JacocoReport) {
     dependsOn = subprojects.test
     sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
-    classDirectories =  files(subprojects.sourceSets.main.output.classesDir)
+    classDirectories = files(subprojects.sourceSets.main.output.classesDir)
     executionData = files(subprojects.jacocoTestReport.executionData)
     reports {
         html.enabled = true
         xml.enabled = true
-        xml.destination ="${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+        xml.destination = "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
 
     setOnlyIf { true }

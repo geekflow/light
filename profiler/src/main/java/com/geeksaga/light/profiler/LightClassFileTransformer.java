@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent;
+package com.geeksaga.light.profiler;
+
+import com.geeksaga.light.profiler.asm.ClassWrapper;
+import com.geeksaga.light.profiler.util.ASMUtil;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.logging.Logger;
 
@@ -26,9 +30,19 @@ public class LightClassFileTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(LightClassFileTransformer.class.getName());
 
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (!className.startsWith("java") && !className.startsWith("sun")) {
             logger.info("Transform => " + className);
+
+            ClassWrapper clazz = ASMUtil.parse(classfileBuffer);
+
+            if (clazz.isInterface()) {
+                return classfileBuffer;
+            }
+
+            ClassFileTransformer methodTransformer = new MethodTransformer();
+
+            return methodTransformer.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         }
 
         return classfileBuffer;

@@ -17,9 +17,9 @@ package com.geeksaga.light.agent;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.*;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -56,8 +56,6 @@ public class Bootstrap {
 
         appendToBootstrapClassLoaderSearch(classPathResolver.getJarFile(classPathResolver.getAgentCoreJarName()));
 
-        instrumentation.addTransformer(new LightClassFileTransformer());
-
         ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactory() {
             public Thread newThread(Runnable runnable) {
                 Thread thread = new Thread(runnable);
@@ -70,27 +68,45 @@ public class Bootstrap {
 
         FutureTask<Boolean> future = new FutureTask<Boolean>(new Callable<Boolean>() {
             public Boolean call() throws Exception {
-                // ClassLoader classLoader = new AgentClassLoader("", Bootstrap.class.getClassLoader());
+                // FIXME read to all of library in libs folder
+                ClassLoader classLoader = new AgentClassLoader("light.agent-0.0.1.jar;./libs/light.profiler-0.0.1.jar;./libs/asm-all-5.0.4.jar", Bootstrap.class.getClassLoader());
 
-                // Class.forName("", true, classLoader).newInstance();
+                Module profiler;// = (Module) Class.forName("com.geeksaga.light.profiler.ProfilerModule", true, classLoader).newInstance();
+                Class<?> profilerModule = Class.forName("com.geeksaga.light.profiler.ProfilerModule", true, classLoader);
+
+                try {
+                    Constructor<?> constructor = profilerModule.getConstructor(Instrumentation.class);
+                    profiler = (Module) constructor.newInstance(instrumentation);
+                    profiler.start();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
 
                 return true;
             }
         });
 
         executorService.submit(future);
+
+        try {
+            if (!future.get(3, TimeUnit.SECONDS)) {
+                logger.info("initialize failure.");
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+        logger.info("initialize success.");
     }
 
-    public String getOptions()
-    {
+    public String getOptions() {
         return options;
     }
 
 
-    private void appendToBootstrapClassLoaderSearch(JarFile jarFile)
-    {
+    private void appendToBootstrapClassLoaderSearch(JarFile jarFile) {
         instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
-//        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile("./lib/asm.5.0.4.jar"));
+        // instrumentation.appendToBootstrapClassLoaderSearch(new JarFile("./libs/asm.5.0.4.jar"));
     }
 
     private void failInitialize() {

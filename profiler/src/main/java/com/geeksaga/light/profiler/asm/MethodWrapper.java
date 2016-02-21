@@ -13,24 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.demo;
+package com.geeksaga.light.profiler.asm;
+
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.CodeSizeEvaluator;
+import org.objectweb.asm.tree.MethodNode;
 
 /**
  * @author geeksaga
  */
-public class Main {
+public class MethodWrapper extends CodeSizeEvaluator
+{
+    public MethodVisitor mvWrapper = null;
+    public MethodNode method = null;
 
-    public void print(String message) {
-        System.out.println("Test Call = " + message);
+    public MethodWrapper(final MethodVisitor mv)
+    {
+        this(Opcodes.ASM5, mv);
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        Main main = new Main();
+    protected MethodWrapper(int api, MethodVisitor mv)
+    {
+        super(api, mv);
 
-        for (int i = 0; i < 10; i++) {
-            main.print(String.valueOf(i));
-
-            Thread.sleep(1000);
-        }
+        this.mvWrapper = mv;
+        this.method = (MethodNode) mv;
     }
 }

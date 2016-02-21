@@ -13,24 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.demo;
+package com.geeksaga.light.agent;
 
 /**
  * @author geeksaga
  */
-public class Main {
+public interface Module {
+    void start();
 
-    public void print(String message) {
-        System.out.println("Test Call = " + message);
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        Main main = new Main();
-
-        for (int i = 0; i < 10; i++) {
-            main.print(String.valueOf(i));
-
-            Thread.sleep(1000);
-        }
-    }
+    void stop();
 }
