@@ -19,6 +19,7 @@ package com.geeksaga.light.agent;
 import org.junit.Test;
 
 import java.io.File;
+import java.net.URL;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -37,7 +38,7 @@ public class AgentClassPathResolverTest {
     @Test
     public void testFindAgentJar() {
         AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
-        assertThat(true, is(resolver.findAgentJar()));
+        assertThat(true, is(resolver.isInitialize()));
 
         assertThat(resolver, hasProperty("agentJarName"));
         assertThat(resolver, hasProperty("agentJarPath"));
@@ -48,5 +49,19 @@ public class AgentClassPathResolverTest {
         assertThat(resolver.getAgentCoreJarName(), nullValue());
 
         assertThat(resolver.getAgentJarName(), containsString("light.agent"));
+    }
+
+    @Test
+    public void testFindAllAgentLibrary() {
+        String CLASS_PATH = LIGHT_AGENT_JAR_PATH + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "AGENT_HOME" + File.separator + LIGHT_AGENT_JAR;
+
+        AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
+
+        assertThat(2, is(resolver.findAllAgentLibrary().size()));
+
+        for(URL url : resolver.findAllAgentLibrary())
+        {
+            System.out.println(url);
+        }
     }
 }

@@ -18,8 +18,11 @@ package com.geeksaga.light.agent;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -27,6 +30,8 @@ import java.util.logging.Logger;
  */
 public class Bootstrap {
     private static final Logger logger = Logger.getLogger(Bootstrap.class.getName());
+
+    private static final String DEFAULT_PROFILE_MODULE = "com.geeksaga.light.profiler.ProfilerModule";
 
     private final String options;
     private final Instrumentation instrumentation;
@@ -39,10 +44,12 @@ public class Bootstrap {
     public void initialize() {
         logger.info("initialize...");
 
-        AgentClassPathResolver classPathResolver = new AgentClassPathResolver();
+        final AgentClassPathResolver classPathResolver = new AgentClassPathResolver();
 
         //
-        classPathResolver.findAgentJar();
+        if(!classPathResolver.isInitialize()) {
+            failInitialize();
+        }
 
         //
         final String agentCoreJarName = classPathResolver.getAgentCoreJarName();
@@ -68,18 +75,18 @@ public class Bootstrap {
 
         FutureTask<Boolean> future = new FutureTask<Boolean>(new Callable<Boolean>() {
             public Boolean call() throws Exception {
-                // FIXME read to all of library in libs folder
-                ClassLoader classLoader = new AgentClassLoader("light.agent-0.0.1.jar;./libs/light.profiler-0.0.1.jar;./libs/asm-all-5.0.4.jar", Bootstrap.class.getClassLoader());
+                List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
-                Module profiler;// = (Module) Class.forName("com.geeksaga.light.profiler.ProfilerModule", true, classLoader).newInstance();
-                Class<?> profilerModule = Class.forName("com.geeksaga.light.profiler.ProfilerModule", true, classLoader);
+                ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[urlList.size()]), Bootstrap.class.getClassLoader());
+
+                Class<?> profilerModule = Class.forName(DEFAULT_PROFILE_MODULE, true, classLoader);
 
                 try {
                     Constructor<?> constructor = profilerModule.getConstructor(Instrumentation.class);
-                    profiler = (Module) constructor.newInstance(instrumentation);
+                    Module profiler = (Module) constructor.newInstance(instrumentation);
                     profiler.start();
                 } catch (Exception exception) {
-                    exception.printStackTrace();
+                    logger.log(Level.INFO, exception.getMessage(), exception);
                 }
 
                 return true;
@@ -93,7 +100,7 @@ public class Bootstrap {
                 logger.info("initialize failure.");
             }
         } catch (Exception exception) {
-            exception.printStackTrace();
+            logger.log(Level.INFO, exception.getMessage(), exception);
         }
 
         logger.info("initialize success.");
@@ -103,15 +110,13 @@ public class Bootstrap {
         return options;
     }
 
-
     private void appendToBootstrapClassLoaderSearch(JarFile jarFile) {
         instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
-        // instrumentation.appendToBootstrapClassLoaderSearch(new JarFile("./libs/asm.5.0.4.jar"));
     }
 
     private void failInitialize() {
-        System.err.println("***********************************************************");
-        System.err.println("* Light Agent Initialize failure");
-        System.err.println("***********************************************************");
+        logger.log(Level.ALL, "***********************************************************");
+        logger.log(Level.ALL, "* Light Agent Initialize failure");
+        logger.log(Level.ALL, "***********************************************************");
     }
 }

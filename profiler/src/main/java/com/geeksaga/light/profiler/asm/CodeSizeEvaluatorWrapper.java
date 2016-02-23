@@ -23,17 +23,17 @@ import org.objectweb.asm.tree.MethodNode;
 /**
  * @author geeksaga
  */
-public class MethodWrapper extends CodeSizeEvaluator
+public class CodeSizeEvaluatorWrapper extends CodeSizeEvaluator
 {
     public MethodVisitor mvWrapper = null;
     public MethodNode method = null;
 
-    public MethodWrapper(final MethodVisitor mv)
+    public CodeSizeEvaluatorWrapper(final MethodVisitor mv)
     {
         this(Opcodes.ASM5, mv);
     }
 
-    protected MethodWrapper(int api, MethodVisitor mv)
+    protected CodeSizeEvaluatorWrapper(int api, MethodVisitor mv)
     {
         super(api, mv);
 

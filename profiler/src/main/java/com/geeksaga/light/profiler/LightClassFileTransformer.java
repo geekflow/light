@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.profiler;
 
-import com.geeksaga.light.profiler.asm.ClassWrapper;
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.util.ASMUtil;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -34,7 +34,7 @@ public class LightClassFileTransformer implements ClassFileTransformer {
         if (!className.startsWith("java") && !className.startsWith("sun")) {
             logger.info("Transform => " + className);
 
-            ClassWrapper clazz = ASMUtil.parse(classfileBuffer);
+            ClassNodeWrapper clazz = ASMUtil.parse(classfileBuffer);
 
             if (clazz.isInterface()) {
                 return classfileBuffer;

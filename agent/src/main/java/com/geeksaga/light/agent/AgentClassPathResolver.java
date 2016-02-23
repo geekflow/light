@@ -19,7 +19,12 @@ package com.geeksaga.light.agent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,27 +47,60 @@ public class AgentClassPathResolver {
     private String agentJarPath;
     private String agentCoreJarName;
 
+    private boolean initialize = false;
+
     public AgentClassPathResolver() {
         this(java_class_path);
     }
 
     public AgentClassPathResolver(String classPath) {
         this.classPath = classPath;
+
+        initialize();
     }
 
-    public boolean findAgentJar() {
+    public void initialize() {
         Matcher matcher = LIGHT_AGENT_PATTERN.matcher(classPath);
 
-        if (!matcher.find()) {
-            return false;
+        if (matcher.find()) {
+            agentJarName = parseAgentJar(matcher);
+            agentJarPath = parseAgentJarPathOrNull();
+
+            agentCoreJarName = findAgentCoreJarNameOrNull();
+
+            initialize = true;
+        }
+    }
+
+    public boolean isInitialize() {
+        return initialize;
+    }
+
+    public List<URL> findAllAgentLibrary() {
+        File libraryDirectory = new File(getAgentLibraryPath());
+        if (!libraryDirectory.exists() && !libraryDirectory.isDirectory()) {
+            return Collections.emptyList();
         }
 
-        this.agentJarName = parseAgentJar(matcher);
-        this.agentJarPath = parseAgentJarPathOrNull();
+        File[] files = libraryDirectory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        });
 
-        this.agentCoreJarName = findAgentCoreJarNameOrNull();
+        List<URL> list = new ArrayList<URL>();
 
-        return true;
+        if (files != null) {
+            for (File file : files) {
+                URL url = toURIOrNullIfOccurException(file);
+                if (url != null) {
+                    list.add(url);
+                }
+            }
+        }
+
+        return list;
     }
 
     public String getAgentJarName() {
@@ -75,6 +113,10 @@ public class AgentClassPathResolver {
 
     public String getAgentCoreJarName() {
         return agentCoreJarName;
+    }
+
+    public String getAgentLibraryPath() {
+        return getAgentJarPath() + File.separator + "libs";
     }
 
     private String parseAgentJar(Matcher matcher) {
@@ -96,8 +138,7 @@ public class AgentClassPathResolver {
     private String parseAgentJarPathOrCurrentPath(String path) {
         int index = path.lastIndexOf(File.separator);
 
-        if (index == -1)
-        {
+        if (index == -1) {
             return "." + File.separator;
         }
 
@@ -128,6 +169,16 @@ public class AgentClassPathResolver {
             return new JarFile(name);
         } catch (IOException ioException) {
             logger.log(Level.INFO, name + " file not found.", ioException);
+        }
+
+        return null;
+    }
+
+    private URL toURIOrNullIfOccurException(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException malformedURLException) {
+            logger.log(Level.INFO, file.getName() + ".toURL(). Exception : " + malformedURLException.getMessage(), malformedURLException);
         }
 
         return null;

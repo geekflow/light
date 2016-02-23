@@ -16,7 +16,7 @@
 package com.geeksaga.light.profiler.util;
 
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
-import com.geeksaga.light.profiler.asm.ClassWrapper;
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassWriterWrapper;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
@@ -37,7 +37,7 @@ public class ASMUtil {
         };
     }
 
-    public static ClassWrapper parse(byte[] classfileBuffer) {
+    public static ClassNodeWrapper parse(byte[] classfileBuffer) {
         if (classfileBuffer == null) {
             return null;
         }
@@ -45,32 +45,32 @@ public class ASMUtil {
         return parse(classfileBuffer, 0);
     }
 
-    public static ClassWrapper parse(byte[] classfileBuffer, int flags) {
-        ClassWrapper classWrapper = new ClassWrapper();
+    public static ClassNodeWrapper parse(byte[] classfileBuffer, int flags) {
+        ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
         ClassReader reader = new ClassReaderWrapper(classfileBuffer);
 
-        reader.accept(useJSRInlinerAdapter(classWrapper), new Attribute[0], flags);
+        reader.accept(useJSRInlinerAdapter(classNodeWrapper), new Attribute[0], flags);
 
-        return classWrapper;
+        return classNodeWrapper;
     }
 
-    public static ClassWrapper parse(Object obj) {
-        ClassWrapper classWrapper = new ClassWrapper();
+    public static ClassNodeWrapper parse(Object obj) {
+        ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
 
         ClassReader reader = new ClassReaderWrapper(obj.getClass().getName());
 
-        reader.accept(useJSRInlinerAdapter(classWrapper), new Attribute[0], 0);
+        reader.accept(useJSRInlinerAdapter(classNodeWrapper), new Attribute[0], 0);
 
-        return classWrapper;
+        return classNodeWrapper;
     }
 
-    public static ClassWrapper parse(Class clazz) {
-        ClassWrapper classWrapper = new ClassWrapper();
+    public static ClassNodeWrapper parse(Class clazz) {
+        ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
 
         ClassReader reader = new ClassReaderWrapper(clazz);
-        reader.accept(useJSRInlinerAdapter(classWrapper), new Attribute[0], 0);
+        reader.accept(useJSRInlinerAdapter(classNodeWrapper), new Attribute[0], 0);
 
-        return classWrapper;
+        return classNodeWrapper;
     }
 
     public static byte[] toBytes(Class clazz) {
@@ -81,7 +81,7 @@ public class ASMUtil {
         return toBytes(parse(obj));
     }
 
-    public static byte[] toBytes(ClassWrapper clazz) {
+    public static byte[] toBytes(ClassNodeWrapper clazz) {
         int flags = ClassWriter.COMPUTE_MAXS;
 
         if (clazz.version > Opcodes.V1_5) {

@@ -27,53 +27,45 @@ import java.util.Vector;
  * @author geeksaga
  */
 public class AgentClassLoader extends URLClassLoader {
-    public AgentClassLoader(String classPath, ClassLoader parent)
-    {
+    public AgentClassLoader(String classPath, ClassLoader parent) {
         super(toURLs(classPath), parent);
     }
 
-    private static URL[] toURLs(String classPath)
-    {
-        try
-        {
+    public AgentClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
+    }
+
+    private static URL[] toURLs(String classPath) {
+        try {
             List<URL> urlList = new ArrayList<URL>();
             StringTokenizer stringTokenizer = new StringTokenizer(classPath, ";");
-            while (stringTokenizer.hasMoreTokens())
-            {
+            while (stringTokenizer.hasMoreTokens()) {
                 String path = stringTokenizer.nextToken();
                 path = path.trim();
-                if (path.length() > 0)
-                {
+                if (path.length() > 0) {
                     URL url = toURLOrNullIfOccurException(path);
 
-                    if(url != null) {
+                    if (url != null) {
                         urlList.add(url);
                     }
                 }
             }
 
             return urlList.toArray(new URL[urlList.size()]);
-        }
-        catch (Exception exception)
-        {
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
 
         return new URL[0];
     }
 
-    private static URL toURLOrNullIfOccurException(String path)
-    {
-        try
-        {
+    private static URL toURLOrNullIfOccurException(String path) {
+        try {
             File file = new File(path);
-            if (file.exists())
-            {
+            if (file.exists()) {
                 return file.toURI().toURL();
             }
-        }
-        catch (Exception exception)
-        {
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
 

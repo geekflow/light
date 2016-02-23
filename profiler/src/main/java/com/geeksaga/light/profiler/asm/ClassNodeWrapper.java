@@ -25,16 +25,16 @@ import java.util.List;
 /**
  * @author geeksaga
  */
-public class ClassWrapper extends ClassNode {
-    public List<MethodWrapper> methodWrappers;
+public class ClassNodeWrapper extends ClassNode {
+    public List<CodeSizeEvaluatorWrapper> methodVisitWrappers;
 
-    public ClassWrapper() {
+    public ClassNodeWrapper() {
         this(Opcodes.ASM5);
     }
 
-    public ClassWrapper(final int api) {
+    public ClassNodeWrapper(final int api) {
         super(api);
-        methodWrappers = new ArrayList<MethodWrapper>();
+        methodVisitWrappers = new ArrayList<CodeSizeEvaluatorWrapper>();
     }
 
     public boolean isInterface() {
@@ -43,9 +43,9 @@ public class ClassWrapper extends ClassNode {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        MethodWrapper methodWrapper = new MethodWrapper(super.visitMethod(access, name, desc, signature, exceptions));
-        methodWrappers.add(methodWrapper);
+        CodeSizeEvaluatorWrapper methodVisitWrapper = new CodeSizeEvaluatorWrapper(super.visitMethod(access, name, desc, signature, exceptions));
+        methodVisitWrappers.add(methodVisitWrapper);
 
-        return methodWrapper;
+        return methodVisitWrapper;
     }
 }
