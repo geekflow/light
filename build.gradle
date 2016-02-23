@@ -51,7 +51,7 @@ subprojects {
         mavenCentral()
         mavenLocal()
         jcenter()
-        maven { url "https://repo.spring.io/agent.home.libs-release" }
+        maven { url "https://repo.spring.io/libs-release" }
         maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
         maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
     }
