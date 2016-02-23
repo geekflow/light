@@ -56,12 +56,8 @@ public class AgentClassPathResolverTest {
         String CLASS_PATH = LIGHT_AGENT_JAR_PATH + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "AGENT_HOME" + File.separator + LIGHT_AGENT_JAR;
 
         AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
+        assertThat(true, is(resolver.isInitialize()));
 
-        assertThat(2, is(resolver.findAllAgentLibrary().size()));
-
-        for(URL url : resolver.findAllAgentLibrary())
-        {
-            System.out.println(url);
-        }
+        assertThat(3, is(resolver.findAllAgentLibrary().size()));
     }
 }

@@ -20,17 +20,20 @@ package com.geeksaga.light.demo;
  */
 public class Main {
 
-    public void print(String message) {
+    public void print(String message) throws InterruptedException {
         System.out.println("Test Call = " + message);
+        Thread.sleep((long) ((Math.random() * 100) + 500));
     }
 
     public static void main(String[] args) throws InterruptedException {
         Main main = new Main();
 
+        System.out.println("Demo start...");
+
         for (int i = 0; i < 10; i++) {
             main.print(String.valueOf(i));
-
-            Thread.sleep(1000);
         }
+
+        System.out.println("Demo end...");
     }
 }
