@@ -94,6 +94,18 @@ public class ASMUtil {
         }
     }
 
+    public static AbstractInsnNode createPushNode(Object value) {
+        AbstractInsnNode insnNode;
+
+        if (value == null) {
+            insnNode = new InsnNode(Opcodes.ACONST_NULL);
+        } else {
+            insnNode = new LdcInsnNode(value);
+        }
+
+        return insnNode;
+    }
+
     public static MethodInsnNode createMethodInsn(int opcode, String className, String methodName, String desc) {
         return new MethodInsnNode(opcode, getInternalName(className), methodName, desc, opcode == Opcodes.INVOKEINTERFACE);
     }
@@ -146,6 +158,26 @@ public class ASMUtil {
         return new VarInsnNode(Opcodes.LLOAD, index);
     }
 
+    public static VarInsnNode createISTORE(LocalVariableNode localVariableNode) {
+        return new VarInsnNode(Opcodes.ISTORE, localVariableNode.index);
+    }
+
+    public static VarInsnNode createFSTORE(LocalVariableNode localVariableNode) {
+        return new VarInsnNode(Opcodes.FSTORE, localVariableNode.index);
+    }
+
+    public static VarInsnNode createDSTORE(LocalVariableNode localVariableNode) {
+        return new VarInsnNode(Opcodes.DSTORE, localVariableNode.index);
+    }
+
+    public static VarInsnNode createLSTORE(LocalVariableNode localVariableNode) {
+        return new VarInsnNode(Opcodes.LSTORE, localVariableNode.index);
+    }
+
+    public static InsnNode createACONST_NULL() {
+        return new InsnNode(Opcodes.ACONST_NULL);
+    }
+
     public static int getArgumentIndex(MethodNode methodNode, int index) {
         return getFixedArgumentIndices(methodNode)[index];
     }
@@ -171,6 +203,18 @@ public class ASMUtil {
         }
 
         return r;
+    }
+
+    public static LocalVariableNode addNewLocalVariable(MethodNode methodNode, String name, Type type, LabelNode start, LabelNode end) {
+        LocalVariableNode localVariableNode = new LocalVariableNode(name, type.getDescriptor(), null, start, end, methodNode.maxLocals);
+        methodNode.maxLocals += type.getSize();
+        methodNode.localVariables.add(localVariableNode);
+
+        return localVariableNode;
+    }
+
+    public static MethodInsnNode createINVOKESTATIC(String className, String methodName, String methodDesc) {
+        return createMethodInsn(Opcodes.INVOKESTATIC, className, methodName, methodDesc);
     }
 
     public static MethodInsnNode createINVOKEVIRTUAL(String className, String methodName, String methodDesc) {
