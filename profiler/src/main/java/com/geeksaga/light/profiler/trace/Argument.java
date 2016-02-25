@@ -30,6 +30,21 @@ public class Argument {
         arguments = new Object[size];
     }
 
+    public Object[] getValues()
+    {
+        return arguments;
+    }
+
+    public Object get(int idx)
+    {
+        if (arguments != null && idx < arguments.length)
+        {
+            return arguments[idx];
+        }
+
+        return null;
+    }
+
     public int size() {
         return (arguments == null ? 0 : arguments.length);
     }

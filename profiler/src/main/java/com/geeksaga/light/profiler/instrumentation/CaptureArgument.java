@@ -29,9 +29,9 @@ import org.objectweb.asm.tree.MethodNode;
 public class CaptureArgument {
     public final static String ARGUMENT_CLASS_NAME = "com.geeksaga.light.profiler.trace.Argument";
 
-    public static void aloadArgument(InsnList result, MethodNode method, LocalVariableNode localVar) throws IllegalAccessError {
-        Type[] argTypes = Type.getArgumentTypes(method.desc);
-        if (argTypes.length == 0 && ASMUtil.isStatic(method)) {
+    public static void loadArgument(InsnList result, String desc, int[] argumentIndices, boolean isStatic, int localVar) throws IllegalAccessError {
+        Type[] argTypes = Type.getArgumentTypes(desc);
+        if (argTypes.length == 0 && isStatic) {
             result.add(new InsnNode(Opcodes.ACONST_NULL));
         } else {
             result.add(ASMUtil.createNewNode(ARGUMENT_CLASS_NAME));
@@ -41,9 +41,9 @@ public class CaptureArgument {
             result.add(ASMUtil.createASTORE(localVar));
 
             int argIndex = 0;
-            if (!ASMUtil.isStatic(method)) {
+            if (!isStatic) {
                 result.add(ASMUtil.createALOAD(localVar));
-                result.add(ASMUtil.createALOAD(ASMUtil.getArgumentIndex(method, argIndex)));
+                result.add(ASMUtil.createALOAD(argumentIndices[argIndex]));
                 result.add(ASMUtil.createINVOKEVIRTUAL(ARGUMENT_CLASS_NAME, "set", "(Ljava/lang/Object;)V"));
                 argIndex++;
             }
@@ -59,52 +59,52 @@ public class CaptureArgument {
                     case Type.INT:
                         result.add(ASMUtil.createALOAD(localVar));
                         result.add(ASMUtil.createPushNode(i));
-                        result.add(ASMUtil.createILOAD(ASMUtil.getArgumentIndex(method, argIndex)));
+                        result.add(ASMUtil.createILOAD(argumentIndices[argIndex]));
 
-                        String param_sig = null;
+                        String signature = null;
                         switch (type.getSort()) {
                             case Type.BOOLEAN:
-                                param_sig = "(IZ)V";
+                                signature = "(IZ)V";
                                 break;
                             case Type.CHAR:
-                                param_sig = "(IC)V";
+                                signature = "(IC)V";
                                 break;
                             case Type.BYTE:
-                                param_sig = "(IB)V";
+                                signature = "(IB)V";
                                 break;
                             case Type.SHORT:
-                                param_sig = "(IS)V";
+                                signature = "(IS)V";
                                 break;
                             case Type.INT:
-                                param_sig = "(II)V";
+                                signature = "(II)V";
                                 break;
                         }
 
-                        result.add(ASMUtil.createINVOKEVIRTUAL(ARGUMENT_CLASS_NAME, "set", param_sig));
+                        result.add(ASMUtil.createINVOKEVIRTUAL(ARGUMENT_CLASS_NAME, "set", signature));
                         break;
                     case Type.FLOAT:
                         result.add(ASMUtil.createALOAD(localVar));
                         result.add(ASMUtil.createPushNode(i));
-                        result.add(ASMUtil.createFLOAD(ASMUtil.getArgumentIndex(method, argIndex)));
+                        result.add(ASMUtil.createFLOAD(argumentIndices[argIndex]));
                         result.add(ASMUtil.createINVOKEVIRTUAL(ARGUMENT_CLASS_NAME, "set", "(IF)V"));
                         break;
                     case Type.LONG:
                         result.add(ASMUtil.createALOAD(localVar));
                         result.add(ASMUtil.createPushNode(i));
-                        result.add(ASMUtil.createLLOAD(ASMUtil.getArgumentIndex(method, argIndex)));
+                        result.add(ASMUtil.createLLOAD(argumentIndices[argIndex]));
                         result.add(ASMUtil.createINVOKEVIRTUAL(ARGUMENT_CLASS_NAME, "set", "(IJ)V"));
                         break;
                     case Type.DOUBLE:
                         result.add(ASMUtil.createALOAD(localVar));
                         result.add(ASMUtil.createPushNode(i));
-                        result.add(ASMUtil.createDLOAD(ASMUtil.getArgumentIndex(method, argIndex)));
+                        result.add(ASMUtil.createDLOAD(argumentIndices[argIndex]));
                         result.add(ASMUtil.createINVOKEVIRTUAL(ARGUMENT_CLASS_NAME, "set", "(ID)V"));
                         break;
                     case Type.ARRAY:
                     case Type.OBJECT:
                         result.add(ASMUtil.createALOAD(localVar));
                         result.add(ASMUtil.createPushNode(i));
-                        result.add(ASMUtil.createALOAD(ASMUtil.getArgumentIndex(method, argIndex)));
+                        result.add(ASMUtil.createALOAD(argumentIndices[argIndex]));
                         result.add(ASMUtil.createINVOKEVIRTUAL(ARGUMENT_CLASS_NAME, "set", "(ILjava/lang/Object;)V"));
 
                         break;

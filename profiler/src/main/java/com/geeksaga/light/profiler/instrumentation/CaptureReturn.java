@@ -135,6 +135,7 @@ public class CaptureReturn {
                     result.add(ASMUtil.createPushNode(args[k]));
                 }
                 result.add(ASMUtil.createACONST_NULL());
+                break;
         }
     }
 }

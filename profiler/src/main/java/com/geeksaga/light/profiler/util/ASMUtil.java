@@ -183,9 +183,13 @@ public class ASMUtil {
     }
 
     public static int[] getFixedArgumentIndices(MethodNode methodNode) {
-        Type[] args = Type.getArgumentTypes(methodNode.desc);
+        return getFixedArgumentIndices(methodNode.desc, isStatic(methodNode));
+    }
+
+    public static int[] getFixedArgumentIndices(String desc, boolean isStatic) {
+        Type[] args = Type.getArgumentTypes(desc);
         int[] r;
-        if (!isStatic(methodNode)) {
+        if (!isStatic) {
             r = new int[args.length + 1];
             r[0] = 0;
             int size = 1;
@@ -211,6 +215,10 @@ public class ASMUtil {
         methodNode.localVariables.add(localVariableNode);
 
         return localVariableNode;
+    }
+
+    public static String toInternalDescription(String className) {
+        return "L" + getInternalName(className) + ";";
     }
 
     public static MethodInsnNode createINVOKESTATIC(String className, String methodName, String methodDesc) {
