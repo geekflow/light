@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler.trace;
+package com.geeksaga.light.agent.trace;
 
 import java.util.logging.Logger;
 
@@ -24,7 +24,6 @@ public class DebugTrace {
     private static final Logger logger = Logger.getLogger(DebugTrace.class.getName());
 
     public static void captureArgument(Argument argument) {
-        logger.info("captureArgument = " + argument);
         logger.info(String.valueOf(argument.size()));
 
         for (Object o : argument.getValues()) {

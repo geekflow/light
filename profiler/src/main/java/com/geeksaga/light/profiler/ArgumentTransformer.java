@@ -15,14 +15,13 @@
  */
 package com.geeksaga.light.profiler;
 
+import com.geeksaga.light.agent.trace.Argument;
+import com.geeksaga.light.agent.trace.DebugTrace;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
-import com.geeksaga.light.profiler.trace.Argument;
-import com.geeksaga.light.profiler.trace.DebugTrace;
 import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.LocalVariablesSorter;
-import org.objectweb.asm.tree.InsnNode;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -77,7 +76,7 @@ public class ArgumentTransformer implements ClassFileTransformer {
 
             byte[] bytes = ASMUtil.toBytes(classNodeWrapper);
 
-            save("D:" + File.separator + "Main.class", bytes);
+            save(System.getProperty("user.dir") + File.separator + "Main.class", bytes);
 
             return bytes;
         }
@@ -107,8 +106,7 @@ public class ArgumentTransformer implements ClassFileTransformer {
 }
 
 class ParameterVisitor extends LocalVariablesSorter {
-    public final static String ARGUMENT_CLASS_NAME = "com.geeksaga.light.profiler.trace.Argument";
-    public final static String ARGUMENT_CLASS_INTERNAL_NAME = getInternalName(ARGUMENT_CLASS_NAME);
+    public final static String ARGUMENT_CLASS_INTERNAL_NAME = getInternalName(Argument.class.getName());
 
     private String desc;
     private boolean isStatic = false;
