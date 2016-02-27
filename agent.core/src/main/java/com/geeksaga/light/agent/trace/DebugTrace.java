@@ -23,10 +23,10 @@ import java.util.logging.Logger;
 public class DebugTrace {
     private static final Logger logger = Logger.getLogger(DebugTrace.class.getName());
 
-    public static void captureArgument(Argument argument) {
-        logger.info(String.valueOf(argument.size()));
+    public static void traceParameter(Parameter parameter) {
+        logger.info(String.valueOf(parameter.size()));
 
-        for (Object o : argument.getValues()) {
+        for (Object o : parameter.getValues()) {
             logger.info(o.toString());
         }
     }

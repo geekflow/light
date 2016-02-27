@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.profiler;
 
-import com.geeksaga.light.agent.trace.Argument;
+import com.geeksaga.light.agent.trace.Parameter;
 import com.geeksaga.light.agent.trace.DebugTrace;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
@@ -38,7 +38,7 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * @author geeksaga
  */
-public class ArgumentTransformer implements ClassFileTransformer {
+public class ParameterCaptureTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
     public static final boolean WINDOWS_OS = getSystemProperty("os.name", "unix").contains("Window");
 
@@ -106,45 +106,41 @@ public class ArgumentTransformer implements ClassFileTransformer {
 }
 
 class ParameterVisitor extends LocalVariablesSorter {
-    public final static String ARGUMENT_CLASS_INTERNAL_NAME = getInternalName(Argument.class.getName());
+    public final static String ARGUMENT_CLASS_INTERNAL_NAME = getInternalName(Parameter.class.getName());
 
     private String desc;
     private boolean isStatic = false;
-    private int[] argumentIndices;
+    private int[] parameterIndices;
 
     public ParameterVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic) {
         super(Opcodes.ASM5, access, desc, methodVisitor);
 
         this.desc = desc;
         this.isStatic = isStatic;
-        this.argumentIndices = ASMUtil.getFixedArgumentIndices(desc, isStatic);
+        this.parameterIndices = ASMUtil.getFixedArgumentIndices(desc, isStatic);
     }
 
     @Override
     public void visitCode() {
-        System.out.println(ARGUMENT_CLASS_INTERNAL_NAME);
-
-        int argumentClassIndex = newLocal(Type.getType(ARGUMENT_CLASS_INTERNAL_NAME));
+        int parameterVariableIndex = newLocal(Type.getType(ARGUMENT_CLASS_INTERNAL_NAME));
         Type[] argumentTypes = Type.getArgumentTypes(desc);
 
         mv.visitTypeInsn(NEW, ARGUMENT_CLASS_INTERNAL_NAME);
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, isStatic ? argumentTypes.length : argumentTypes.length + 1); // separate type
         mv.visitMethodInsn(INVOKESPECIAL, ARGUMENT_CLASS_INTERNAL_NAME, "<init>", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE), false);
-        mv.visitVarInsn(ASTORE, argumentClassIndex);
+        mv.visitVarInsn(ASTORE, parameterVariableIndex);
 
-        int argumentIndex = 0;
+        int parameterIndex = 0;
         if (!isStatic) {
-            mv.visitVarInsn(ALOAD, argumentClassIndex);
+            mv.visitVarInsn(ALOAD, parameterVariableIndex);
             mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, argumentIndex);
-            mv.visitVarInsn(ALOAD, argumentIndices[argumentIndex]);
+            mv.visitIntInsn(BIPUSH, parameterIndex);
+            mv.visitVarInsn(ALOAD, parameterIndices[parameterIndex]);
             mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
 
-            argumentIndex++;
+            parameterIndex++;
         }
-
-        System.out.println("visitCode => " + desc + ", type length =" + argumentTypes.length + ", argumentIndex =" + argumentIndex);
 
         for (int i = 0, j = isStatic ? 0 : 1; i < argumentTypes.length; i++, j++) {
             Type type = argumentTypes[i];
@@ -155,9 +151,7 @@ class ParameterVisitor extends LocalVariablesSorter {
                 case Type.BYTE:
                 case Type.SHORT:
                 case Type.INT:
-                    mv.visitVarInsn(ALOAD, argumentClassIndex);
-                    mv.visitLdcInsn(j);
-                    mv.visitVarInsn(ILOAD, argumentIndices[argumentIndex]);
+                    visitVarInsn(ILOAD, j, parameterVariableIndex, parameterIndex);
 
                     String description = null;
                     switch (type.getSort()) {
@@ -181,23 +175,49 @@ class ParameterVisitor extends LocalVariablesSorter {
                     mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", description, false);
 
                     break;
+                case Type.FLOAT:
+                    visitVarInsn(FLOAD, j, parameterVariableIndex, parameterIndex);
+
+                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IF)V", false);
+
+                    break;
+                case Type.LONG:
+                    visitVarInsn(LLOAD, j, parameterVariableIndex, parameterIndex);
+
+                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IJ)V", false);
+
+                    break;
+                case Type.DOUBLE:
+                    visitVarInsn(DLOAD, j, parameterVariableIndex, parameterIndex);
+
+                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ID)V", false);
+
+                    break;
                 case Type.ARRAY:
                 case Type.OBJECT:
-                    mv.visitVarInsn(ALOAD, argumentClassIndex);
-                    mv.visitLdcInsn(j);
-                    mv.visitVarInsn(ALOAD, argumentIndices[argumentIndex]);
+                    visitVarInsn(ALOAD, j, parameterVariableIndex, parameterIndex);
 
                     mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
+
+                    break;
+                default:
+                    throw new IllegalAccessError("Unknown type. " + type);
             }
 
-            argumentIndex++;
+            parameterIndex++;
         }
 
-        mv.visitVarInsn(ALOAD, argumentClassIndex);
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, getInternalName(DebugTrace.class.getName()), "captureArgument", "(L" + getInternalName(Argument.class.getName()) + ";)V", false);
+        mv.visitVarInsn(ALOAD, parameterVariableIndex);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, getInternalName(DebugTrace.class.getName()), "traceParameter", "(L" + getInternalName(Parameter.class.getName()) + ";)V", false);
         mv.visitCode();
     }
 
+    private void visitVarInsn(int opcode, int index, int parameterVariableIndex, int parameterIndex) {
+        mv.visitVarInsn(ALOAD, parameterVariableIndex);
+        mv.visitLdcInsn(index);
+        mv.visitVarInsn(opcode, parameterIndices[parameterIndex]);
+    }
+    
     public void visitMaxs(int maxStack, int maxLocals) {
         mv.visitMaxs(maxStack, maxLocals);
     }

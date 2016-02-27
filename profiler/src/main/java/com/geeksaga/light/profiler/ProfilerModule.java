@@ -36,7 +36,7 @@ public class ProfilerModule implements Module {
 //        logger.info("profiler module start");
         System.out.println("profiler module start");
 
-        instrumentation.addTransformer(new ArgumentTransformer());
+        instrumentation.addTransformer(new ParameterCaptureTransformer());
         instrumentation.addTransformer(new LightClassFileTransformer());
     }
 

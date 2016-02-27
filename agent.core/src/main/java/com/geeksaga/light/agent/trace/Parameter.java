@@ -18,11 +18,11 @@ package com.geeksaga.light.agent.trace;
 /**
  * @author geeksaga
  */
-public class Argument {
+public class Parameter {
     // first this object
     private Object[] arguments;
 
-    public Argument(int size) {
+    public Parameter(int size) {
         if (size <= 0) {
             return;
         }
