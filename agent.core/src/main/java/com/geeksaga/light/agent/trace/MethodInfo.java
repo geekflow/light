@@ -13,16 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent;
-
-import java.net.URL;
-import java.net.URLClassLoader;
+package com.geeksaga.light.agent.trace;
 
 /**
  * @author geeksaga
  */
-public class AgentClassLoader extends URLClassLoader {
-    public AgentClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+public class MethodInfo {
+    private String name;
+    private String desc;
+    
+    public MethodInfo(String name, String desc) {
+        this.name = name;
+        this.desc = desc;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 }

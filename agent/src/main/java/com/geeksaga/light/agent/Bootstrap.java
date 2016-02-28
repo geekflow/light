@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.agent;
 
+import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
+
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
@@ -47,7 +49,7 @@ public class Bootstrap {
         final AgentClassPathResolver classPathResolver = new AgentClassPathResolver();
 
         //
-        if(!classPathResolver.isInitialize()) {
+        if (!classPathResolver.isInitialize()) {
             failInitialize();
         }
 
@@ -63,51 +65,22 @@ public class Bootstrap {
 
         appendToBootstrapClassLoaderSearch(classPathResolver.getJarFile(classPathResolver.getAgentCoreJarName()));
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-            public Thread newThread(Runnable runnable) {
-                Thread thread = new Thread(runnable);
-                thread.setName("Light-Bootstrap ");
-                thread.setDaemon(true);
+        List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
-                return thread;
-            }
-        });
+        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "libs/log4j2.xml");
 
-        FutureTask<Boolean> future = new FutureTask<Boolean>(new Callable<Boolean>() {
-            public Boolean call() throws Exception {
-                List<URL> urlList = classPathResolver.findAllAgentLibrary();
-
-                ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[urlList.size()]), Bootstrap.class.getClassLoader());
-
-                Class<?> profilerModule = Class.forName(DEFAULT_PROFILE_MODULE, true, classLoader);
-
-                try {
-                    Constructor<?> constructor = profilerModule.getConstructor(Instrumentation.class);
-                    Module profiler = (Module) constructor.newInstance(instrumentation);
-                    profiler.start();
-                } catch (Exception exception) {
-                    logger.log(Level.INFO, exception.getMessage(), exception);
-                }
-
-                return true;
-            }
-        });
-
-        executorService.submit(future);
+        ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[urlList.size()]), Bootstrap.class.getClassLoader());
 
         try {
-            if (!future.get(3, TimeUnit.SECONDS)) {
-                logger.info("initialize failure.");
-            }
+            Class<?> profilerModule = Class.forName(DEFAULT_PROFILE_MODULE, true, classLoader);
+            Constructor<?> constructor = profilerModule.getConstructor(Instrumentation.class);
+            Module profiler = (Module) constructor.newInstance(instrumentation);
+            profiler.start();
+
+            logger.info("initialize success.");
         } catch (Exception exception) {
             logger.log(Level.INFO, exception.getMessage(), exception);
         }
-
-        logger.info("initialize success.");
-    }
-
-    public String getOptions() {
-        return options;
     }
 
     private void appendToBootstrapClassLoaderSearch(JarFile jarFile) {

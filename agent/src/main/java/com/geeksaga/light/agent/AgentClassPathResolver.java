@@ -85,7 +85,7 @@ public class AgentClassPathResolver {
         File[] files = libraryDirectory.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
+                return name.endsWith(".jar") || name.endsWith(".xml");
             }
         });
 

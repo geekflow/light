@@ -21,6 +21,7 @@ import java.util.logging.Logger;
  * @author geeksaga
  */
 public class DebugTrace {
+    // TODO logger binder ? use slf4j api
     private static final Logger logger = Logger.getLogger(DebugTrace.class.getName());
 
     public static void traceParameter(Parameter parameter) {
