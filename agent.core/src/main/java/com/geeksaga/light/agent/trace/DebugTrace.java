@@ -30,4 +30,10 @@ public class DebugTrace {
             logger.info(o.toString());
         }
     }
+
+    public static void traceReturn(Object returnValue) {
+        if(returnValue != null) {
+            logger.info(returnValue.toString());
+        }
+    }
 }

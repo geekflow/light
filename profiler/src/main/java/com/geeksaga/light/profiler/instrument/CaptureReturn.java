@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler.instrumentation;
+package com.geeksaga.light.profiler.instrument;
 
 import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.Opcodes;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.agent.trace.Parameter;
 import com.geeksaga.light.agent.trace.DebugTrace;
@@ -38,7 +38,7 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * @author geeksaga
  */
-public class ParameterCaptureTransformer implements ClassFileTransformer {
+public class MethodParameterTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
     public static final boolean WINDOWS_OS = getSystemProperty("os.name", "unix").contains("Window");
 
@@ -66,7 +66,7 @@ public class ParameterCaptureTransformer implements ClassFileTransformer {
                         return methodVisitor;
                     }
 
-                    return new ParameterVisitor(access, desc, methodVisitor, ASMUtil.isStatic(access));
+                    return new MethodParameterVisitor(access, desc, methodVisitor, ASMUtil.isStatic(access));
                 }
             }, ClassReader.EXPAND_FRAMES);
 
@@ -105,14 +105,14 @@ public class ParameterCaptureTransformer implements ClassFileTransformer {
     }
 }
 
-class ParameterVisitor extends LocalVariablesSorter {
+class MethodParameterVisitor extends LocalVariablesSorter {
     public final static String ARGUMENT_CLASS_INTERNAL_NAME = getInternalName(Parameter.class.getName());
 
     private String desc;
     private boolean isStatic = false;
     private int[] parameterIndices;
 
-    public ParameterVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic) {
+    public MethodParameterVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic) {
         super(Opcodes.ASM5, access, desc, methodVisitor);
 
         this.desc = desc;
@@ -151,7 +151,7 @@ class ParameterVisitor extends LocalVariablesSorter {
                 case Type.BYTE:
                 case Type.SHORT:
                 case Type.INT:
-                    visitVarInsn(ILOAD, j, parameterVariableIndex, parameterIndex);
+                    visitInstruction(ILOAD, j, parameterVariableIndex, parameterIndex);
 
                     String description = null;
                     switch (type.getSort()) {
@@ -176,26 +176,26 @@ class ParameterVisitor extends LocalVariablesSorter {
 
                     break;
                 case Type.FLOAT:
-                    visitVarInsn(FLOAD, j, parameterVariableIndex, parameterIndex);
+                    visitInstruction(FLOAD, j, parameterVariableIndex, parameterIndex);
 
                     mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IF)V", false);
 
                     break;
                 case Type.LONG:
-                    visitVarInsn(LLOAD, j, parameterVariableIndex, parameterIndex);
+                    visitInstruction(LLOAD, j, parameterVariableIndex, parameterIndex);
 
                     mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IJ)V", false);
 
                     break;
                 case Type.DOUBLE:
-                    visitVarInsn(DLOAD, j, parameterVariableIndex, parameterIndex);
+                    visitInstruction(DLOAD, j, parameterVariableIndex, parameterIndex);
 
                     mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ID)V", false);
 
                     break;
                 case Type.ARRAY:
                 case Type.OBJECT:
-                    visitVarInsn(ALOAD, j, parameterVariableIndex, parameterIndex);
+                    visitInstruction(ALOAD, j, parameterVariableIndex, parameterIndex);
 
                     mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
 
@@ -212,7 +212,7 @@ class ParameterVisitor extends LocalVariablesSorter {
         mv.visitCode();
     }
 
-    private void visitVarInsn(int opcode, int index, int parameterVariableIndex, int parameterIndex) {
+    private void visitInstruction(int opcode, int index, int parameterVariableIndex, int parameterIndex) {
         mv.visitVarInsn(ALOAD, parameterVariableIndex);
         mv.visitLdcInsn(index);
         mv.visitVarInsn(opcode, parameterIndices[parameterIndex]);

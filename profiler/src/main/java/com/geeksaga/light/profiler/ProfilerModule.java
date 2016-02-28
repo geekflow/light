@@ -16,6 +16,9 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
+import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
+import com.geeksaga.light.profiler.instrument.transformer.MethodParameterTransformer;
+import com.geeksaga.light.profiler.instrument.transformer.MethodReturnTransformer;
 
 import java.lang.instrument.Instrumentation;
 
@@ -36,8 +39,9 @@ public class ProfilerModule implements Module {
 //        logger.info("profiler module start");
         System.out.println("profiler module start");
 
-        instrumentation.addTransformer(new ParameterCaptureTransformer());
-        instrumentation.addTransformer(new LightClassFileTransformer());
+//        instrumentation.addTransformer(new MethodParameterTransformer());
+        instrumentation.addTransformer(new MethodReturnTransformer());
+//        instrumentation.addTransformer(new LightClassFileTransformer());
     }
 
     @Override

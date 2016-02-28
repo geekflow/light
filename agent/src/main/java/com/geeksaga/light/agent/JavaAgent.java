@@ -15,12 +15,8 @@
  */
 package com.geeksaga.light.agent;
 
-import com.geeksaga.light.Product;
-
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 /**

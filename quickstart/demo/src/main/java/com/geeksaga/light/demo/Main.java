@@ -19,10 +19,13 @@ package com.geeksaga.light.demo;
  * @author geeksaga
  */
 public class Main {
+    public long random() {
+        return (long) ((Math.random() * 100) + 500);
+    }
 
     public void print(String message) throws InterruptedException {
         System.out.println("Test Call = " + message);
-        Thread.sleep((long) ((Math.random() * 100) + 500));
+        Thread.sleep(random());
     }
 
     public static void main(String[] args) throws InterruptedException {
