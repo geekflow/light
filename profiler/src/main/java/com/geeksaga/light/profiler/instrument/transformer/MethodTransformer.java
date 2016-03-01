@@ -17,6 +17,8 @@ package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+import com.geeksaga.light.profiler.filter.Filter;
+import com.geeksaga.light.profiler.filter.LightFilter;
 import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AdviceAdapter;
@@ -32,25 +34,31 @@ import java.util.logging.Logger;
 public class MethodTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
 
+    private Filter filter = new LightFilter();
+
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        logger.info("Transform => " + className);
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if (filter.allow(classLoader, className)) {
+            logger.info("Transform => " + className);
 
-        ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
-        ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-        reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper) {
-            @Override
-            public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-                MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-                return new MethodAdapter(access, name, desc, mv);
+            ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
+            ClassReader reader = new ClassReaderWrapper(classfileBuffer);
+            reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper) {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                    MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+                    return new MethodAdapter(access, name, desc, mv);
+                }
+            }, ClassReader.EXPAND_FRAMES);
+
+            if (classNodeWrapper.isInterface()) {
+                return classfileBuffer;
             }
-        }, ClassReader.EXPAND_FRAMES);
 
-        if (classNodeWrapper.isInterface()) {
-            return classfileBuffer;
+            return ASMUtil.toBytes(classNodeWrapper);
         }
 
-        return ASMUtil.toBytes(classNodeWrapper);
+        return classfileBuffer;
     }
 }
 

@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.junit.Test;
+package com.geeksaga.light.profiler.filter;
 
 /**
  * @author geeksaga
  */
-public class DummyTest {
-    @Test
-    public void testDummyForJacocoBuild() {
-    }
+public interface Filter {
+    // FIXME need to filter chain ?
+
+    boolean allow(ClassLoader classLoader, String className);
 }

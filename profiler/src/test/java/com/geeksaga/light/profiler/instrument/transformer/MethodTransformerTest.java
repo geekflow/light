@@ -17,10 +17,16 @@ package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.profiler.TestClass;
 import com.geeksaga.light.profiler.TestUtil;
+import target.TestMethods;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author geeksaga
@@ -36,8 +42,26 @@ public class MethodTransformerTest {
         byte[] original = TestUtil.load(classFileName);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
 
-        // FIXME test loader
-
         assertThat(original, not(transform));
+
+        TestClassLoader classLoader = new TestClassLoader(getClass().getClassLoader());
+        Class clazz = classLoader.findClass(className, transform);
+
+        assertThat(clazz, notNullValue());
+        assertThat(clazz.getName(), is(className));
+
+        Method method = clazz.getMethod("doWithObject", String.class);
+
+        assertThat((String) method.invoke(clazz.newInstance(), "s"), is("AAs"));
+    }
+
+    protected class TestClassLoader extends ClassLoader {
+        public TestClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+
+        public Class<?> findClass(String name, byte[] bytes) {
+            return defineClass(name, bytes, 0, bytes.length);
+        }
     }
 }

@@ -22,13 +22,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author geeksaga
  */
 public class TestUtil {
-    public static byte[] load(String fileName) throws Exception {
-        URL url = TestUtil.class.getResource("/" + fileName);
+    public static byte[] load(String name) throws Exception {
+        URL url = TestUtil.class.getResource("/" + convert(name));
         File file = new File(url.toURI());
         FileInputStream fileInputStream = new FileInputStream(file);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -48,8 +50,19 @@ public class TestUtil {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public static ClassNodeWrapper loadClass(String fileName) throws Exception
-    {
+    public static ClassNodeWrapper loadClass(String fileName) throws Exception {
         return ASMUtil.parse(load(fileName));
+    }
+
+    private static String convert(String value) {
+        Pattern pattern = Pattern.compile("(\\w+).(\\w+)");
+        Matcher matcher = pattern.matcher(value);
+
+        if(matcher.find())
+        {
+            return matcher.group(0).replace('.', '/') + ".class";
+        }
+
+        return value.replace('.', '/');
     }
 }

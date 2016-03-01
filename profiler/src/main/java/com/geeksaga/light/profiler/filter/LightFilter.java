@@ -13,12 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.profiler.filter;
 
 /**
  * @author geeksaga
  */
-public class TestClass {
-    public static final String CLASS_NAME = "target.TestMethods";
-    public static final String CLASS_FILE_NAME = "target.TestMethods.class";
+public class LightFilter implements Filter {
+    @Override
+    public boolean allow(ClassLoader classLoader, String className) {
+        if(classLoader == null) {
+            return true;
+        }
+
+        if(classLoader.getClass().getName().startsWith("com.geeksaga.light"))
+        {
+            return false;
+        }
+
+        if(className.startsWith("com/geeksaga/light"))
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

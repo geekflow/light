@@ -13,41 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package target;
 
 /**
  * @author geeksaga
  */
 public class TestMethods {
-    public char doWithChar(String a1, char a2) {
+    public char doWithChar(String value1, char value2) {
         return 'A';
     }
-    public byte doWithByte(byte b) {
+
+    public byte doWithByte(byte value) {
         return 1;
     }
-    public int doWithInt(int i) {
+
+    public int doWithInt(int value) {
         return 0;
     }
-    public float doWithFloat(float f) {
+
+    public float doWithFloat(float value) {
         return 0;
     }
-    public double doWithDouble(double d) {
+
+    public double doWithDouble(double value) {
         return 0;
     }
-    public boolean doWithBoolean(boolean b) {
+
+    public boolean doWithBoolean(boolean value) {
         return false;
     }
-    public short doWithShort(short s) {
+
+    public short doWithShort(short value) {
         return 0;
     }
-    public long doWithLong(long l) {
+
+    public long doWithLong(long value) {
         return 0;
     }
-    public int[] doWithArray(int[] a) {
+
+    public int[] doWithArray(int[] value) {
         return new int[]{};
     }
-    public String doWithObject(String s) {
-        return "AA";
+
+    public String doWithObject(String value) {
+        return "AA" + value;
     }
+
     public void doWithNothing() {
     }
 }
