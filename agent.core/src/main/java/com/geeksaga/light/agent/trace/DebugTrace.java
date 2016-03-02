@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.agent.trace;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -23,6 +24,18 @@ import java.util.logging.Logger;
 public class DebugTrace {
     // TODO logger binder ? use slf4j api
     private static final Logger logger = Logger.getLogger(DebugTrace.class.getName());
+
+    public static void start(MethodInfo methodInfo) {
+        logger.info(methodInfo.getName() + methodInfo.getDesc());
+    }
+
+    public static void end(MethodInfo methodInfo, Throwable throwable) {
+        logger.info(methodInfo.getName() + methodInfo.getDesc());
+
+        if(throwable != null) {
+            logger.log(Level.INFO, throwable.getMessage(), throwable);
+        }
+    }
 
     public static void traceParameter(Parameter parameter) {
         logger.info(String.valueOf(parameter.size()));

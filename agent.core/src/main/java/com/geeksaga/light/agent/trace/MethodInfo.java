@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.agent.trace;
 
+import java.awt.print.PrinterAbortException;
+
 /**
  * @author geeksaga
  */
@@ -22,9 +24,26 @@ public class MethodInfo {
     private String name;
     private String desc;
 
+    private Parameter parameter;
+    private Object returnValue;
+
     public MethodInfo(String name, String desc) {
+        this(name, desc, null, null);
+    }
+
+    public MethodInfo(String name, String desc, Parameter parameter) {
+        this(name, desc, parameter, null);
+    }
+
+    public MethodInfo(String name, String desc, Object returnValue) {
+        this(name, desc, null, returnValue);
+    }
+
+    public MethodInfo(String name, String desc, Parameter parameter, Object returnValue) {
         this.name = name;
         this.desc = desc;
+        this.parameter = parameter;
+        this.returnValue = returnValue;
     }
 
     public String getName() {
@@ -33,5 +52,13 @@ public class MethodInfo {
 
     public String getDesc() {
         return desc;
+    }
+
+    public Parameter getParameter() {
+        return parameter;
+    }
+
+    public Object getReturnValue() {
+        return returnValue;
     }
 }
