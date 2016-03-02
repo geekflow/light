@@ -21,7 +21,7 @@ package com.geeksaga.light.agent.trace;
 public class MethodInfo {
     private String name;
     private String desc;
-    
+
     public MethodInfo(String name, String desc) {
         this.name = name;
         this.desc = desc;

@@ -19,6 +19,8 @@ import com.geeksaga.light.agent.trace.DebugTrace;
 import com.geeksaga.light.agent.trace.Parameter;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
+import com.geeksaga.light.profiler.filter.Filter;
+import com.geeksaga.light.profiler.filter.LightFilter;
 import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.LocalVariablesSorter;
@@ -38,9 +40,11 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 public class MethodReturnTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
 
+    private Filter filter = new LightFilter();
+
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (!className.startsWith("java") && !className.startsWith("sun") && !className.contains("profiler")) {
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if (filter.allow(classLoader, className)) {
             logger.info("Transform => " + className);
 
             try {
@@ -145,9 +149,9 @@ class MethodReturnVisitor extends LocalVariablesSorter {
                     break;
                 }
                 case Type.FLOAT: {
-                    mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                    mv.visitVarInsn(Opcodes.FSTORE, returnVariableIndex);
+                    mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
+                    mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
                     mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
 
                     break;
