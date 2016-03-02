@@ -20,6 +20,7 @@ import com.geeksaga.light.profiler.TestUtil;
 import target.TestMethods;
 import org.junit.Test;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Method;
 
 import static org.hamcrest.CoreMatchers.not;
@@ -37,7 +38,7 @@ public class MethodTransformerTest {
         String className = TestClass.CLASS_NAME;
         String classFileName = TestClass.CLASS_FILE_NAME;
 
-        MethodTransformer transformer = new MethodTransformer();
+        ClassFileTransformer transformer = new MethodTransformer();
 
         byte[] original = TestUtil.load(classFileName);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
@@ -52,7 +53,7 @@ public class MethodTransformerTest {
 
         Method method = clazz.getMethod("doWithObject", String.class);
 
-        assertThat((String) method.invoke(clazz.newInstance(), "s"), is("AAs"));
+        assertThat((String) method.invoke(clazz.newInstance(), "s"), is("s"));
     }
 
     protected class TestClassLoader extends ClassLoader {

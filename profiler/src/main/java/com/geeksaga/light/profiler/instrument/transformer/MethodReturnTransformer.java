@@ -16,7 +16,6 @@
 package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.agent.trace.DebugTrace;
-import com.geeksaga.light.agent.trace.Parameter;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
@@ -25,14 +24,12 @@ import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
-import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.logging.Logger;
 
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
-import static org.objectweb.asm.Opcodes.ALOAD;
 
 /**
  * @author geeksaga
@@ -67,11 +64,7 @@ public class MethodReturnTransformer implements ClassFileTransformer {
                     return classfileBuffer;
                 }
 
-                byte[] bytes = ASMUtil.toBytes(classNodeWrapper);
-
-                new MethodParameterTransformer().save(System.getProperty("user.dir") + File.separator + "Main.class", bytes);
-
-                return bytes;
+                return ASMUtil.toBytes(classNodeWrapper);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -79,112 +72,111 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
         return classfileBuffer;
     }
-}
 
-class MethodReturnVisitor extends LocalVariablesSorter {
-    private Type returnType;
-    private boolean isStatic = false;
+    class MethodReturnVisitor extends LocalVariablesSorter {
+        private Type returnType;
+        private boolean isStatic = false;
 
-    public MethodReturnVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic) {
-        super(Opcodes.ASM5, access, desc, methodVisitor);
+        public MethodReturnVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic) {
+            super(Opcodes.ASM5, access, desc, methodVisitor);
 
-        this.returnType = Type.getReturnType(desc);
-        this.isStatic = isStatic;
-    }
-
-    @Override
-    public void visitInsn(int opcode) {
-        if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)) {
-            captureReturn();
+            this.returnType = Type.getReturnType(desc);
+            this.isStatic = isStatic;
         }
-        mv.visitInsn(opcode);
-    }
 
-    public void captureReturn() {
-        if (returnType == null || returnType.equals(Type.VOID_TYPE)) {
-            mv.visitInsn(Opcodes.ACONST_NULL);
-        } else {
-
-            int returnVariableIndex = newLocal(returnType);
-
-            switch (returnType.getSort()) {
-                case Type.BOOLEAN: {
-                    mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
-
-                    break;
-                }
-                case Type.CHAR: {
-                    mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
-
-                    break;
-                }
-                case Type.BYTE: {
-                    mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
-
-                    break;
-                }
-                case Type.SHORT: {
-                    mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
-
-                    break;
-                }
-                case Type.INT: {
-                    mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-
-                    break;
-                }
-                case Type.FLOAT: {
-                    mv.visitVarInsn(Opcodes.FSTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
-
-                    break;
-                }
-                case Type.LONG: {
-                    mv.visitVarInsn(Opcodes.LSTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.LLOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.LLOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-
-                    break;
-                }
-                case Type.DOUBLE: {
-                    mv.visitVarInsn(Opcodes.DSTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.DLOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.DLOAD, returnVariableIndex);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-
-                    break;
-                }
-                case Type.ARRAY:
-                case Type.OBJECT: {
-                    mv.visitVarInsn(Opcodes.ASTORE, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ALOAD, returnVariableIndex);
-                    mv.visitVarInsn(Opcodes.ALOAD, returnVariableIndex);
-
-                    break;
-                }
-                default: // don't be run
-                    break;
+        @Override
+        public void visitInsn(int opcode) {
+            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)) {
+                captureReturn();
             }
+            mv.visitInsn(opcode);
+        }
 
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, getInternalName(DebugTrace.class.getName()), "traceReturn", "(L" + getInternalName(Object.class.getName()) + ";)V", false);
+        public void captureReturn() {
+            if (returnType == null || returnType.equals(Type.VOID_TYPE)) {
+                mv.visitInsn(Opcodes.ACONST_NULL);
+            } else {
+                int returnVariableIndex = newLocal(returnType);
+
+                switch (returnType.getSort()) {
+                    case Type.BOOLEAN: {
+                        mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+
+                        break;
+                    }
+                    case Type.CHAR: {
+                        mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
+
+                        break;
+                    }
+                    case Type.BYTE: {
+                        mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+
+                        break;
+                    }
+                    case Type.SHORT: {
+                        mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+
+                        break;
+                    }
+                    case Type.INT: {
+                        mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+
+                        break;
+                    }
+                    case Type.FLOAT: {
+                        mv.visitVarInsn(Opcodes.FSTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+
+                        break;
+                    }
+                    case Type.LONG: {
+                        mv.visitVarInsn(Opcodes.LSTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.LLOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.LLOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+
+                        break;
+                    }
+                    case Type.DOUBLE: {
+                        mv.visitVarInsn(Opcodes.DSTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.DLOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.DLOAD, returnVariableIndex);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+
+                        break;
+                    }
+                    case Type.ARRAY:
+                    case Type.OBJECT: {
+                        mv.visitVarInsn(Opcodes.ASTORE, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ALOAD, returnVariableIndex);
+                        mv.visitVarInsn(Opcodes.ALOAD, returnVariableIndex);
+
+                        break;
+                    }
+                    default: // don't be run
+                        break;
+                }
+
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, getInternalName(DebugTrace.class.getName()), "traceReturn", "(L" + getInternalName(Object.class.getName()) + ";)V", false);
+            }
         }
     }
 }

@@ -60,41 +60,41 @@ public class MethodTransformer implements ClassFileTransformer {
 
         return classfileBuffer;
     }
-}
 
-class MethodAdapter extends AdviceAdapter {
-    private String name;
-    private Label timeStart = new Label();
-    private Label timeEnd = new Label();
+    class MethodAdapter extends AdviceAdapter {
+        private String name;
+        private Label timeStart = new Label();
+        private Label timeEnd = new Label();
 
-    public MethodAdapter(int access, String name, String desc, MethodVisitor methodVisitor) {
-        super(Opcodes.ASM5, methodVisitor, access, name, desc);
+        public MethodAdapter(int access, String name, String desc, MethodVisitor methodVisitor) {
+            super(Opcodes.ASM5, methodVisitor, access, name, desc);
 
-        this.name = name;
-    }
+            this.name = name;
+        }
 
-    @Override
-    protected void onMethodEnter() {
-        mv.visitLabel(timeStart);
-        int time = newLocal(Type.getType("J"));
-        visitLocalVariable("time", "J", null, timeStart, timeEnd, time);
+        @Override
+        protected void onMethodEnter() {
+            mv.visitLabel(timeStart);
+            int time = newLocal(Type.getType("J"));
+            visitLocalVariable("time", "J", null, timeStart, timeEnd, time);
 
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn("Enter " + name);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
-    }
+            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            mv.visitLdcInsn("Enter " + name);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+        }
 
-    @Override
-    public void visitMaxs(int stack, int locals) {
-        visitLabel(timeEnd);
+        @Override
+        public void visitMaxs(int maxStack, int maxLocals) {
+            visitLabel(timeEnd);
 
-        super.visitMaxs(stack, locals);
-    }
+            super.visitMaxs(maxStack, maxLocals);
+        }
 
-    @Override
-    protected void onMethodExit(int opcode) {
-        if (opcode != ATHROW) {
-            // FIXME finally
+        @Override
+        protected void onMethodExit(int opcode) {
+            if (opcode != ATHROW) {
+                // FIXME finally
+            }
         }
     }
 }

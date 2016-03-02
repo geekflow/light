@@ -56,7 +56,7 @@ public class TestMethods {
     }
 
     public String doWithObject(String value) {
-        return "AA" + value;
+        return value;
     }
 
     public void doWithNothing() {

@@ -30,13 +30,13 @@ import static org.junit.Assert.assertThat;
 /**
  * @author geeksaga
  */
-public class MethodReturnTransformerTest {
+public class MethodParameterTransformerTest {
     @Test
     public void testTransform() throws Exception {
         String className = TestClass.CLASS_NAME;
         String classFileName = TestClass.CLASS_FILE_NAME;
 
-        ClassFileTransformer transformer = new MethodReturnTransformer();
+        ClassFileTransformer transformer = new MethodParameterTransformer();
 
         byte[] original = TestUtil.load(classFileName);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
