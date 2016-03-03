@@ -44,7 +44,7 @@ public class MethodParameterTransformerTest {
         assertThat(original, not(transform));
 
         TestClassLoader classLoader = new TestClassLoader(getClass().getClassLoader());
-        Class clazz = classLoader.findClass(className, transform);
+        Class<?> clazz = classLoader.findClass(className, transform);
 
         assertThat(clazz, notNullValue());
         assertThat(clazz.getName(), is(className));

@@ -52,7 +52,7 @@ public class TestMethods {
     }
 
     public int[] doWithArray(int[] value) {
-        return new int[]{};
+        return value;
     }
 
     public String doWithObject(String value) {
