@@ -17,6 +17,7 @@ package com.geeksaga.light.agent.trace;
 
 import com.geeksaga.light.agent.TraceContext;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,33 +30,48 @@ public class DebugTrace {
 
     private TraceContext traceContext;
 
+    private static Trace trace = new Trace() {
+        @Override
+        public void begin(MethodInfo methodInfo) {
+        }
+
+        @Override
+        public void end(MethodInfo methodInfo, Throwable throwable) {
+            logger.info(String.valueOf(methodInfo.getParameter().size()) + "=" + Arrays.toString(methodInfo.getParameter().getValues()));
+        }
+    };
+
     public DebugTrace(TraceContext traceContext) {
         this.traceContext = traceContext;
     }
 
-    public static void start(MethodInfo methodInfo) {
+    public static void set(Trace trace) {
+        if(trace != null) {
+            DebugTrace.trace = trace;
+        }
+    }
+
+    public static void begin(MethodInfo methodInfo) {
         logger.info(methodInfo.getName() + methodInfo.getDesc());
         // TODO use trace context
+
+        trace.begin(methodInfo);
     }
 
     public static void end(MethodInfo methodInfo, Throwable throwable) {
-        logger.info(methodInfo.getName() + methodInfo.getDesc());
-
-        if(throwable != null) {
+        if (throwable != null) {
             logger.log(Level.INFO, throwable.getMessage(), throwable);
         }
+
+        trace.end(methodInfo, throwable);
     }
 
     public static void traceParameter(Parameter parameter) {
-        logger.info(String.valueOf(parameter.size()));
-
-        for (Object o : parameter.getValues()) {
-            logger.info(o.toString());
-        }
+        logger.info(String.valueOf(parameter.size()) + "=" + Arrays.toString(parameter.getValues()));
     }
 
     public static void traceReturn(Object returnValue) {
-        if(returnValue != null) {
+        if (returnValue != null) {
             logger.info(returnValue.toString());
         }
     }

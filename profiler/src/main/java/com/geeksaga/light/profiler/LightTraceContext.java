@@ -16,6 +16,7 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.Trace;
 
 /**
@@ -25,16 +26,17 @@ public class LightTraceContext implements TraceContext {
 
     private final ThreadLocal<Trace> threadLocal = new ThreadLocal<Trace>();
 
-    public LightTraceContext() {}
+    public LightTraceContext() {
+    }
 
     public Trace newTrace() {
-        Trace  trace = new Trace() {
+        Trace trace = new Trace() {
             @Override
-            public void begin() {
+            public void begin(MethodInfo methodInfo) {
             }
 
             @Override
-            public void end() {
+            public void end(MethodInfo methodInfo, Throwable throwable) {
             }
         };
 

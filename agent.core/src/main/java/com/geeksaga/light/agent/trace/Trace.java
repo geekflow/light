@@ -19,6 +19,6 @@ package com.geeksaga.light.agent.trace;
  * @author geeksaga
  */
 public interface Trace {
-    void begin();
-    void end();
+    void begin(MethodInfo methodInfo);
+    void end(MethodInfo methodInfo, Throwable throwable);
 }

@@ -49,7 +49,7 @@ public class EntryPointTransformerTest {
         assertThat(clazz, notNullValue());
         assertThat(clazz.getName(), is(className));
 
-        Method method = clazz.getMethod("doWithObject", String.class);
+        Method method = clazz.getDeclaredMethod("doWithObject", String.class);
 
         Object instance = clazz.newInstance();
 

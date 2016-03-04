@@ -54,8 +54,16 @@ public class MethodInfo {
         return desc;
     }
 
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
+    }
+
     public Parameter getParameter() {
         return parameter;
+    }
+
+    public void setReturnValue(Object returnValue) {
+        this.returnValue = returnValue;
     }
 
     public Object getReturnValue() {
