@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.profiler.trace.Trace;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
 
 /**
  * @author geeksaga
  */
-public interface TraceContext {
-    Trace createTraceObject();
+public class ClassFileTransformerDispatcher implements ClassFileTransformer {
+    @Override
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        return classfileBuffer;
+    }
 }

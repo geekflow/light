@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler.trace;
+package com.geeksaga.light.agent;
+
+import com.geeksaga.light.agent.trace.Trace;
 
 /**
  * @author geeksaga
  */
-public interface Trace {
-    void begin();
-    void end();
+public interface TraceContext {
+    Trace newTrace();
+    Trace currentTrace();
+    void removeTrace();
 }

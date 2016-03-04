@@ -16,6 +16,7 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
+import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
 import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.MethodParameterTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.MethodReturnTransformer;
@@ -23,6 +24,7 @@ import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -42,9 +44,10 @@ public class ProfilerModule implements Module {
         logger.info("profiler module start");
 
         // TODO transformer dispatcher
-        instrumentation.addTransformer(new MethodParameterTransformer());
-        instrumentation.addTransformer(new MethodReturnTransformer());
-        instrumentation.addTransformer(new LightClassFileTransformer());
+        // instrumentation.addTransformer(new ClassFileTransformerDispatcher(), true);
+        instrumentation.addTransformer(new MethodParameterTransformer(), true);
+        instrumentation.addTransformer(new MethodReturnTransformer(), true);
+        instrumentation.addTransformer(new LightClassFileTransformer(), true);
     }
 
     @Override

@@ -15,14 +15,20 @@
  */
 package com.geeksaga.light.profiler;
 
-import com.geeksaga.light.profiler.trace.Trace;
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.trace.Trace;
 
 /**
  * @author geeksaga
  */
 public class LightTraceContext implements TraceContext {
-    public Trace createTraceObject() {
-        return new Trace() {
+
+    private final ThreadLocal<Trace> threadLocal = new ThreadLocal<Trace>();
+
+    public LightTraceContext() {}
+
+    public Trace newTrace() {
+        Trace  trace = new Trace() {
             @Override
             public void begin() {
             }
@@ -31,5 +37,21 @@ public class LightTraceContext implements TraceContext {
             public void end() {
             }
         };
+
+        set(trace);
+
+        return trace;
+    }
+
+    public Trace currentTrace() {
+        return threadLocal.get();
+    }
+
+    public void removeTrace() {
+        threadLocal.remove();
+    }
+
+    private void set(Trace trace) {
+        threadLocal.set(trace);
     }
 }
