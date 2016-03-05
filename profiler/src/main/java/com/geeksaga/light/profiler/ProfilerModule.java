@@ -16,6 +16,8 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
+import com.geeksaga.light.agent.core.DefaultTraceRegistryAdaptor;
+import com.geeksaga.light.agent.core.TraceRegistry;
 import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
 import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.MethodParameterTransformer;
@@ -33,10 +35,15 @@ import java.lang.instrument.Instrumentation;
 public class ProfilerModule implements Module {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
+    private final Object lock = new Object();
+
     private Instrumentation instrumentation;
 
     public ProfilerModule(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
+
+        // FIXME separate bind ?
+        TraceRegistry.bind(new DefaultTraceRegistryAdaptor(), lock);
     }
 
     @Override

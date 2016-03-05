@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent.trace;
+package com.geeksaga.light.agent.core;
+
+import com.geeksaga.light.agent.trace.MethodInfo;
+import com.geeksaga.light.agent.trace.Trace;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author geeksaga
  */
-public interface Trace {
-    void begin(MethodInfo methodInfo);
+public interface TraceRegistryAdaptor {
+    int add(Trace trace);
+    Trace get(int id);
 
-    void end(MethodInfo methodInfo, Throwable throwable);
-
-    Trace NULL = new Trace() {
+    TraceRegistryAdaptor NULL = new  TraceRegistryAdaptor() {
         @Override
-        public void begin(MethodInfo methodInfo) {
+        public int add(Trace trace) {
+            return 0;
         }
 
         @Override
-        public void end(MethodInfo methodInfo, Throwable throwable) {
+        public Trace get(int id) {
+            return null;
         }
     };
 }

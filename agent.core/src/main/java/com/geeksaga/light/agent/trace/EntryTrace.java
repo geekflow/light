@@ -15,21 +15,38 @@
  */
 package com.geeksaga.light.agent.trace;
 
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * @author geeksaga
  */
-public interface Trace {
-    void begin(MethodInfo methodInfo);
+public class EntryTrace {
+    private static final Logger logger = Logger.getLogger(DebugTrace.class.getName());
 
-    void end(MethodInfo methodInfo, Throwable throwable);
-
-    Trace NULL = new Trace() {
+    private static Trace trace = new Trace() {
         @Override
         public void begin(MethodInfo methodInfo) {
         }
 
         @Override
         public void end(MethodInfo methodInfo, Throwable throwable) {
+            logger.info(String.valueOf(methodInfo.getParameter().size()) + "=" + Arrays.toString(methodInfo.getParameter().getValues()));
         }
     };
+
+    public static void set(Trace trace) {
+        if (trace != null) {
+            EntryTrace.trace = trace;
+        }
+    }
+
+    public static void begin(MethodInfo methodInfo) {
+
+    }
+
+    public static void end(MethodInfo methodInfo, Throwable throwable) {
+        trace.end(methodInfo, throwable);
+    }
 }
