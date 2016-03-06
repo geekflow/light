@@ -35,15 +35,13 @@ import java.lang.instrument.Instrumentation;
 public class ProfilerModule implements Module {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    private final Object lock = new Object();
-
     private Instrumentation instrumentation;
 
     public ProfilerModule(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
 
         // FIXME separate bind ?
-        TraceRegistry.bind(new DefaultTraceRegistryAdaptor(), lock);
+        TraceRegistry.bind(new DefaultTraceRegistryAdaptor());
     }
 
     @Override

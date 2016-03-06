@@ -31,24 +31,22 @@ import static org.mockito.Mockito.when;
 public class TraceRegistryTest {
     TraceRegistryAdaptor traceRegistryAdaptor;
 
-    Object lock = new Object();
-
     @Before
     public void setUp() {
         traceRegistryAdaptor = mock(TraceRegistryAdaptor.class);
 
-        TraceRegistry.bind(traceRegistryAdaptor, lock);
+        TraceRegistry.bind(traceRegistryAdaptor);
     }
 
     @Test
     public void testBindAndUnbind() {
         TraceRegistryAdaptor mockTraceRegistryAdaptor = mock(TraceRegistryAdaptor.class);
 
-        TraceRegistry.bind(mockTraceRegistryAdaptor, lock);
+        TraceRegistry.bind(mockTraceRegistryAdaptor);
 
         assertThat(TraceRegistry.getTraceRegistryAdaptor(), sameInstance(mockTraceRegistryAdaptor));
 
-        TraceRegistry.unbind(lock);
+        TraceRegistry.unbind();
 
         assertThat(TraceRegistry.getTraceRegistryAdaptor(), sameInstance(TraceRegistryAdaptor.NULL));
     }

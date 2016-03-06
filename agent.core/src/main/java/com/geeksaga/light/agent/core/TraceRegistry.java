@@ -17,25 +17,39 @@ package com.geeksaga.light.agent.core;
 
 import com.geeksaga.light.agent.trace.Trace;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * @author geeksaga
  */
 public class TraceRegistry {
     private static TraceRegistryAdaptor registry = TraceRegistryAdaptor.NULL;
 
+    private static final Lock LOCK = new ReentrantLock();
+
     public static TraceRegistryAdaptor getTraceRegistryAdaptor() {
         return registry;
     }
 
-    public static void bind(TraceRegistryAdaptor registry, Object lock) {
-        synchronized (lock) {
+    public static void bind(TraceRegistryAdaptor registry) {
+        LOCK.lock();
+
+        try {
             TraceRegistry.registry = registry;
+        }
+        finally {
+            LOCK.unlock();
         }
     }
 
-    public static void unbind(final Object lock) {
-        synchronized (lock) {
+    public static void unbind() {
+        LOCK.lock();
+
+        try {
             registry = TraceRegistryAdaptor.NULL;
+        } finally {
+            LOCK.unlock();
         }
     }
 
