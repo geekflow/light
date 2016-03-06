@@ -25,11 +25,12 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  */
 public class DefaultTraceRegistryAdaptor implements TraceRegistryAdaptor {
 
+    public static final int DEFAULT_MAX_LENGTH = 8;
     private final AtomicInteger id = new AtomicInteger(0);
     private final AtomicReferenceArray<Trace> atomicArray;
 
     public DefaultTraceRegistryAdaptor() {
-        this(8);
+        this(DEFAULT_MAX_LENGTH);
     }
 
     public DefaultTraceRegistryAdaptor(int length) {

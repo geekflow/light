@@ -15,9 +15,11 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.agent.trace.DebugTrace;
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.agent.trace.EntryTrace;
 import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.Parameter;
+import com.geeksaga.light.agent.trace.Profiler;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
@@ -30,6 +32,7 @@ import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
@@ -42,7 +45,17 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
     private Filter filter = new LightFilter();
 
-    public EntryPointTransformer() {
+    private TraceRegisterBinder traceRegisterBinder;
+    private int traceId;
+
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder) {
+        this.traceRegisterBinder = traceRegisterBinder;
+        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace());
+    }
+
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, Class<?> profilerClass, String begin, String end) {
+        this.traceRegisterBinder = traceRegisterBinder;
+        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace());
     }
 
     @Override
@@ -57,8 +70,9 @@ public class EntryPointTransformer implements ClassFileTransformer {
                     @Override
                     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                         MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-                        if (name.equals("doWithObject"))
+                        if (name.equals("doWithObject")) {
                             return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
+                        }
 
                         return mv;
                     }
@@ -76,7 +90,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 return bytes;
             }
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            logger.log(Level.WARNING, throwable.getMessage(), throwable);
         }
 
         return classfileBuffer;
@@ -151,8 +165,9 @@ public class EntryPointTransformer implements ClassFileTransformer {
             mv.visitVarInsn(ALOAD, parameterVariableIndex);
             mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(MethodInfo.class.getName()), "setParameter", "(L" + getInternalName(Parameter.class.getName()) + ";)V", false);
 
+            mv.visitIntInsn(BIPUSH, traceId);
             mv.visitVarInsn(ALOAD, methodInfoIndex);
-            mv.visitMethodInsn(INVOKESTATIC, getInternalName(DebugTrace.class.getName()), "begin", "(L" + getInternalName(MethodInfo.class.getName()) + ";)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, getInternalName(Profiler.class.getName()), "begin", "(IL" + getInternalName(MethodInfo.class.getName()) + ";)V", false);
             mv.visitCode();
         }
 
@@ -233,9 +248,11 @@ public class EntryPointTransformer implements ClassFileTransformer {
             mv.visitInsn(DUP);
             mv.visitVarInsn(ASTORE, throwableIndex);
             mv.visitVarInsn(ALOAD, throwableIndex);
+
+            mv.visitIntInsn(BIPUSH, traceId);
             mv.visitVarInsn(ALOAD, methodInfoIndex);
             mv.visitVarInsn(ALOAD, throwableIndex);
-            mv.visitMethodInsn(INVOKESTATIC, getInternalName(DebugTrace.class.getName()), "end", "(L" + getInternalName(MethodInfo.class.getName()) + ";L" + getInternalName(Throwable.class.getName()) + ";)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, getInternalName(Profiler.class.getName()), "end", "(IL" + getInternalName(MethodInfo.class.getName()) + ";L" + getInternalName(Throwable.class.getName()) + ";)V", false);
             mv.visitInsn(ATHROW);
             mv.visitMaxs(maxStack, maxLocals);
         }
@@ -337,9 +354,10 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 mv.visitVarInsn(ALOAD, returnVariableIndex);
                 mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(MethodInfo.class.getName()), "setReturnValue", "(Ljava/lang/Object;)V", false);
 
+                mv.visitIntInsn(BIPUSH, traceId);
                 mv.visitVarInsn(ALOAD, methodInfoIndex);
                 mv.visitInsn(ACONST_NULL);
-                mv.visitMethodInsn(INVOKESTATIC, getInternalName(DebugTrace.class.getName()), "end", "(L" + getInternalName(MethodInfo.class.getName()) + ";L" + getInternalName(Throwable.class.getName()) + ";)V", false);
+                mv.visitMethodInsn(INVOKESTATIC, Profiler.INTERNAL_CLASS_NAME, "end", Profiler.END_DESCRIPTOR, false);
             }
         }
     }

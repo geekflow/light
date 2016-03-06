@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.util.ASMUtil;
 
@@ -28,6 +29,12 @@ import java.util.logging.Logger;
  */
 public class LightClassFileTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(LightClassFileTransformer.class.getName());
+
+    private TraceRegisterBinder traceRegisterBinder;
+
+    public LightClassFileTransformer(TraceRegisterBinder traceRegisterBinder) {
+        this.traceRegisterBinder = traceRegisterBinder;
+    }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {

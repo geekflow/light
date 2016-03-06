@@ -15,28 +15,25 @@
  */
 package com.geeksaga.light.agent.core;
 
-import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.Trace;
-
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author geeksaga
  */
 public interface TraceRegistryAdaptor {
     int add(Trace trace);
+
     Trace get(int id);
 
-    TraceRegistryAdaptor NULL = new  TraceRegistryAdaptor() {
+    TraceRegistryAdaptor NULL = new TraceRegistryAdaptor() {
         @Override
         public int add(Trace trace) {
-            return 0;
+            return -1;
         }
 
         @Override
         public Trace get(int id) {
-            return null;
+            return Trace.NULL;
         }
     };
 }

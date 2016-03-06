@@ -16,12 +16,8 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
-import com.geeksaga.light.agent.core.DefaultTraceRegistryAdaptor;
-import com.geeksaga.light.agent.core.TraceRegistry;
-import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
-import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
-import com.geeksaga.light.profiler.instrument.transformer.MethodParameterTransformer;
-import com.geeksaga.light.profiler.instrument.transformer.MethodReturnTransformer;
+import com.geeksaga.light.agent.core.*;
+import com.geeksaga.light.profiler.instrument.transformer.*;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +32,12 @@ public class ProfilerModule implements Module {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private Instrumentation instrumentation;
+    private TraceRegisterBinder traceRegisterBinder;
 
     public ProfilerModule(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
-
-        // FIXME separate bind ?
-        TraceRegistry.bind(new DefaultTraceRegistryAdaptor());
+        this.traceRegisterBinder = new DefaultTraceRegisterBinder();
+        this.traceRegisterBinder.bind();
     }
 
     @Override
@@ -50,9 +46,10 @@ public class ProfilerModule implements Module {
 
         // TODO transformer dispatcher
         // instrumentation.addTransformer(new ClassFileTransformerDispatcher(), true);
+        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder), true);
         instrumentation.addTransformer(new MethodParameterTransformer(), true);
         instrumentation.addTransformer(new MethodReturnTransformer(), true);
-        instrumentation.addTransformer(new LightClassFileTransformer(), true);
+        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder), true);
     }
 
     @Override

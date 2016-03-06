@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,13 +30,26 @@ import static org.mockito.Mockito.when;
  * @author geeksaga
  */
 public class TraceRegistryTest {
-    TraceRegistryAdaptor traceRegistryAdaptor;
+    TraceRegistryAdaptor mockTraceRegistryAdaptor;
 
     @Before
     public void setUp() {
-        traceRegistryAdaptor = mock(TraceRegistryAdaptor.class);
+        mockTraceRegistryAdaptor = mock(TraceRegistryAdaptor.class);
 
-        TraceRegistry.bind(traceRegistryAdaptor);
+        TraceRegistry.bind(mockTraceRegistryAdaptor);
+    }
+
+    @Test //(expected=AssertionError.class)
+    public void testBindIfNull() {
+        TraceRegistry.bind(null);
+
+        Trace mockTrace = mock(Trace.class);
+
+        TraceRegistryAdaptor mockTraceRegistryAdaptor = mock(TraceRegistryAdaptor.class);
+        int id = mockTraceRegistryAdaptor.add(mockTrace);
+
+        assertThat(TraceRegistry.get(id), not(mockTrace));
+        assertThat(TraceRegistry.get(id), is(Trace.NULL));
     }
 
     @Test
@@ -54,9 +68,9 @@ public class TraceRegistryTest {
     @Test
     public void testGetTrace() {
         Trace trace = mock(Trace.class);
-        when(traceRegistryAdaptor.get(0)).thenReturn(trace);
+        when(mockTraceRegistryAdaptor.get(0)).thenReturn(trace);
 
-        int id = traceRegistryAdaptor.add(trace);
+        int id = mockTraceRegistryAdaptor.add(trace);
         assertThat(id, is(0));
         assertThat(TraceRegistry.get(id), sameInstance(trace));
     }

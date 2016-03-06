@@ -36,9 +36,8 @@ public class TraceRegistry {
         LOCK.lock();
 
         try {
-            TraceRegistry.registry = registry;
-        }
-        finally {
+            TraceRegistry.registry = (registry != null) ? registry : TraceRegistryAdaptor.NULL;
+        } finally {
             LOCK.unlock();
         }
     }

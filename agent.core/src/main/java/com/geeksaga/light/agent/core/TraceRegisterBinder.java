@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent.trace;
-
-import java.util.Arrays;
-import java.util.logging.Logger;
+package com.geeksaga.light.agent.core;
 
 /**
  * @author geeksaga
  */
-public class EntryTrace implements Trace {
-    private static final Logger logger = Logger.getLogger(DebugTrace.class.getName());
+public interface TraceRegisterBinder {
+    void bind();
 
-    public void begin(MethodInfo methodInfo) {
-        logger.info(methodInfo.getName() + methodInfo.getDesc());
-    }
+    void unbind();
 
-    public void end(MethodInfo methodInfo, Throwable throwable) {
-        logger.info(String.valueOf(methodInfo.getParameter().size()) + "=" + Arrays.toString(methodInfo.getParameter().getValues()));
-    }
+    TraceRegistryAdaptor getTraceRegistryAdaptor();
 }
