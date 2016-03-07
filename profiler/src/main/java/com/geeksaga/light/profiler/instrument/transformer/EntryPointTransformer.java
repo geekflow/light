@@ -47,15 +47,24 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
     private TraceRegisterBinder traceRegisterBinder;
     private int traceId;
+    private String ownerClassName;
+    private String begin;
+    private String beginDescriptor;
+    private String end;
+    private String endDescriptor;
 
     public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder) {
-        this.traceRegisterBinder = traceRegisterBinder;
-        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace());
+        this(traceRegisterBinder, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, Class<?> profilerClass, String begin, String end) {
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor) {
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace());
+        this.ownerClassName = ownerClassName;
+        this.begin = begin;
+        this.beginDescriptor = beginDescriptor;
+        this.end = end;
+        this.endDescriptor = endDescriptor;
     }
 
     @Override
@@ -97,7 +106,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
     }
 
     class EntryPointAdapter extends AdviceAdapter {
-        private final String ARGUMENT_CLASS_INTERNAL_NAME = getInternalName(Parameter.class.getName());
+        private final String PARAMETER_CLASS_INTERNAL_NAME = getInternalName(Parameter.class.getName());
+        private final String METHOD_INFO_CLASS_INTERNAL_NAME = getInternalName(MethodInfo.class.getName());
 
         private String name;
 
@@ -127,21 +137,21 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
         @Override
         protected void onMethodEnter() {
-            methodInfoIndex = newLocal(Type.getType(getInternalName(MethodInfo.class.getName())));
-            int parameterVariableIndex = newLocal(Type.getType(ARGUMENT_CLASS_INTERNAL_NAME));
+            methodInfoIndex = newLocal(Type.getType(METHOD_INFO_CLASS_INTERNAL_NAME));
+            int parameterVariableIndex = newLocal(Type.getType(PARAMETER_CLASS_INTERNAL_NAME));
             Type[] argumentTypes = Type.getArgumentTypes(desc);
 
-            mv.visitTypeInsn(NEW, getInternalName(MethodInfo.class.getName()));
+            mv.visitTypeInsn(NEW, METHOD_INFO_CLASS_INTERNAL_NAME);
             mv.visitInsn(DUP);
             mv.visitLdcInsn(name);
             mv.visitLdcInsn(desc);
-            mv.visitMethodInsn(INVOKESPECIAL, getInternalName(MethodInfo.class.getName()), "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, METHOD_INFO_CLASS_INTERNAL_NAME, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
             mv.visitVarInsn(ASTORE, methodInfoIndex);
 
-            mv.visitTypeInsn(NEW, ARGUMENT_CLASS_INTERNAL_NAME);
+            mv.visitTypeInsn(NEW, PARAMETER_CLASS_INTERNAL_NAME);
             mv.visitInsn(DUP);
             mv.visitIntInsn(BIPUSH, isStatic ? argumentTypes.length : argumentTypes.length + 1); // separate type
-            mv.visitMethodInsn(INVOKESPECIAL, ARGUMENT_CLASS_INTERNAL_NAME, "<init>", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, PARAMETER_CLASS_INTERNAL_NAME, "<init>", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE), false);
             mv.visitVarInsn(ASTORE, parameterVariableIndex);
 
             int parameterIndex = 0;
@@ -150,7 +160,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 mv.visitInsn(DUP);
                 mv.visitIntInsn(BIPUSH, parameterIndex);
                 mv.visitVarInsn(ALOAD, parameterIndices[parameterIndex]);
-                mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
+                mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
 
                 parameterIndex++;
             }
@@ -163,11 +173,11 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
             mv.visitVarInsn(ALOAD, methodInfoIndex);
             mv.visitVarInsn(ALOAD, parameterVariableIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(MethodInfo.class.getName()), "setParameter", "(L" + getInternalName(Parameter.class.getName()) + ";)V", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, METHOD_INFO_CLASS_INTERNAL_NAME, "setParameter", "(L" + getInternalName(Parameter.class.getName()) + ";)V", false);
 
             mv.visitIntInsn(BIPUSH, traceId);
             mv.visitVarInsn(ALOAD, methodInfoIndex);
-            mv.visitMethodInsn(INVOKESTATIC, getInternalName(Profiler.class.getName()), "begin", "(IL" + getInternalName(MethodInfo.class.getName()) + ";)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, ownerClassName, begin, beginDescriptor, false);
             mv.visitCode();
         }
 
@@ -176,55 +186,55 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 case Type.BOOLEAN:
                     visitInstruction(ILOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IZ)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(IZ)V", false);
 
                     break;
                 case Type.CHAR:
                     visitInstruction(ILOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IC)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(IC)V", false);
 
                     break;
                 case Type.BYTE:
                     visitInstruction(ILOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IB)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(IB)V", false);
 
                     break;
                 case Type.SHORT:
                     visitInstruction(ILOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IS)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(IS)V", false);
                     break;
                 case Type.INT:
                     visitInstruction(ILOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(II)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(II)V", false);
 
                     break;
                 case Type.FLOAT:
                     visitInstruction(FLOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IF)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(IF)V", false);
 
                     break;
                 case Type.LONG:
                     visitInstruction(LLOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(IJ)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(IJ)V", false);
 
                     break;
                 case Type.DOUBLE:
                     visitInstruction(DLOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ID)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(ID)V", false);
 
                     break;
                 case Type.ARRAY:
                 case Type.OBJECT:
                     visitInstruction(ALOAD, index, parameterVariableIndex, parameterIndex);
 
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ARGUMENT_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
 
                     break;
                 default:
@@ -252,7 +262,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
             mv.visitIntInsn(BIPUSH, traceId);
             mv.visitVarInsn(ALOAD, methodInfoIndex);
             mv.visitVarInsn(ALOAD, throwableIndex);
-            mv.visitMethodInsn(INVOKESTATIC, getInternalName(Profiler.class.getName()), "end", "(IL" + getInternalName(MethodInfo.class.getName()) + ";L" + getInternalName(Throwable.class.getName()) + ";)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, ownerClassName, end, endDescriptor, false);
             mv.visitInsn(ATHROW);
             mv.visitMaxs(maxStack, maxLocals);
         }
@@ -352,12 +362,12 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                 mv.visitVarInsn(ALOAD, methodInfoIndex);
                 mv.visitVarInsn(ALOAD, returnVariableIndex);
-                mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(MethodInfo.class.getName()), "setReturnValue", "(Ljava/lang/Object;)V", false);
+                mv.visitMethodInsn(INVOKEVIRTUAL, METHOD_INFO_CLASS_INTERNAL_NAME, "setReturnValue", "(Ljava/lang/Object;)V", false);
 
                 mv.visitIntInsn(BIPUSH, traceId);
                 mv.visitVarInsn(ALOAD, methodInfoIndex);
                 mv.visitInsn(ACONST_NULL);
-                mv.visitMethodInsn(INVOKESTATIC, Profiler.INTERNAL_CLASS_NAME, "end", Profiler.END_DESCRIPTOR, false);
+                mv.visitMethodInsn(INVOKESTATIC, ownerClassName, end, endDescriptor, false);
             }
         }
     }

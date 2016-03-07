@@ -39,7 +39,6 @@ public class EntryPointTransformerTest {
         String classFileName = TestClass.CLASS_FILE_NAME;
 
         ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder());
-//        ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder(), Profiler.class, "begin", "end");
 
         byte[] original = TestUtil.load(classFileName);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
