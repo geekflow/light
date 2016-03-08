@@ -19,3 +19,16 @@ jar {
 dependencies {
     compile 'org.ow2.asm:asm-all:5.0.4'
 }
+
+task install(dependsOn: [copyToLibrary]) {
+    doLast {
+        File build = mkdir("${rootProject.rootDir}/build/")
+
+        copy {
+            from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
+            into build
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.install)

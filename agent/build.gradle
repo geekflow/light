@@ -6,18 +6,31 @@ jar {
 
     manifest {
         attributes 'Boot-Class-Path': baseName + "-" + version + ".jar",
-                'Premain-Class' : 'com.geeksaga.light.agent.JavaAgent',
-                'Agent-Class' : 'com.geeksaga.light.agent.JavaAgent',
-                'Can-Redefine-Classes' : true,
+                'Premain-Class': 'com.geeksaga.light.agent.JavaAgent',
+                'Agent-Class': 'com.geeksaga.light.agent.JavaAgent',
+                'Can-Redefine-Classes': true,
                 'Implementation-Title': 'GeekSaga Light Agent',
                 'Implementation-Version': version,
-                'Implementation-Vendor' : 'GeekSaga, Inc.',
-                'Specification-Title' : 'GeekSaga Light APM Tools',
-                'Specification-Version' : version,
-                'Specification-Vendor' : 'GeekSaga, Inc.',
+                'Implementation-Vendor': 'GeekSaga, Inc.',
+                'Specification-Title': 'GeekSaga Light APM Tools',
+                'Specification-Version': version,
+                'Specification-Vendor': 'GeekSaga, Inc.',
                 'Main-Class': 'com.geeksaga.light.Main'
     }
 }
 
 dependencies {
 }
+
+task install(dependsOn: [copyToLibrary]) {
+    doLast {
+        File build = mkdir("${rootProject.rootDir}/build/")
+
+        copy {
+            from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
+            into build
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.install)

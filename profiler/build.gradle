@@ -7,13 +7,26 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'GeekSaga Light Profiler',
                 'Implementation-Version': version,
-                'Implementation-Vendor' : 'GeekSaga, Inc.',
-                'Specification-Title' : 'GeekSaga Light APM Tools',
-                'Specification-Version' : version,
-                'Specification-Vendor' : 'GeekSaga, Inc.',
+                'Implementation-Vendor': 'GeekSaga, Inc.',
+                'Specification-Title': 'GeekSaga Light APM Tools',
+                'Specification-Version': version,
+                'Specification-Vendor': 'GeekSaga, Inc.',
                 'Main-Class': 'com.geeksaga.light.Main'
     }
 }
+
+task install(dependsOn: [copyToLibrary]) {
+    doLast {
+        File build = mkdir("${rootProject.rootDir}/build/libs")
+
+        copy {
+            from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
+            into build
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.install)
 
 dependencies {
     compile 'org.ow2.asm:asm-all:5.0.4'
