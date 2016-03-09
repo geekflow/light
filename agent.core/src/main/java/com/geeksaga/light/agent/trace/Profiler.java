@@ -17,7 +17,7 @@ package com.geeksaga.light.agent.trace;
 
 import com.geeksaga.light.agent.core.TraceRegistry;
 
-import static org.objectweb.asm.Type.getInternalName;
+import static com.geeksaga.light.agent.util.ClassUtility.getInternalName;
 
 /**
  * @author geeksaga
