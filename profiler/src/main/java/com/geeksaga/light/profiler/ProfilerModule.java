@@ -44,12 +44,16 @@ public class ProfilerModule implements Module {
     public void start() {
         logger.info("profiler module start");
 
+        addTransformer(instrumentation.isRetransformClassesSupported());
+    }
+
+    private void addTransformer(boolean canRetransform) {
         // TODO transformer dispatcher
-        // instrumentation.addTransformer(new ClassFileTransformerDispatcher(), true);
-        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder), true);
-        instrumentation.addTransformer(new MethodParameterTransformer(), true);
-        instrumentation.addTransformer(new MethodReturnTransformer(), true);
-        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder), true);
+        // instrumentation.addTransformer(new ClassFileTransformerDispatcher(), canRetransform);
+        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder), canRetransform);
+//        instrumentation.addTransformer(new MethodParameterTransformer(), canRetransform);
+//        instrumentation.addTransformer(new MethodReturnTransformer(), canRetransform);
+        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder), canRetransform);
     }
 
     @Override

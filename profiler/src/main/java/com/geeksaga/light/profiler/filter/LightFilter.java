@@ -21,17 +21,19 @@ package com.geeksaga.light.profiler.filter;
 public class LightFilter implements Filter {
     @Override
     public boolean allow(ClassLoader classLoader, String className) {
-        if(classLoader == null) {
-            return true;
-        }
-
-        if(classLoader.getClass().getName().startsWith("com.geeksaga.light"))
-        {
+        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun")) {
             return false;
         }
 
-        if(className.startsWith("com/geeksaga/light"))
-        {
+        if (classLoader == null) {
+            return true;
+        }
+
+        if (classLoader.getClass().getName().startsWith("com.geeksaga.light")) {
+            return false;
+        }
+
+        if (className.startsWith("com/geeksaga/light")) {
             return false;
         }
 
