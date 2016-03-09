@@ -4,11 +4,24 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5level](%-36c{1.}:%-3L) %m%n"/>
         </Console>
+
+        <RollingRandomAccessFile name="Light" fileName="logs/light.log"
+                                 filePattern="logs/light-%d{yyyy-MM-dd_HH}_%i.log" immediateFlush="false" append="true"
+                                 ignoreExceptions="false">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5level](%-36c{1.}:%-3L) %m%n"/>
+
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="6" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="500"/>
+        </RollingRandomAccessFile>
     </Appenders>
 
     <Loggers>
         <Logger name="com.geeksaga.light" level="info" additivity="false">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="Light"/>
         </Logger>
         <Root level="error">
             <AppenderRef ref="Console"/>
