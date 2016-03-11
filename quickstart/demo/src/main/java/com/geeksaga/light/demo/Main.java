@@ -24,7 +24,6 @@ public class Main {
     }
 
     public void print(String message) throws InterruptedException {
-        System.out.println("Test Call = " + message);
         Thread.sleep(random());
     }
 
