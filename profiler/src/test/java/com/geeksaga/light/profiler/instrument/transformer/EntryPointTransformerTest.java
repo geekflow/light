@@ -15,8 +15,8 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
-import com.geeksaga.light.agent.trace.Profiler;
 import com.geeksaga.light.profiler.TestClass;
 import com.geeksaga.light.profiler.TestUtil;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class EntryPointTransformerTest {
         String className = TestClass.CLASS_NAME;
         String classFileName = TestClass.CLASS_FILE_NAME;
 
-        ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder());
+        ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext());
 
         byte[] original = TestUtil.load(classFileName);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);

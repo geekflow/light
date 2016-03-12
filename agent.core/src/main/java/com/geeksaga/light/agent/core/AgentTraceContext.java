@@ -13,47 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.agent.core;
 
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.trace.EntryTrace;
 import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.Trace;
 
 /**
  * @author geeksaga
  */
-public class LightTraceContext implements TraceContext {
+public class AgentTraceContext implements TraceContext {
 
-    private final ThreadLocal<Trace> threadLocal = new ThreadLocal<Trace>();
+    private final ThreadLocal<ActiveObject> threadLocal = new ThreadLocal<ActiveObject>();
 
-    public LightTraceContext() {
+    public AgentTraceContext() {
     }
 
-    public Trace newTrace() {
-        Trace trace = new Trace() {
-            @Override
-            public void begin(MethodInfo methodInfo) {
-            }
-
-            @Override
-            public void end(MethodInfo methodInfo, Throwable throwable) {
-            }
-        };
-
-        set(trace);
-
-        return trace;
+    public ActiveObject create(MethodInfo methodInfo) {
+        return set(new ActiveObject(Thread.currentThread(), methodInfo));
     }
 
-    public Trace currentTrace() {
+    public ActiveObject current() {
         return threadLocal.get();
     }
 
-    public void removeTrace() {
+    public void remove() {
         threadLocal.remove();
     }
 
-    private void set(Trace trace) {
-        threadLocal.set(trace);
+    private ActiveObject set(ActiveObject activeObject) {
+        threadLocal.set(activeObject);
+
+        return activeObject;
     }
 }

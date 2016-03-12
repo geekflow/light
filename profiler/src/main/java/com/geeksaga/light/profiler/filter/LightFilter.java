@@ -25,15 +25,19 @@ public class LightFilter implements Filter {
             return false;
         }
 
+        if (className.startsWith("com/geeksaga/light/demo")) {
+            return true;
+        }
+
+        if (className.startsWith("com/geeksaga/light")) {
+            return false;
+        }
+
         if (classLoader == null) {
             return true;
         }
 
         if (classLoader.getClass().getName().startsWith("com.geeksaga.light")) {
-            return false;
-        }
-
-        if (className.startsWith("com/geeksaga/light")) {
             return false;
         }
 

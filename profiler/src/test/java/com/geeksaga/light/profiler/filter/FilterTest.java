@@ -29,7 +29,8 @@ public class FilterTest {
     public void testLightFilter() {
         Filter filter = new LightFilter();
 
-        assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(true));
+//        assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(true));
+        assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(false));
         assertThat(filter.allow(getClass().getClassLoader(), getClass().getName().replace('.', '/')), is(false));
 
         assertThat(filter.allow(new ClassLoader() {}, getClass().getName().replace('.', '/')), is(false));

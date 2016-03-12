@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.util.ASMUtil;
@@ -31,9 +32,11 @@ public class LightClassFileTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(LightClassFileTransformer.class.getName());
 
     private TraceRegisterBinder traceRegisterBinder;
+    private TraceContext traceContext;
 
-    public LightClassFileTransformer(TraceRegisterBinder traceRegisterBinder) {
+    public LightClassFileTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext) {
         this.traceRegisterBinder = traceRegisterBinder;
+        this.traceContext = traceContext;
     }
 
     @Override

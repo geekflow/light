@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.agent.trace.EntryTrace;
 import com.geeksaga.light.agent.trace.MethodInfo;
@@ -46,6 +47,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
     private Filter filter = new LightFilter();
 
     private TraceRegisterBinder traceRegisterBinder;
+    private TraceContext traceContext;
     private int traceId;
     private String ownerClassName;
     private String begin;
@@ -53,13 +55,14 @@ public class EntryPointTransformer implements ClassFileTransformer {
     private String end;
     private String endDescriptor;
 
-    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder) {
-        this(traceRegisterBinder, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext) {
+        this(traceRegisterBinder, traceContext, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor) {
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor) {
         this.traceRegisterBinder = traceRegisterBinder;
-        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace());
+        this.traceContext = traceContext;
+        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));
         this.ownerClassName = ownerClassName;
         this.begin = begin;
         this.beginDescriptor = beginDescriptor;
@@ -79,7 +82,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
                     @Override
                     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                         MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-                        if (name.equals("doWithObject")) {
+                        if (name.equals("doWithObject") || name.equals("main")) {
                             return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
                         }
 

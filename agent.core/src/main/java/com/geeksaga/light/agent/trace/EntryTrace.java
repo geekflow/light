@@ -15,20 +15,49 @@
  */
 package com.geeksaga.light.agent.trace;
 
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.core.ActiveObject;
+
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * @author geeksaga
  */
 public class EntryTrace implements Trace {
-    private static final Logger logger = Logger.getLogger(DebugTrace.class.getName());
+    private static final Logger logger = Logger.getLogger(EntryTrace.class.getName());
+
+    private TraceContext traceContext;
+
+    public EntryTrace(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 
     public void begin(MethodInfo methodInfo) {
-        logger.info(methodInfo.getName() + methodInfo.getDesc());
+        try {
+            logger.info(methodInfo.getName() + methodInfo.getDesc());
+
+            ActiveObject activeObject = create(methodInfo);
+
+            logger.info(activeObject.toString());
+        } catch (Throwable throwable) {
+            logger.log(Level.INFO, throwable.getMessage(), throwable);
+        }
     }
 
     public void end(MethodInfo methodInfo, Throwable throwable) {
-        logger.info(String.valueOf(methodInfo.getParameter().size()) + "=" + Arrays.toString(methodInfo.getParameter().getValues()));
+        try {
+            logger.info(String.valueOf(methodInfo.getParameter().size()) + "=" + Arrays.toString(methodInfo.getParameter().getValues()));
+            ActiveObject activeObject = traceContext.current();
+
+            logger.info(activeObject.toString());
+        } finally {
+            traceContext.remove();
+        }
+    }
+
+    private ActiveObject create(MethodInfo methodInfo) {
+        return traceContext.create(methodInfo);
     }
 }

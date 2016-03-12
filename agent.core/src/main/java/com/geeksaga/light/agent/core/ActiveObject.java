@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent;
+package com.geeksaga.light.agent.core;
 
-import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.agent.trace.MethodInfo;
 
 /**
  * @author geeksaga
  */
-public interface TraceContext {
-    ActiveObject create(MethodInfo methodInfo);
-    ActiveObject current();
-    void remove();
+public class ActiveObject {
+    private Thread currentThread;
+    private MethodInfo methodInfo;
+
+    public ActiveObject(Thread currentThread) {
+        this(currentThread, null);
+    }
+
+    public ActiveObject(Thread currentThread, MethodInfo methodInfo) {
+        this.currentThread = currentThread;
+        this.methodInfo = methodInfo;
+    }
 }

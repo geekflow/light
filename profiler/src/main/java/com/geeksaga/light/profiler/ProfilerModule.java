@@ -16,13 +16,12 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
+import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.*;
 import com.geeksaga.light.profiler.instrument.transformer.*;
-import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -33,11 +32,13 @@ public class ProfilerModule implements Module {
 
     private Instrumentation instrumentation;
     private TraceRegisterBinder traceRegisterBinder;
+    private TraceContext traceContext;
 
     public ProfilerModule(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
+        this.traceContext = new AgentTraceContext();
     }
 
     @Override
@@ -50,10 +51,10 @@ public class ProfilerModule implements Module {
     private void addTransformer(boolean canRetransform) {
         // TODO transformer dispatcher
         // instrumentation.addTransformer(new ClassFileTransformerDispatcher(), canRetransform);
-        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder), canRetransform);
+        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder, traceContext), canRetransform);
 //        instrumentation.addTransformer(new MethodParameterTransformer(), canRetransform);
 //        instrumentation.addTransformer(new MethodReturnTransformer(), canRetransform);
-        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder), canRetransform);
+//        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder, traceContext), canRetransform);
     }
 
     @Override
