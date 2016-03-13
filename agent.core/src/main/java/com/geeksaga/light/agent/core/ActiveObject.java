@@ -23,6 +23,7 @@ import com.geeksaga.light.agent.trace.MethodInfo;
 public class ActiveObject {
     private Thread currentThread;
     private MethodInfo methodInfo;
+    private long startTime;
 
     public ActiveObject(Thread currentThread) {
         this(currentThread, null);
@@ -31,5 +32,13 @@ public class ActiveObject {
     public ActiveObject(Thread currentThread, MethodInfo methodInfo) {
         this.currentThread = currentThread;
         this.methodInfo = methodInfo;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }

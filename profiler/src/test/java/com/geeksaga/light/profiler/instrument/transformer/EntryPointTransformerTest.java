@@ -17,15 +17,14 @@ package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
-import com.geeksaga.light.profiler.TestClass;
 import com.geeksaga.light.profiler.TestUtil;
 import org.junit.Test;
+import target.TestMethods;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Method;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -35,12 +34,11 @@ import static org.junit.Assert.assertThat;
 public class EntryPointTransformerTest {
     @Test
     public void testTransform() throws Exception {
-        String className = TestClass.CLASS_NAME;
-        String classFileName = TestClass.CLASS_FILE_NAME;
+        String className = TestMethods.class.getName();
 
         ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext());
 
-        byte[] original = TestUtil.load(classFileName);
+        byte[] original = TestUtil.load(className);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
 
         assertThat(original, not(transform));
@@ -51,12 +49,15 @@ public class EntryPointTransformerTest {
         assertThat(clazz, notNullValue());
         assertThat(clazz.getName(), is(className));
 
-        Method method = clazz.getDeclaredMethod("doWithObject", String.class);
-
         Object instance = clazz.newInstance();
+
+        Method method = clazz.getDeclaredMethod("doWithObject", String.class);
 
         assertThat((String) method.invoke(instance, "A"), is("A"));
         assertThat((String) method.invoke(instance, "B"), is("B"));
+
+        method = clazz.getDeclaredMethod("doWithNothing");
+        assertThat(method.invoke(instance), nullValue());
     }
 
     protected class TestClassLoader extends ClassLoader {

@@ -82,7 +82,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
                     @Override
                     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                         MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-                        if (name.equals("doWithObject") || name.equals("main")) {
+                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main")) {
                             return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
                         }
 
@@ -97,7 +97,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 // return ASMUtil.toBytes(classNodeWrapper);
                 byte[] bytes = ASMUtil.toBytes(classNodeWrapper);
 
-                new MethodParameterTransformer().save(System.getProperty("user.dir") + File.separator + "Main.class", bytes);
+                new MethodParameterTransformer().save(System.getProperty("user.dir") + File.separator + ".." + File.separator + "build" + File.separator + "Main.class", bytes);
 
                 return bytes;
             }
@@ -283,7 +283,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
         public void captureReturn() {
             if (returnType == null || returnType.equals(Type.VOID_TYPE)) {
-                mv.visitInsn(ACONST_NULL);
+//                mv.visitInsn(ACONST_NULL);
             } else {
                 int returnVariableIndex = newLocal(returnType);
 
@@ -366,12 +366,12 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 mv.visitVarInsn(ALOAD, methodInfoIndex);
                 mv.visitVarInsn(ALOAD, returnVariableIndex);
                 mv.visitMethodInsn(INVOKEVIRTUAL, METHOD_INFO_CLASS_INTERNAL_NAME, "setReturnValue", "(Ljava/lang/Object;)V", false);
-
-                mv.visitIntInsn(BIPUSH, traceId);
-                mv.visitVarInsn(ALOAD, methodInfoIndex);
-                mv.visitInsn(ACONST_NULL);
-                mv.visitMethodInsn(INVOKESTATIC, ownerClassName, end, endDescriptor, false);
             }
+
+            mv.visitIntInsn(BIPUSH, traceId);
+            mv.visitVarInsn(ALOAD, methodInfoIndex);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitMethodInsn(INVOKESTATIC, ownerClassName, end, endDescriptor, false);
         }
     }
 }

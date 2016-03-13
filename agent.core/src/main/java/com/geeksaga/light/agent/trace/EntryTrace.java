@@ -39,6 +39,7 @@ public class EntryTrace implements Trace {
             logger.info(methodInfo.getName() + methodInfo.getDesc());
 
             ActiveObject activeObject = create(methodInfo);
+            activeObject.setStartTime(System.currentTimeMillis());
 
             logger.info(activeObject.toString());
         } catch (Throwable throwable) {
@@ -50,6 +51,10 @@ public class EntryTrace implements Trace {
         try {
             logger.info(String.valueOf(methodInfo.getParameter().size()) + "=" + Arrays.toString(methodInfo.getParameter().getValues()));
             ActiveObject activeObject = traceContext.current();
+
+            logger.info("start time = " + activeObject.getStartTime());
+            logger.info("end time = " + System.currentTimeMillis());
+            logger.info("elapsed time = " + String.valueOf(System.currentTimeMillis() - activeObject.getStartTime()));
 
             logger.info(activeObject.toString());
         } finally {

@@ -15,10 +15,9 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.profiler.TestClass;
 import com.geeksaga.light.profiler.TestUtil;
-import target.TestMethods;
 import org.junit.Test;
+import target.TestMethods;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Method;
@@ -27,7 +26,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author geeksaga
@@ -35,12 +33,11 @@ import static org.mockito.Mockito.mock;
 public class MethodTransformerTest {
     @Test
     public void testTransform() throws Exception {
-        String className = TestClass.CLASS_NAME;
-        String classFileName = TestClass.CLASS_FILE_NAME;
+        String className = TestMethods.class.getName();
 
         ClassFileTransformer transformer = new MethodTransformer();
 
-        byte[] original = TestUtil.load(classFileName);
+        byte[] original = TestUtil.load(className);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
 
         assertThat(original, not(transform));

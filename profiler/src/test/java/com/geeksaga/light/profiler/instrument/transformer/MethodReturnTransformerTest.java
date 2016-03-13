@@ -15,9 +15,9 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.profiler.TestClass;
 import com.geeksaga.light.profiler.TestUtil;
 import org.junit.Test;
+import target.TestMethods;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Method;
@@ -33,12 +33,11 @@ import static org.junit.Assert.assertThat;
 public class MethodReturnTransformerTest {
     @Test
     public void testTransform() throws Exception {
-        String className = TestClass.CLASS_NAME;
-        String classFileName = TestClass.CLASS_FILE_NAME;
+        String className = TestMethods.class.getName();
 
         ClassFileTransformer transformer = new MethodReturnTransformer();
 
-        byte[] original = TestUtil.load(classFileName);
+        byte[] original = TestUtil.load(className);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
 
         assertThat(original, not(transform));
