@@ -21,6 +21,7 @@ import com.geeksaga.light.profiler.util.ASMUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,22 +31,31 @@ import java.util.regex.Pattern;
  */
 public class TestUtil {
     public static byte[] load(String name) throws Exception {
-        URL url = TestUtil.class.getResource("/" + convert(name));
-        File file = new File(url.toURI());
-        FileInputStream fileInputStream = new FileInputStream(file);
+        return load(TestUtil.class.getResource("/" + convert(name)));
+    }
+
+    public static byte[] load(URL url) throws Exception
+    {
+        return load(new FileInputStream(new File(url.toURI())));
+    }
+
+    public static byte[] load(InputStream inputStream) throws Exception
+    {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-        while (true) {
+        while (true)
+        {
             byte[] buffer = new byte[1024];
-            int read = fileInputStream.read(buffer);
-            if (read == -1) {
+            int read = inputStream.read(buffer);
+            if (read == -1)
+            {
                 break;
             }
 
             byteArrayOutputStream.write(buffer, 0, read);
         }
 
-        fileInputStream.close();
+        inputStream.close();
 
         return byteArrayOutputStream.toByteArray();
     }
@@ -55,7 +65,7 @@ public class TestUtil {
     }
 
     private static String convert(String value) {
-        Pattern pattern = Pattern.compile("(\\w+).(\\w+)");
+        Pattern pattern = Pattern.compile("[(\\w+).)]+");
         Matcher matcher = pattern.matcher(value);
 
         if(matcher.find())
