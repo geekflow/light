@@ -272,19 +272,22 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
         @Override
         protected void onMethodExit(int opcode) {
-            if ((opcode >= IRETURN && opcode <= RETURN)) {
+            if (isReturn(opcode)) {
                 captureReturn();
             }
 
             if (opcode != ATHROW) {
                 // FIXME finally
+                // captureReturn();
             }
         }
 
+        private boolean isReturn(int opcode) {
+            return (opcode >= IRETURN && opcode <= RETURN);
+        }
+
         public void captureReturn() {
-            if (returnType == null || returnType.equals(Type.VOID_TYPE)) {
-//                mv.visitInsn(ACONST_NULL);
-            } else {
+            if (returnType != null && !returnType.equals(Type.VOID_TYPE)) {
                 int returnVariableIndex = newLocal(returnType);
 
                 switch (returnType.getSort()) {
