@@ -17,6 +17,7 @@ package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.config.Configure;
 import com.geeksaga.light.agent.core.*;
 import com.geeksaga.light.profiler.instrument.transformer.*;
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class ProfilerModule implements Module {
     @Override
     public void start() {
         logger.info("profiler module start");
+
+        Configure configure = new Configure();
+        // configure.load("light.conf");
 
         addTransformer(instrumentation.isRetransformClassesSupported());
     }
