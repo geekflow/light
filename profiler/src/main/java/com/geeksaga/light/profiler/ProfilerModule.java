@@ -23,6 +23,7 @@ import com.geeksaga.light.profiler.instrument.transformer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -34,20 +35,19 @@ public class ProfilerModule implements Module {
     private Instrumentation instrumentation;
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
+    private ProfilerConfig profilerConfig;
 
     public ProfilerModule(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
         this.traceContext = new AgentTraceContext();
+        this.profilerConfig = ProfilerConfig.load("light.conf");
     }
 
     @Override
     public void start() {
         logger.info("profiler module start");
-
-        Configure configure = new Configure();
-        // configure.load("light.conf");
 
         addTransformer(instrumentation.isRetransformClassesSupported());
     }
