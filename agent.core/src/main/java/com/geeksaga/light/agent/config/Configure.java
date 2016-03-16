@@ -24,19 +24,27 @@ import java.util.Properties;
 public class Configure {
     public static final String DEFAULT_ENCODING = "UTF-8";
 
-    public Properties load(String path) {
+    public Properties load(String path) throws IOException {
+        return load(null, path);
+    }
+
+    public Properties load(ClassLoader classLoader, String path) throws IOException {
+        if (classLoader != null) {
+            return load(new Properties(), classLoader.getResourceAsStream(path), DEFAULT_ENCODING);
+        }
+
         return load(new Properties(), path, DEFAULT_ENCODING);
     }
 
-    public Properties load(Properties properties, String path, String encoding) {
-        InputStream inputStream = null;
+    public Properties load(Properties properties, String path, String encoding) throws IOException {
+        return load(properties, new FileInputStream(path), encoding);
+    }
+
+    public Properties load(Properties properties, InputStream inputStream, String encoding) throws IOException {
         Reader reader = null;
         try {
-            inputStream = new FileInputStream(path);
             reader = new InputStreamReader(inputStream, encoding);
             properties.load(reader);
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
         } finally {
             close(reader);
             close(inputStream);

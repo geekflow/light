@@ -18,6 +18,7 @@ package com.geeksaga.light.agent.config;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,9 +29,17 @@ import static org.hamcrest.Matchers.is;
  */
 public class ConfigureTest {
     @Test
-    public void testLoad() {
+    public void testLoad() throws IOException {
         Configure configure = new Configure();
         Properties properties = configure.load(System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
+
+        assertThat(properties.getProperty("entry_point"), is("main"));
+    }
+
+    @Test
+    public void testLoadFromClassPath() throws IOException {
+        Configure configure = new Configure();
+        Properties properties = configure.load(ConfigureTest.class.getClassLoader(), File.separator + "light.conf");
 
         assertThat(properties.getProperty("entry_point"), is("main"));
     }
