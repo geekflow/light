@@ -22,6 +22,8 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.*;
 
+import java.util.*;
+
 /**
  * @author geeksaga
  */
@@ -310,5 +312,129 @@ public class ASMUtil {
         }
 
         return null;
+    }
+
+    public static String[] getAllSuperClassesNames(ClassNodeWrapper clazz)
+    {
+        LinkedList<ClassNodeWrapper> queue = new LinkedList<ClassNodeWrapper>();
+        Set<String> allSuperClassesNames = new TreeSet<String>();
+        queue.addLast(clazz);
+
+        while (!queue.isEmpty())
+        {
+            ClassNodeWrapper classInQueue = queue.removeFirst();
+            String superClassName = classInQueue.getSuperClassName();
+
+            if(superClassName == null)
+            {
+                break;
+            }
+
+            ClassNodeWrapper superClassesOfClassInQueue = getSuperClassTypeOfClassWrapper(classInQueue);
+
+            if (superClassesOfClassInQueue != null && !superClassesOfClassInQueue.getClassName().equals("java/lang/Object"))
+            {
+                allSuperClassesNames.add(superClassesOfClassInQueue.getClassName());
+
+                queue.addLast(superClassesOfClassInQueue);
+            }
+        }
+
+        return allSuperClassesNames.toArray(new String[allSuperClassesNames.size()]);
+    }
+
+    private static ClassNodeWrapper getSuperClassTypeOfClassWrapper(ClassNodeWrapper clazz)
+    {
+        String superClassName = clazz.getSuperClassName();
+
+        ClassNodeWrapper classWrapper = getClassWrapperUsingClassName(superClassName);
+
+        if (classWrapper != null)
+        {
+            return classWrapper;
+        }
+
+        return null;
+    }
+
+    private static ClassNodeWrapper getClassWrapperUsingClassName(String className)
+    {
+        if (ClassReaderWrapper.isValid(className))
+        {
+            ClassNodeWrapper classNode = new ClassNodeWrapper();
+            ClassReader cr = new ClassReaderWrapper(className);
+            cr.accept(classNode, new Attribute[0], 0);
+
+            return classNode;
+        }
+
+        return null;
+    }
+
+    public static String[] getInterfaceNames(ClassNodeWrapper clazz)
+    {
+        String[] r = (String[]) clazz.interfaces.toArray(new String[clazz.interfaces.size()]);
+        for (int i = 0; i < r.length; i++)
+        {
+            r[i] = convertForAgent(r[i]);
+        }
+
+        return r;
+    }
+
+    public static String[] getAllInterfaceNames(ClassNodeWrapper clazz)
+    {
+        LinkedList<ClassNodeWrapper> queue = new LinkedList<ClassNodeWrapper>();
+        Set<String> allInterfaceNames = new TreeSet<String>();
+        queue.addLast(clazz);
+
+        while (!queue.isEmpty())
+        {
+            ClassNodeWrapper classInQueue = queue.removeFirst();
+            String superClassName = classInQueue.getSuperClassName();
+            List<ClassNodeWrapper> interfacesOfClassInQueue = getInterfacesTypeOfClassWrapper(classInQueue);
+
+            if (classInQueue.isInterface())
+            {
+                allInterfaceNames.add(classInQueue.getClassName());
+            }
+            else
+            {
+                if (superClassName != null && !superClassName.equals("java/lang/Object"))
+                {
+                    ClassNodeWrapper classNode = getClassWrapperUsingClassName(superClassName);
+
+                    if (classNode != null)
+                    {
+                        queue.addLast(classNode);
+                    }
+                }
+            }
+
+            for (ClassNodeWrapper classWrapperOfInterface : interfacesOfClassInQueue)
+            {
+                queue.addLast(classWrapperOfInterface);
+            }
+        }
+
+        return allInterfaceNames.toArray(new String[allInterfaceNames.size()]);
+    }
+
+    private static List<ClassNodeWrapper> getInterfacesTypeOfClassWrapper(ClassNodeWrapper clazz)
+    {
+        String[] interfaceNames = clazz.getInterfaceNames();
+        List<ClassNodeWrapper> interfaces = new ArrayList<ClassNodeWrapper>();
+
+        for (String interfaceName : interfaceNames)
+        {
+            ClassNodeWrapper classWrapper = getClassWrapperUsingClassName(interfaceName);
+
+            if (classWrapper != null)
+            {
+                interfaces.add(classWrapper);
+            }
+        }
+
+        return interfaces;
     }
 }

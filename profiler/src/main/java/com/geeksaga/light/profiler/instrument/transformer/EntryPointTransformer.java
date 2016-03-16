@@ -90,10 +90,6 @@ public class EntryPointTransformer implements ClassFileTransformer {
                     }
                 }, ClassReader.EXPAND_FRAMES);
 
-                if (classNodeWrapper.isInterface()) {
-                    return classfileBuffer;
-                }
-
                 // return ASMUtil.toBytes(classNodeWrapper);
                 byte[] bytes = ASMUtil.toBytes(classNodeWrapper);
 
@@ -105,7 +101,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
             logger.log(Level.WARNING, throwable.getMessage(), throwable);
         }
 
-        return classfileBuffer;
+        return null;
     }
 
     class EntryPointAdapter extends AdviceAdapter {

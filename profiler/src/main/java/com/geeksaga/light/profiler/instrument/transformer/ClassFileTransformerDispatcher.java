@@ -15,16 +15,81 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.agent.trace.Profiler;
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+import com.geeksaga.light.profiler.util.ASMUtil;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.logging.Logger;
 
 /**
  * @author geeksaga
  */
 public class ClassFileTransformerDispatcher implements ClassFileTransformer {
+    private static final Logger logger = Logger.getLogger(ClassFileTransformerDispatcher.class.getName());
+
+    public static ThreadLocal<ClassLoader> context = new ThreadLocal<ClassLoader>();
+
+    private TraceRegisterBinder traceRegisterBinder;
+    private TraceContext traceContext;
+    private  ClassFileTransformer classFileTransformer;
+
+    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext) {
+        this.traceRegisterBinder = traceRegisterBinder;
+        this.traceContext = traceContext;
+        this.classFileTransformer = new EntryPointTransformer(traceRegisterBinder, traceContext);
+    }
+
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if (classfileBuffer == null || className == null) { // || className.startsWith("com/geeksaga/light")) {
+            return null;
+        }
+
+        long now = System.currentTimeMillis();
+        context.set(classLoader);
+
+        ClassNodeWrapper clazz = ASMUtil.parse(classfileBuffer);
+
+        if (clazz.isInterface()) {
+            return classfileBuffer;
+        }
+
+        byte[] bytes = classFileTransformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+
+        long dur = System.currentTimeMillis();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("LOAD:[");
+
+        if (classLoader == null) {
+            sb.append("BootstrapClassLoader");
+            sb.append("] [");
+        } else {
+            sb.append(Integer.toHexString(classLoader.hashCode()));
+            sb.append("] [");
+            sb.append(classLoader.getClass().getName());
+
+            sb.append("] ");
+        }
+
+        sb.append(clazz.getClassName());
+        sb.append(" ");
+        sb.append(classfileBuffer.length);
+        sb.append(" bytes ");
+        sb.append((dur - now));
+        sb.append(" ms");
+
+        logger.info(sb.toString());
+
+        if (bytes != null) {
+            return bytes;
+        }
+
         return classfileBuffer;
     }
 }

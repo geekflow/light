@@ -31,11 +31,15 @@ public class Profiler {
 
     public static void begin(int traceKey, MethodInfo methodInfo) {
         Trace trace = TraceRegistry.get(traceKey);
-        trace.begin(methodInfo);
+        if (trace != null) {
+            trace.begin(methodInfo);
+        }
     }
 
     public static void end(int traceKey, MethodInfo methodInfo, Throwable throwable) {
         Trace trace = TraceRegistry.get(traceKey);
-        trace.end(methodInfo, throwable);
+        if (trace != null) {
+            trace.end(methodInfo, throwable);
+        }
     }
 }

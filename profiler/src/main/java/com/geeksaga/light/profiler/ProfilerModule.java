@@ -54,8 +54,8 @@ public class ProfilerModule implements Module {
 
     private void addTransformer(boolean canRetransform) {
         // TODO transformer dispatcher
-        // instrumentation.addTransformer(new ClassFileTransformerDispatcher(), canRetransform);
-        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder, traceContext), canRetransform);
+        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext), canRetransform);
+//        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder, traceContext), canRetransform);
 //        instrumentation.addTransformer(new MethodParameterTransformer(), canRetransform);
 //        instrumentation.addTransformer(new MethodReturnTransformer(), canRetransform);
 //        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder, traceContext), canRetransform);
