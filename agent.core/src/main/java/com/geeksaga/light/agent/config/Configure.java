@@ -41,6 +41,11 @@ public class Configure {
     }
 
     public Properties load(Properties properties, InputStream inputStream, String encoding) throws IOException {
+        if(inputStream == null)
+        {
+            return properties;
+        }
+
         Reader reader = null;
         try {
             reader = new InputStreamReader(inputStream, encoding);
