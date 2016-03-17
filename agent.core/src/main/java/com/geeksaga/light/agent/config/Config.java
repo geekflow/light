@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent;
-
-import com.geeksaga.light.agent.config.Config;
-import com.geeksaga.light.agent.core.ActiveObject;
-import com.geeksaga.light.agent.trace.MethodInfo;
+package com.geeksaga.light.agent.config;
 
 /**
  * @author geeksaga
  */
-public interface TraceContext {
-    ActiveObject create(MethodInfo methodInfo);
-    ActiveObject current();
-    void remove();
-    Config getConfig();
+public interface Config {
+
 }

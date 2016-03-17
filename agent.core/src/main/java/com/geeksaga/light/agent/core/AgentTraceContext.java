@@ -16,6 +16,7 @@
 package com.geeksaga.light.agent.core;
 
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.trace.EntryTrace;
 import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.Trace;
@@ -26,8 +27,10 @@ import com.geeksaga.light.agent.trace.Trace;
 public class AgentTraceContext implements TraceContext {
 
     private final ThreadLocal<ActiveObject> threadLocal = new ThreadLocal<ActiveObject>();
+    private Config config;
 
-    public AgentTraceContext() {
+    public AgentTraceContext(Config config) {
+        this.config = config;
     }
 
     public ActiveObject create(MethodInfo methodInfo) {
@@ -46,5 +49,9 @@ public class AgentTraceContext implements TraceContext {
         threadLocal.set(activeObject);
 
         return activeObject;
+    }
+
+    public Config getConfig() {
+        return config;
     }
 }

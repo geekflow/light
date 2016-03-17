@@ -17,6 +17,7 @@ package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.config.Configure;
 import com.geeksaga.light.agent.core.*;
 import com.geeksaga.light.profiler.instrument.transformer.*;
@@ -35,14 +36,12 @@ public class ProfilerModule implements Module {
     private Instrumentation instrumentation;
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
-    private ProfilerConfig profilerConfig;
 
     public ProfilerModule(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
-        this.traceContext = new AgentTraceContext();
-        this.profilerConfig = ProfilerConfig.load("light.conf");
+        this.traceContext = new AgentTraceContext(ProfilerConfig.load("light.conf"));
     }
 
     @Override

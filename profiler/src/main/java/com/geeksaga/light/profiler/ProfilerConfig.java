@@ -15,7 +15,10 @@
  */
 package com.geeksaga.light.profiler;
 
+import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.config.Configure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -23,7 +26,9 @@ import java.util.Properties;
 /**
  * @author geeksaga
  */
-public class ProfilerConfig {
+public class ProfilerConfig implements Config {
+    private static Logger logger = LoggerFactory.getLogger(ProfilerConfig.class.getName());
+
     private Properties properties;
 
     public ProfilerConfig() {
@@ -34,12 +39,23 @@ public class ProfilerConfig {
         this.properties = properties;
     }
 
-    public static ProfilerConfig load(String file) {
+    public static Config load(String file) {
         try {
             Configure configure = new Configure();
             return new ProfilerConfig(configure.load(file));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info(e.getMessage(), e);
+        }
+
+        return new ProfilerConfig();
+    }
+
+    public static Config load(ClassLoader classLoader, String file) {
+        try {
+            Configure configure = new Configure();
+            return new ProfilerConfig(configure.load(classLoader, file));
+        } catch (IOException e) {
+            logger.info(e.getMessage(), e);
         }
 
         return new ProfilerConfig();

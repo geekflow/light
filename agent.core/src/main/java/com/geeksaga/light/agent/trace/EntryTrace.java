@@ -16,6 +16,7 @@
 package com.geeksaga.light.agent.trace;
 
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.core.ActiveObject;
 
 import java.util.Arrays;
