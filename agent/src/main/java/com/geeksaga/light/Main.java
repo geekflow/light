@@ -15,13 +15,20 @@
  */
 package com.geeksaga.light;
 
+import java.util.logging.Logger;
+
 /**
  * @author geeksaga
  */
 public class Main {
-    public static void main(String[] args) {
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
+    public static void main(String[] args) throws InterruptedException {
         System.out.println(Product.NAME + " is simple APM (Application Performance Management).");
         System.out.println("Usage : execute java with -javaagent option");
         System.out.println("ex) java -javaagent:light.agent-x.x.x.jar -jar light.demo.jar");
+
+        AttachMain main = new AttachMain();
+        main.attach();
     }
 }

@@ -28,6 +28,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        AttachMain attachMain = new AttachMain();
+        attachMain.attach();
+
         Main main = new Main();
 
         System.out.println("Demo start...");

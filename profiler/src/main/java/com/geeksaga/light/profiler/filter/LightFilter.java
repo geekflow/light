@@ -21,7 +21,7 @@ package com.geeksaga.light.profiler.filter;
 public class LightFilter implements Filter {
     @Override
     public boolean allow(ClassLoader classLoader, String className) {
-        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun")) {
+        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun") || className.startsWith("com/sun")) {
             return false;
         }
 
