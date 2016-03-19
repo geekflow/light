@@ -13,32 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.demo;
+package com.geeksaga.light.agent;
+
+import com.geeksaga.light.vm.VMAttach;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * @author geeksaga
  */
-public class Main {
-    public long random() {
-        return (long) ((Math.random() * 100) + 500);
-    }
-
-    public void print(String message) throws InterruptedException {
-        Thread.sleep(random());
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        Main main = new Main();
-
-        System.out.println("Demo start...");
-
-        for (int i = 0; i < 3; i++) {
-            main.print(String.valueOf(i));
-        }
-
-        System.out.println("Demo end...");
-
-        AttachMain attachMain = new AttachMain();
-        attachMain.attach();
+@Ignore
+public class AttachMainTest {
+    @Test
+    public void testList() {
+        VMAttach attach = new VMAttach();
+        attach.show();
     }
 }

@@ -16,6 +16,7 @@
 package com.geeksaga.light.demo;
 
 import javax.tools.ToolProvider;
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -28,7 +29,7 @@ public class ToolsLoader {
     public static ClassLoader getLoader(ClassLoader parent) {
         if (toolsLoader == null) {
             try {
-                toolsLoader = new URLClassLoader(new URL[]{getToolsFile()}, parent);
+                toolsLoader = new URLClassLoader(new URL[]{getToolsFile(), new File(System.getProperty("user.dir") + File.separator + "light.demo-0.0.1.jar").toURI().toURL()}, parent);
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }

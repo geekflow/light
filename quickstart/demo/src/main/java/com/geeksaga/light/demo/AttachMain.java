@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.demo;
 
+import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.logging.Level;
@@ -32,7 +34,7 @@ public class AttachMain {
             System.out.println(url.getFile());
         }
 
-        ClassLoader loader = ToolsLoader.getLoader(ClassLoader.getSystemClassLoader());
+        ClassLoader loader = ToolsLoader.getLoader(Object.class.getClassLoader());
 
         try {
             if (loader != null) {
@@ -46,16 +48,16 @@ public class AttachMain {
 
             Class clazz = Class.forName("com.geeksaga.light.demo.VMAttach", true, loader);
 
-            VMAttach main = (VMAttach) clazz.newInstance();
-//            Object main = clazz.newInstance();
+//            VMAttach main = (VMAttach) clazz.newInstance();
+            Object main = clazz.newInstance();
 
             if (main != null) {
                 logger.info(getThisJarName());
 
-//                Method method = clazz.getDeclaredMethod("loadAgent", String.class);
-//                method.invoke(main, getThisJarName());
+                Method method = clazz.getDeclaredMethod("loadAgent", String.class);
+                method.invoke(main, getAgentJarName());
 
-                 main.loadAgent(getThisJarName());
+//                 main.loadAgent(getThisJarName());
             }
         } catch (Exception exception) {
             logger.log(Level.INFO, exception.getMessage(), exception);
@@ -64,11 +66,11 @@ public class AttachMain {
 
     public String getThisJarName() {
         String path;
-        ClassLoader cl = Main.class.getClassLoader();
-        if (cl == null) {
+        ClassLoader classLoader = Main.class.getClassLoader();
+        if (classLoader == null) {
             path = "" + ClassLoader.getSystemClassLoader().getResource(Main.class.getName().replace('.', '/') + ".class");
         } else {
-            path = "" + cl.getResource(Main.class.getName().replace('.', '/') + ".class");
+            path = "" + classLoader.getResource(Main.class.getName().replace('.', '/') + ".class");
         }
 
         if (path.contains("!")) {
@@ -80,5 +82,20 @@ public class AttachMain {
         }
 
         return "/" + path;
+    }
+
+    public String getAgentJarName() {
+        String jar;
+        ClassLoader classLoader = Main.class.getClassLoader();
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+
+        URL url = classLoader.getResource(Main.class.getName().replace('.', '/') + ".class");
+        jar = url.toString().replace("jar:file:", "");
+        jar = jar.substring(0, jar.indexOf(".jar!") + 4);
+
+        // return jar;
+        return System.getProperty("user.dir") + File.separator + "light.agent-0.0.1.jar";
     }
 }

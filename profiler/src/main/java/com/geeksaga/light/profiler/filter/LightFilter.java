@@ -25,7 +25,7 @@ public class LightFilter implements Filter {
             return false;
         }
 
-        if (className.startsWith("com/geeksaga/light/demo")) {
+        if (className.startsWith("com/geeksaga/light/demo/Main")) {
             return true;
         }
 

@@ -17,8 +17,13 @@ package com.geeksaga.light.vm;
 
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
+import com.sun.tools.attach.VirtualMachineDescriptor;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -39,9 +44,63 @@ public class VMAttach {
             vm.loadAgent(agent, null);
             vm.detach();
         } catch (AttachNotSupportedException attachNotSupportedException) {
-            attachNotSupportedException.printStackTrace();
+            logger.log(Level.INFO, attachNotSupportedException.getMessage(), attachNotSupportedException);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    // supported JDK7
+    public void show() {
+        List<VirtualMachineDescriptor> vms = VirtualMachine.list();
+        for (VirtualMachineDescriptor virtualMachineDescriptor : vms) {
+            System.out.println("============ Show JVM: pid = " + virtualMachineDescriptor.id() + virtualMachineDescriptor.displayName());
+            VirtualMachine virtualMachine = attach(virtualMachineDescriptor);
+            if (virtualMachine != null) {
+                System.out.println("     Java version = " + readSystemProperty(virtualMachine, "java.version"));
+            }
+        }
+    }
+
+    private VirtualMachine attach(VirtualMachineDescriptor virtualMachineDescriptor) {
+        VirtualMachine virtualMachine = null;
+        try {
+            virtualMachine = VirtualMachine.attach(virtualMachineDescriptor);
+            Properties props = new Properties();
+            props.put("com.sun.management.jmxremote.port", "5000");
+//            props.put("bootclasspath", "");
+//            virtualMachine.startManagementAgent(props);
+        } catch (AttachNotSupportedException attachNotSupportedException) {
+            logger.log(Level.INFO, attachNotSupportedException.getMessage(), attachNotSupportedException);
+        } catch (IOException ioException) {
+            logger.log(Level.INFO, ioException.getMessage(), ioException);
+        } finally {
+            detach(virtualMachine);
+        }
+
+        return virtualMachine;
+    }
+
+    private String readSystemProperty(VirtualMachine virtualMachine, String propertyName) {
+        String propertyValue = null;
+        try {
+            Properties systemProperties = virtualMachine.getSystemProperties();
+            logger.info(systemProperties.toString());
+            propertyValue = systemProperties.getProperty(propertyName);
+        } catch (IOException ioException) {
+            logger.log(Level.INFO, ioException.getMessage(), ioException);
+        }
+
+        return propertyValue;
+    }
+
+    private void detach(VirtualMachine virtualMachine) {
+        if (virtualMachine != null) {
+            try {
+                virtualMachine.detach();
+            } catch (IOException ioException) {
+                logger.log(Level.INFO, ioException.getMessage(), ioException);
+            }
         }
     }
 }
