@@ -17,7 +17,8 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 set JAVA_OPTS=
 set JAVA_OPTS=%JAVA_OPTS% -javaagent:%LIGHT_HOME%\light.agent-0.0.1.jar
 set JAVA_OPTS=%JAVA_OPTS% -Xms256m -Xmx512m
-set JAVA_OPTS=%JAVA_OPTS% -Dfile.encoding=UTF-8
+rem --- use chcp command
+rem set JAVA_OPTS=%JAVA_OPTS% -Dfile.encoding=UTF-8
 
 if "%1"=="start" (
 start cmd /c call light-demo.bat run
