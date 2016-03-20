@@ -33,14 +33,14 @@ public class JavaAgent {
     private static Instrumentation instrumentation;
 
     public static void premain(String options, Instrumentation instrumentation) {
-        init(options, instrumentation);
+        init(options, instrumentation, false);
     }
 
     public static void agentmain(String options, Instrumentation instrumentation) {
-        init(options, instrumentation);
+        init(options, instrumentation, true);
     }
 
-    private static void init(String options, Instrumentation instrumentation) {
+    private static void init(String options, Instrumentation instrumentation, boolean attach) {
         if (updateStatusAndCheckDuplicate()) {
             failInitialize();
             return;
@@ -49,7 +49,7 @@ public class JavaAgent {
         JavaAgent.instrumentation = instrumentation;
 
         Bootstrap bootstrap = new Bootstrap(options, instrumentation);
-        bootstrap.initialize();
+        bootstrap.initialize(attach);
     }
 
     private static boolean updateStatusAndCheckDuplicate() {

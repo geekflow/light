@@ -17,6 +17,7 @@ package com.geeksaga.light.agent;
 
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
@@ -43,10 +44,10 @@ public class Bootstrap {
         this.instrumentation = instrumentation;
     }
 
-    public void initialize() {
+    public void initialize(boolean attach) {
         logger.info("initialize...");
 
-        final AgentClassPathResolver classPathResolver = new AgentClassPathResolver();
+        final AgentClassPathResolver classPathResolver = createResolver(attach);
 
         //
         if (!classPathResolver.isInitialize()) {
@@ -81,6 +82,28 @@ public class Bootstrap {
         } catch (Exception exception) {
             logger.log(Level.INFO, exception.getMessage(), exception);
         }
+    }
+
+    private AgentClassPathResolver createResolver(boolean attach) {
+        if(attach) {
+            return new AgentClassPathResolver(getAgentJarName());
+        }
+
+        return new AgentClassPathResolver();
+    }
+
+    public String getAgentJarName() {
+        String jarPath;
+        ClassLoader classLoader = Bootstrap.class.getClassLoader();
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+
+        URL url = classLoader.getResource(Bootstrap.class.getName().replace('.', '/') + ".class");
+        jarPath = url.toString().replace("jar:file:/", "");
+        jarPath = jarPath.substring(0, jarPath.indexOf(".jar!") + 4);
+
+        return jarPath;
     }
 
     private void appendToBootstrapClassLoaderSearch(JarFile jarFile) {

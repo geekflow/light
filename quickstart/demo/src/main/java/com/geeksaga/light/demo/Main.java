@@ -36,9 +36,11 @@ public class Main {
             main.print(String.valueOf(i));
         }
 
-        System.out.println("Demo end...");
-
         AttachMain attachMain = new AttachMain();
         attachMain.attach();
+
+        main.print("attach");
+
+        System.out.println("Demo end...");
     }
 }
