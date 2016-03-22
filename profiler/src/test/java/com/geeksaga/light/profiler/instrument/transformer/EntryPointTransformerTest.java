@@ -61,12 +61,12 @@ public class EntryPointTransformerTest {
         assertThat(method.invoke(instance), nullValue());
     }
 
-    protected class TestClassLoader extends ClassLoader {
-        public TestClassLoader(ClassLoader parent) {
+    class TestClassLoader extends ClassLoader {
+        TestClassLoader(ClassLoader parent) {
             super(parent);
         }
 
-        public Class<?> findClass(String name, byte[] bytes) {
+        Class<?> findClass(String name, byte[] bytes) {
             return defineClass(name, bytes, 0, bytes.length);
         }
     }

@@ -21,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -59,5 +62,36 @@ public class ProfilerConfig implements Config {
         }
 
         return new ProfilerConfig();
+    }
+
+    public String read(String propertyKey, String defaultValue) {
+        return properties.getProperty(propertyKey, defaultValue);
+    }
+
+    public int read(String propertyKey, int defaultValue) {
+        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
+
+        return Integer.valueOf(value);
+    }
+
+    public long read(String propertyKey, long defaultValue) {
+        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
+
+        return Long.valueOf(value);
+    }
+
+    public List<String> read(String propertyKey) {
+        String value = properties.getProperty(propertyKey);
+        if (value == null) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.asList(value.trim().split(","));
+    }
+
+    public boolean read(String propertyKey, boolean defaultValue) {
+        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
+
+        return Boolean.valueOf(value);
     }
 }

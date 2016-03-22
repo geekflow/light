@@ -15,9 +15,19 @@
  */
 package com.geeksaga.light.agent.config;
 
+import java.util.List;
+
 /**
  * @author geeksaga
  */
 public interface Config {
+    String read(String propertyKey, String defaultValue);
 
+    int read(String propertyKey, int defaultValue);
+
+    long read(String propertyKey, long defaultValue);
+
+    List<String> read(String propertyKey);
+
+    boolean read(String propertyKey, boolean defaultValue);
 }
