@@ -16,6 +16,7 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.config.Config;
+import com.geeksaga.light.agent.config.ConfigDef;
 import org.junit.Test;
 import target.TestMethods;
 
@@ -34,22 +35,22 @@ public class ProfilerConfigTest {
     public void testLoad() {
         ProfilerConfig profilerConfig = new ProfilerConfig();
 
-        assertThat(profilerConfig.read("entry_point", "default"), is("default"));
+        assertThat(profilerConfig.read(ConfigDef.entry_point, "default"), is("default"));
 
         Config config = ProfilerConfig.load(ProfilerConfigTest.class.getClassLoader(), "light.conf");
 
         assertThat(config, instanceOf(ProfilerConfig.class));
 
-        assertThat(config.read("entry_point", "default"), containsString(TestMethods.class.getName()));
+        assertThat(config.read(ConfigDef.entry_point, "default"), containsString(TestMethods.class.getName()));
     }
 
     @Test
     public void testReadValue() throws IOException {
         Config config = ProfilerConfig.load(ProfilerConfigTest.class.getClassLoader(), "light.conf");
 
-        assertThat(config.read("entry_point", "default"), containsString(TestMethods.class.getName()));
-        assertThat(config.read("class_max_size", 1024 * 1024), is(1048576));
-        assertThat(config.read("method_min_size", -1), is(0));
-        assertThat(config.read("method_max_size", -1), is(48000));
+        assertThat(config.read(ConfigDef.entry_point, "default"), containsString(TestMethods.class.getName()));
+        assertThat(config.read(ConfigDef.class_max_size, 1024 * 1024), is(1048576));
+        assertThat(config.read(ConfigDef.method_min_size, -1), is(0));
+        assertThat(config.read(ConfigDef.method_max_size, -1), is(48000));
     }
 }
