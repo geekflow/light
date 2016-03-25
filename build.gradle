@@ -54,6 +54,10 @@ subprojects {
         maven { url "https://repo.spring.io/libs-release" }
         maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
         maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+        flatDir {
+            dirs 'libs'
+            //'$rootProject.projectDir/libs'
+        }
     }
 
     dependencies {

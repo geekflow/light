@@ -18,6 +18,8 @@ jar {
 
 dependencies {
     compile 'org.ow2.asm:asm-all:5.0.4'
+//    compile name: 'fernflower'
+    compile files("../libs/fernflower.jar")
 }
 
 task install(dependsOn: [copyToLibrary]) {
