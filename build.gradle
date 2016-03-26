@@ -99,9 +99,10 @@ subprojects {
 
     task copyToLibrary(type: Copy) {
         from configurations.runtime
-        into "${rootProject.rootDir}/build/libs"
+        into "${rootProject.rootDir}/install/libs"
 
         exclude 'light.**.jar'
+        exclude 'tools.jar'
     }
 
     jar.finalizedBy(project.tasks.copyToLibrary)

@@ -17,7 +17,7 @@ jar {
 
 task install(dependsOn: [copyToLibrary]) {
     doLast {
-        File build = mkdir("${rootProject.rootDir}/build/libs")
+        File build = mkdir("${rootProject.rootDir}/install/libs")
 
         copy {
             from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
