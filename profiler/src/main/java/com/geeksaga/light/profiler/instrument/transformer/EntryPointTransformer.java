@@ -93,7 +93,7 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 // return ASMUtil.toBytes(classNodeWrapper);
                 byte[] bytes = ASMUtil.toBytes(classNodeWrapper);
 
-                new MethodParameterTransformer().save(System.getProperty("user.dir") + File.separator + ".." + File.separator + "build" + File.separator + "Main.class", bytes);
+                new MethodParameterTransformer().save(System.getProperty("user.dir") + File.separator + ".." + File.separator + "install" + File.separator + "Main.class", bytes);
 
                 return bytes;
             }

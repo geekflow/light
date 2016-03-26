@@ -86,7 +86,7 @@ public class ProfilerConfig implements Config {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(value.trim().split(","));
+        return Arrays.asList(value.trim().split("\\s+"));
     }
 
     public boolean read(String propertyKey, boolean defaultValue) {
