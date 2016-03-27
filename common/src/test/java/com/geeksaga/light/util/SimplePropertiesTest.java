@@ -22,6 +22,7 @@ import java.util.Arrays;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author geeksaga
@@ -31,8 +32,12 @@ public class SimplePropertiesTest {
     public void testLoad() {
         SimpleProperties properties = new SimpleProperties("ignore.ini");
 
+        assertThat(properties.getProperty("empty"), notNullValue());
+
         assertThat(properties.getProperty("ignore_pattern"), is("com.geeksaga.light."));
 
-        assertThat(Arrays.asList(properties.getPropertyList("ignore_pattern")), containsInAnyOrder("com.geeksaga.light.", "java.lang."));
+        assertThat(Arrays.asList(properties.getPropertyList("ignore_pattern")), containsInAnyOrder("com.geeksaga.light.", "java.lang.", "java.lang.String.toString()V"));
+
+        assertThat(Arrays.asList(properties.getPropertyList("ignore_pattern")).size(), is(3));
     }
 }
