@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
-
-import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
-import com.geeksaga.light.profiler.util.ASMUtil;
+package com.geeksaga.light.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,8 +31,7 @@ public class TestUtil {
         return load(TestUtil.class.getResource("/" + convert(name)));
     }
 
-    public static byte[] load(URL url) throws Exception
-    {
+    public static byte[] load(URL url) throws Exception {
         return load(new FileInputStream(new File(url.toURI())));
     }
 
@@ -55,10 +51,6 @@ public class TestUtil {
         inputStream.close();
 
         return byteArrayOutputStream.toByteArray();
-    }
-
-    public static ClassNodeWrapper loadClass(String fileName) throws Exception {
-        return ASMUtil.parse(load(fileName));
     }
 
     private static String convert(String value) {
