@@ -1,6 +1,8 @@
 ##Light APM
 
-[![Build Status](https://travis-ci.org/geekflow/light.svg?branch=master)](https://travis-ci.org/geekflow/light) [![Coverage Status](https://coveralls.io/repos/github/geekflow/light/badge.svg?branch=master)](https://coveralls.io/github/geekflow/light?branch=master)
+[![Build Status](https://travis-ci.org/geekflow/light.svg?branch=master)](https://travis-ci.org/geekflow/light)
+[![Coverage Status](https://coveralls.io/repos/github/geekflow/light/badge.svg?branch=master)](https://coveralls.io/github/geekflow/light?branch=master)
+![GitHub License](https://img.shields.io/github/license/geekflow/light.svg?style=flat-square)
 
 ## Goal
 Try to writing code using github for personal study.
