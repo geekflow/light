@@ -18,6 +18,9 @@ jar {
 
 dependencies {
     compile 'org.ow2.asm:asm-all:5.0.4'
+    compile 'io.dropwizard.metrics:metrics-core:3.1.2'
+    compile 'io.dropwizard.metrics:metrics-jvm:3.1.2'
+//    compile 'io.dropwizard.metrics:metrics-servlets:3.1.0'
 //    compile name: 'fernflower'
     compile files("../libs/fernflower.jar")
 }
