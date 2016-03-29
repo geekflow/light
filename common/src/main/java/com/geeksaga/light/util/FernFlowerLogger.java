@@ -20,13 +20,12 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 /**
  * @author geeksaga
  */
-class FernFlowerLogger extends IFernflowerLogger
-{
+class FernFlowerLogger extends IFernflowerLogger {
     @Override
-    public void writeMessage(String message, Severity severity)
-    {}
+    public void writeMessage(String message, Severity severity) {
+    }
 
     @Override
-    public void writeMessage(String message, Throwable t)
-    {}
+    public void writeMessage(String message, Throwable t) {
+    }
 }

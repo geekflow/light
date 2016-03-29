@@ -47,28 +47,21 @@ class FernFlowerDecompiler implements IBytecodeProvider, IResultSaver {
         return new byte[0];
     }
 
-    public void saveFolder(String path) {
-    }
+    public void saveFolder(String path) {}
 
-    public void copyFile(String source, String path, String entryName) {
-    }
+    public void copyFile(String source, String path, String entryName) {}
 
     public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
         this.content = content;
     }
 
-    public void createArchive(String path, String archiveName, Manifest manifest) {
-    }
+    public void createArchive(String path, String archiveName, Manifest manifest) {}
 
-    public void saveDirEntry(String path, String archiveName, String entryName) {
-    }
+    public void saveDirEntry(String path, String archiveName, String entryName) {}
 
-    public void copyEntry(String source, String path, String archiveName, String entry) {
-    }
+    public void copyEntry(String source, String path, String archiveName, String entry) {}
 
-    public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-    }
+    public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {}
 
-    public void closeArchive(String path, String archiveName) {
-    }
+    public void closeArchive(String path, String archiveName) {}
 }
