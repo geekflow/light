@@ -1,5 +1,33 @@
 apply plugin: 'java'
 
+jar {
+    baseName = 'light.common'
+    version = '0.0.1'
+
+    manifest {
+        attributes 'Implementation-Title': 'GeekSaga Light Common',
+                'Implementation-Version': version,
+                'Implementation-Vendor': 'GeekSaga, Inc.',
+                'Specification-Title': 'GeekSaga Light APM Tools',
+                'Specification-Version': version,
+                'Specification-Vendor': 'GeekSaga, Inc.',
+                'Main-Class': 'com.geeksaga.light.Main'
+    }
+}
+
 dependencies {
     compile files("../libs/fernflower.jar")
 }
+
+task install(dependsOn: [copyToLibrary]) {
+    doLast {
+        File build = mkdir("${rootProject.rootDir}/install/libs")
+
+        copy {
+            from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
+            into build
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.install)

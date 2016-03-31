@@ -15,6 +15,10 @@ jar {
     }
 }
 
+dependencies {
+    compile 'org.ow2.asm:asm-all:5.0.4'
+}
+
 task install(dependsOn: [copyToLibrary]) {
     doLast {
         File build = mkdir("${rootProject.rootDir}/install/libs")
@@ -27,7 +31,3 @@ task install(dependsOn: [copyToLibrary]) {
 }
 
 build.finalizedBy(project.tasks.install)
-
-dependencies {
-    compile 'org.ow2.asm:asm-all:5.0.4'
-}

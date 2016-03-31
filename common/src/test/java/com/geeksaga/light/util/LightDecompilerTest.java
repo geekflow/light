@@ -16,6 +16,7 @@
 package com.geeksaga.light.util;
 
 import org.jetbrains.java.decompiler.main.Fernflower;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import target.TestMethods;
 
@@ -33,7 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
  * @author geeksaga
  */
 public class LightDecompilerTest {
-    private final String EXPECT = "package target;\n" +
+    private static String EXPECT = "package target;\n" +
             "\n" +
             "public class TestMethods {\n" +
             "   public boolean doWithBoolean(boolean value) {\n" +
@@ -84,6 +85,13 @@ public class LightDecompilerTest {
         return TestMethods.class.getProtectionDomain().getCodeSource().getLocation().toString().replace("file:", "") + TestMethods.class.getCanonicalName().replace(".", File.separator) + ".class";
     }
 
+    @BeforeClass
+    public static void init() {
+        if(SystemProperty.WINDOWS_OS) {
+            EXPECT = EXPECT.replace("\n", "\r\n");
+        }
+    }
+
     @Test
     public void testDecompile() throws Exception {
         FernFlowerDecompiler decompiler = new FernFlowerDecompiler();
@@ -95,7 +103,9 @@ public class LightDecompilerTest {
             fernflower.getStructContext().addSpaceForLight("", absolutePath(), true);
             fernflower.decompileContext();
 
-            assertThat(decompiler.getContent(), is(EXPECT));
+            if(SystemProperty.WINDOWS_OS) {
+                assertThat(decompiler.getContent(), is(EXPECT));
+            }
         } finally {
             fernflower.clearContext();
         }
