@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent.logger;
+package com.geeksaga.light.logger;
 
+import com.geeksaga.light.util.SystemProperty;
+import org.slf4j.LoggerFactory;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,12 +44,12 @@ public class CommonLogger {
 
         @Override
         public void info(Throwable throwable) {
-            info(throwable.getStackTrace());
+            info(getStackTrace(throwable));
         }
 
         @Override
         public void info(StackTraceElement[] stackTraceElements) {
-
+            info(getStackTrace(stackTraceElements));
         }
     };
 
@@ -55,8 +60,37 @@ public class CommonLogger {
             return logger;
         }
 
-        // FIXME SLF4J bind
+        final SLF4JLoggerAdapter slf4JLoggerAdapter = new SLF4JLoggerAdapter(LoggerFactory.getLogger(name));
+
+        final LightLogger slf4JLogger = LOGGER_CACHE.putIfAbsent(name, slf4JLoggerAdapter);
+        if(slf4JLogger != null) {
+            return slf4JLogger;
+        }
 
         return impl;
+    }
+
+    public static String getStackTrace(StackTraceElement[] stackTraceElements) {
+        StringBuilder sb = new StringBuilder(1024);
+        sb.append(SystemProperty.LINE_SEPARATOR);
+
+        for (StackTraceElement stackTraceElement : stackTraceElements) {
+            sb.append("\tat ").append(stackTraceElement).append(SystemProperty.LINE_SEPARATOR);
+        }
+
+        return sb.toString();
+    }
+
+    public static String getStackTrace(Throwable throwable) {
+        if (throwable != null) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            throwable.printStackTrace(printWriter);
+            printWriter.close();
+
+            return stringWriter.toString();
+        }
+
+        return "";
     }
 }

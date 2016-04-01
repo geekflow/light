@@ -17,28 +17,29 @@ package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.config.Config;
-import com.geeksaga.light.agent.config.Configure;
-import com.geeksaga.light.agent.core.*;
-import com.geeksaga.light.profiler.instrument.transformer.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.geeksaga.light.agent.core.AgentTraceContext;
+import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
 
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 
 /**
  * @author geeksaga
  */
 public class ProfilerModule implements Module {
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-
     private Instrumentation instrumentation;
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
+    private LightLogger logger;
 
     public ProfilerModule(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
+
+        this.logger = new CommonLogger().getLogger(this.getClass().getName());
+
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
         this.traceContext = new AgentTraceContext(ProfilerConfig.load("light.conf"));

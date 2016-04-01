@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.agent;
 
+import com.geeksaga.light.Product;
+
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
@@ -160,8 +162,8 @@ public class JavaAgent {
     }
 
     private static void failInitialize() {
-        System.err.println("***********************************************************");
-        System.err.println("* Light Agent Initialize failure");
-        System.err.println("***********************************************************");
+        logger.log(Level.INFO, "***********************************************************");
+        logger.log(Level.INFO, "* " + Product.NAME + " Agent Initialize failure");
+        logger.log(Level.INFO, "***********************************************************");
     }
 }
