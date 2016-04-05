@@ -17,13 +17,10 @@ package com.geeksaga.light.agent;
 
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.List;
-import java.util.concurrent.*;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,7 +65,7 @@ public class Bootstrap {
 
         List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
-        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "libs/log4j2.xml");
+        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "config/log4j2.xml");
 
         ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[urlList.size()]), Bootstrap.class.getClassLoader());
 

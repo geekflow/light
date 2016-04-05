@@ -27,6 +27,13 @@ task install(dependsOn: [copyToLibrary]) {
             from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
             into build
         }
+
+        build = mkdir("${rootProject.rootDir}/install/config")
+
+        copy {
+            from "${rootProject.rootDir}/config"
+            into build
+        }
     }
 }
 
