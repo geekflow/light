@@ -4,9 +4,9 @@
 # ----- Customizable Variables -----------------------------------------
 # ----------------------------------------------------------------------
 # JAVA_HOME=
-LIGHT_HOME="$PWD"
-# LIGHT_CONFIG=${LIGHT_HOME}/config/light.conf
-# LIGHT_LOG_CONFIG=${LIGHT_HOME}/config/log4j2.xml
+LIGHT_HOME=$(dirname $(cd "$(dirname "$0")" && pwd))
+LIGHT_CONFIG=${LIGHT_HOME}/config/light.conf
+LIGHT_LOG_CONFIG=${LIGHT_HOME}/config/log4j2.xml
 # ----------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
@@ -17,6 +17,8 @@ cd ${LIGHT_HOME}
 PATH=${JAVA_HOME}:${PATH}
 JAVA_OPTS=" ${JAVA_OPTS} -javaagent:${LIGHT_HOME}/light.agent-0.0.1.jar"
 JAVA_OPTS=" ${JAVA_OPTS} -Xms384m -Xmx1024m"
+JAVA_OPTS=" ${JAVA_OPTS} -Dlight.config=${LIGHT_CONFIG}"
+JAVA_OPTS=" ${JAVA_OPTS} -Dlog4j.configurationFile=${LIGHT_LOG_CONFIG}"
 JAVA_OPTS=" ${JAVA_OPTS} -Dfile.encoding=UTF-8"
 
 LIGHT_DEMO_JAR=${LIGHT_HOME}/light.demo-0.0.1.jar

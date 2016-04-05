@@ -19,6 +19,13 @@ task install(dependsOn: [copyToLibrary]) {
             from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
             into build
         }
+
+        build = mkdir("${rootProject.rootDir}/install/bin")
+
+        copy {
+            from "${rootProject.rootDir}/quickstart/bin"
+            into build
+        }
     }
 }
 
