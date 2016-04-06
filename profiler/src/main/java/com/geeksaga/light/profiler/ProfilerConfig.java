@@ -17,6 +17,7 @@ package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.config.Configure;
+import com.geeksaga.light.util.SystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,10 @@ public class ProfilerConfig implements Config {
 
     public ProfilerConfig(Properties properties) {
         this.properties = properties;
+    }
+
+    public static Config load() {
+        return load(SystemProperty.LIGHT_CONFIG);
     }
 
     public static Config load(String file) {

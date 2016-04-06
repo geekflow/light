@@ -42,7 +42,7 @@ public class ProfilerModule implements Module {
 
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
-        this.traceContext = new AgentTraceContext(ProfilerConfig.load("light.conf"));
+        this.traceContext = new AgentTraceContext(ProfilerConfig.load());
     }
 
     @Override
