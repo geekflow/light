@@ -1,0 +1,24 @@
+apply plugin: 'java'
+
+jar {
+    baseName = 'light.console'
+    version = '0.0.1'
+
+    manifest.attributes 'Main-Class': 'com.geeksaga.light.console.Main'
+}
+
+dependencies {
+}
+
+task install(dependsOn: [copyToLibrary]) {
+    doLast {
+        File build = mkdir("${rootProject.rootDir}/install/")
+
+        copy {
+            from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
+            into build
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.install)

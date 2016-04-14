@@ -4,3 +4,5 @@ include 'agent.core'
 include 'common'
 include 'profiler'
 include 'quickstart/demo'
+include 'console'
+
