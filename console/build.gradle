@@ -4,7 +4,17 @@ jar {
     baseName = 'light.console'
     version = '0.0.1'
 
-    manifest.attributes 'Main-Class': 'com.geeksaga.light.console.Main'
+    manifest {
+        attributes 'Manifest-Version': 0.1,
+                'Implementation-Title': 'GeekSaga Light Console',
+                'Implementation-Version': version,
+                'Implementation-Vendor': 'GeekSaga, Inc.',
+                'Specification-Title': 'GeekSaga Light APM Tools',
+                'Specification-Version': version,
+                'Specification-Vendor': 'GeekSaga, Inc.',
+                'Main-Class': 'com.geeksaga.light.console.Main',
+                'Class-Path': 'commons-cli-1.3.1.jar'
+    }
 }
 
 dependencies {

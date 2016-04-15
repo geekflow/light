@@ -15,6 +15,9 @@
  */
 package com.geeksaga.light.console;
 
+
+import org.apache.commons.cli.*;
+
 import java.io.Console;
 
 /**
@@ -24,10 +27,12 @@ public class Main {
     private static final String NEW_LINE = System.getProperty("line.separator");
 
     public static void main(String[] args) throws Exception {
-        System.out.println("GeekSaga - Light Console 0.1v");
-
         Main main = new Main();
-        main.doConsole();
+        main.parseOption(args);
+
+//        main.doConsole();
+
+        usage();
     }
 
     private void doConsole() throws Exception {
@@ -36,5 +41,40 @@ public class Main {
         String command = console.readLine("> ");
 
         System.out.println(command);
+    }
+
+    public CommandLine parseOption(String[] arguments)
+    {
+        CommandLineParser commandLineParser = new DefaultParser();
+
+        try
+        {
+            return commandLineParser.parse(getOptions(), arguments);
+        }
+        catch (ParseException parseException)
+        {
+            System.err.println("Parsing failed.  Reason: " + parseException.getMessage());
+        }
+
+        return null;
+    }
+
+    private static Options getOptions()
+    {
+        Option bootStrapOption = new Option("b",  "bootstrap", true, "library append to class loader of bootstrap");
+        bootStrapOption.setArgs(Option.UNLIMITED_VALUES);
+
+        Options options = new Options();
+        options.addOption(bootStrapOption);
+        options.addOption("p", "process", false, "find java process");
+        options.addOption("a", "attach", true, "attach java process");
+
+        return options;
+    }
+
+    private static void usage()
+    {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("light-console.sh [-options] [args...]", getOptions());
     }
 }
