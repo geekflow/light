@@ -27,14 +27,14 @@ import static org.hamcrest.Matchers.is;
 public class MainTest {
 
     @Test
-    public void testDummy() {
+    public void testOption() {
         Main main = new Main();
         CommandLine command = main.parseOption(new String[] {"light.sh", "-a1234", "-p"});
 
         assertThat(command.hasOption("a"), is(true));
+        assertThat(command.hasOption("attach"), is(true));
+
         assertThat(command.getOptionValue("a"), is("1234"));
-
-
-        System.out.println(command.getOptionValue("a"));
+        assertThat(command.getOptionValue("attach"), is("1234"));
     }
 }

@@ -23,19 +23,22 @@ import java.io.Console;
 /**
  * @author geeksaga
  */
-public class Main {
+public class Main
+{
     private static final String NEW_LINE = System.getProperty("line.separator");
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         Main main = new Main();
         main.parseOption(args);
 
-//        main.doConsole();
+        //        main.doConsole();
 
         usage();
     }
 
-    private void doConsole() throws Exception {
+    private void doConsole() throws Exception
+    {
         Console console = System.console();
 
         String command = console.readLine("> ");
@@ -61,13 +64,20 @@ public class Main {
 
     private static Options getOptions()
     {
-        Option bootStrapOption = new Option("b",  "bootstrap", true, "library append to class loader of bootstrap");
+        Option bootStrapOption = new Option("b", "bootstrap", true, "library append to class loader of bootstrap");
         bootStrapOption.setArgs(Option.UNLIMITED_VALUES);
+        bootStrapOption.setArgName("library path");
+
+        Option attachOption = new Option("a", "attach", true, "attach java process");
+        attachOption.setArgs(Option.UNLIMITED_VALUES);
+        attachOption.setArgName("process ID");
+
+        Option processOption = new Option("p", "process", false, "find java process");
 
         Options options = new Options();
         options.addOption(bootStrapOption);
-        options.addOption("p", "process", false, "find java process");
-        options.addOption("a", "attach", true, "attach java process");
+        options.addOption(attachOption);
+        options.addOption(processOption);
 
         return options;
     }
