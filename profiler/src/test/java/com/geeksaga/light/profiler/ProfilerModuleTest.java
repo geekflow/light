@@ -20,6 +20,7 @@ import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.lang.instrument.Instrumentation;
 
 import static org.mockito.Mockito.mock;
@@ -27,15 +28,18 @@ import static org.mockito.Mockito.mock;
 /**
  * @author geeksaga
  */
-public class ProfilerModuleTest {
-
+public class ProfilerModuleTest
+{
     @BeforeClass
-    public static void init() {
+    public static void init()
+    {
+        System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
         System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
     }
 
     @Test
-    public void testStart() {
+    public void testStart()
+    {
         Instrumentation instrumentation = mock(Instrumentation.class);
 
         Module module = new ProfilerModule(instrumentation);

@@ -21,36 +21,45 @@ import java.util.Properties;
 /**
  * @author geeksaga
  */
-public class Configure {
-    public static final String DEFAULT_ENCODING = "UTF-8";
+public class Configure
+{
+    private static final String DEFAULT_ENCODING = "UTF-8";
 
-    public Properties load(String path) throws IOException {
+    public Properties load(String path) throws IOException
+    {
         return load(null, path);
     }
 
-    public Properties load(ClassLoader classLoader, String path) throws IOException {
-        if (classLoader != null) {
+    public Properties load(ClassLoader classLoader, String path) throws IOException
+    {
+        if (classLoader != null)
+        {
             return load(new Properties(), classLoader.getResourceAsStream(path), DEFAULT_ENCODING);
         }
 
         return load(new Properties(), path, DEFAULT_ENCODING);
     }
 
-    public Properties load(Properties properties, String path, String encoding) throws IOException {
+    public Properties load(Properties properties, String path, String encoding) throws IOException
+    {
         return load(properties, new FileInputStream(path), encoding);
     }
 
-    public Properties load(Properties properties, InputStream inputStream, String encoding) throws IOException {
-        if(inputStream == null)
+    public Properties load(Properties properties, InputStream inputStream, String encoding) throws IOException
+    {
+        if (inputStream == null)
         {
             return properties;
         }
 
         Reader reader = null;
-        try {
+        try
+        {
             reader = new InputStreamReader(inputStream, encoding);
             properties.load(reader);
-        } finally {
+        }
+        finally
+        {
             close(reader);
             close(inputStream);
         }
@@ -58,11 +67,16 @@ public class Configure {
         return properties;
     }
 
-    private void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
+    private void close(Closeable closeable)
+    {
+        if (closeable != null)
+        {
+            try
+            {
                 closeable.close();
-            } catch (IOException ioException) {
+            }
+            catch (IOException ioException)
+            {
                 ioException.printStackTrace();
             }
         }

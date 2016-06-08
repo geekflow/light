@@ -30,71 +30,87 @@ import java.util.Properties;
 /**
  * @author geeksaga
  */
-public class ProfilerConfig implements Config {
+public class ProfilerConfig implements Config
+{
     private static Logger logger = LoggerFactory.getLogger(ProfilerConfig.class.getName());
 
     private Properties properties;
 
-    public ProfilerConfig() {
+    public ProfilerConfig()
+    {
         this(new Properties());
     }
 
-    public ProfilerConfig(Properties properties) {
+    public ProfilerConfig(Properties properties)
+    {
         this.properties = properties;
     }
 
-    public static Config load() {
+    public static Config load()
+    {
         return load(SystemProperty.LIGHT_CONFIG);
     }
 
-    public static Config load(String file) {
-        try {
-            Configure configure = new Configure();
-            return new ProfilerConfig(configure.load(file));
-        } catch (IOException e) {
+    public static Config load(String file)
+    {
+        try
+        {
+            return new ProfilerConfig(new Configure().load(file));
+        }
+        catch (IOException e)
+        {
             logger.info(e.getMessage(), e);
         }
 
         return new ProfilerConfig();
     }
 
-    public static Config load(ClassLoader classLoader, String file) {
-        try {
-            Configure configure = new Configure();
-            return new ProfilerConfig(configure.load(classLoader, file));
-        } catch (IOException e) {
+    public static Config load(ClassLoader classLoader, String file)
+    {
+        try
+        {
+            return new ProfilerConfig(new Configure().load(classLoader, file));
+        }
+        catch (IOException e)
+        {
             logger.info(e.getMessage(), e);
         }
 
         return new ProfilerConfig();
     }
 
-    public String read(String propertyKey, String defaultValue) {
+    public String read(String propertyKey, String defaultValue)
+    {
         return properties.getProperty(propertyKey, defaultValue);
     }
 
-    public int read(String propertyKey, int defaultValue) {
+    public int read(String propertyKey, int defaultValue)
+    {
         String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
 
         return Integer.valueOf(value);
     }
 
-    public long read(String propertyKey, long defaultValue) {
+    public long read(String propertyKey, long defaultValue)
+    {
         String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
 
         return Long.valueOf(value);
     }
 
-    public List<String> read(String propertyKey) {
+    public List<String> read(String propertyKey)
+    {
         String value = properties.getProperty(propertyKey);
-        if (value == null) {
+        if (value == null)
+        {
             return Collections.emptyList();
         }
 
         return Arrays.asList(value.trim().split("\\s+"));
     }
 
-    public boolean read(String propertyKey, boolean defaultValue) {
+    public boolean read(String propertyKey, boolean defaultValue)
+    {
         String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
 
         return Boolean.valueOf(value);

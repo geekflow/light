@@ -29,13 +29,15 @@ import java.lang.instrument.Instrumentation;
 /**
  * @author geeksaga
  */
-public class ProfilerModule implements Module {
+public class ProfilerModule implements Module
+{
     private Instrumentation instrumentation;
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
     private LightLogger logger;
 
-    public ProfilerModule(Instrumentation instrumentation) {
+    public ProfilerModule(Instrumentation instrumentation)
+    {
         this.instrumentation = instrumentation;
 
         this.logger = new CommonLogger().getLogger(this.getClass().getName());
@@ -46,23 +48,26 @@ public class ProfilerModule implements Module {
     }
 
     @Override
-    public void start() {
+    public void start()
+    {
         logger.info("profiler module start");
 
         addTransformer(instrumentation.isRetransformClassesSupported());
     }
 
-    private void addTransformer(boolean canRetransform) {
+    private void addTransformer(boolean canRetransform)
+    {
         // TODO transformer dispatcher
         instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext), canRetransform);
-//        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder, traceContext), canRetransform);
-//        instrumentation.addTransformer(new MethodParameterTransformer(), canRetransform);
-//        instrumentation.addTransformer(new MethodReturnTransformer(), canRetransform);
-//        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder, traceContext), canRetransform);
+        //        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder, traceContext), canRetransform);
+        //        instrumentation.addTransformer(new MethodParameterTransformer(), canRetransform);
+        //        instrumentation.addTransformer(new MethodReturnTransformer(), canRetransform);
+        //        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder, traceContext), canRetransform);
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
         logger.info("profiler module end");
     }
 }

@@ -24,18 +24,21 @@ import static org.junit.Assert.fail;
 /**
  * @author geeksaga
  */
-public class JavaAgentTest {
-
+public class JavaAgentTest
+{
     @Test
-    public void testDuplicateInitializeCalls() {
+    public void testDuplicateInitializeCalls()
+    {
         assertThat(JavaAgent.STATUS.get(), is(false));
 
         JavaAgent.premain("", new DummyInstrumentation());
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++)
+        {
             assertThat(JavaAgent.STATUS.get(), is(true));
 
-            if (!JavaAgent.STATUS.get()) {
+            if (!JavaAgent.STATUS.get())
+            {
                 JavaAgent.premain("", new DummyInstrumentation());
 
                 fail();

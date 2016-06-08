@@ -18,7 +18,8 @@ package com.geeksaga.light.util;
 /**
  * @author geeksaga
  */
-public class SystemProperty {
+public class SystemProperty
+{
     public static final boolean IS_JAVA_16 = getSystemProperty("java.version", "1.6").startsWith("1.6");
     public static final boolean IS_JAVA_17 = getSystemProperty("java.version", "1.7").startsWith("1.7");
     public static final boolean IS_JAVA_18 = getSystemProperty("java.version", "1.8").startsWith("1.8");
@@ -56,10 +57,14 @@ public class SystemProperty {
         return getSystemProperty(key, "");
     }
 
-    private static String getSystemProperty(String key, String def) {
-        try {
+    private static String getSystemProperty(String key, String def)
+    {
+        try
+        {
             return System.getProperty(key, def);
-        } catch (RuntimeException exception) {
+        }
+        catch (RuntimeException exception)
+        {
             return def;
         }
     }

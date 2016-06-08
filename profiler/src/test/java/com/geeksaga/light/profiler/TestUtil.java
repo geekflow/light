@@ -29,8 +29,10 @@ import java.util.regex.Pattern;
 /**
  * @author geeksaga
  */
-public class TestUtil {
-    public static byte[] load(String name) throws Exception {
+public class TestUtil
+{
+    public static byte[] load(String name) throws Exception
+    {
         return load(TestUtil.class.getResource("/" + convert(name)));
     }
 
@@ -39,13 +41,16 @@ public class TestUtil {
         return load(new FileInputStream(new File(url.toURI())));
     }
 
-    public static byte[] load(InputStream inputStream) throws Exception {
+    public static byte[] load(InputStream inputStream) throws Exception
+    {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-        while (true) {
+        while (true)
+        {
             byte[] buffer = new byte[1024];
             int read = inputStream.read(buffer);
-            if (read == -1) {
+            if (read == -1)
+            {
                 break;
             }
 
@@ -57,15 +62,17 @@ public class TestUtil {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public static ClassNodeWrapper loadClass(String fileName) throws Exception {
+    public static ClassNodeWrapper loadClass(String fileName) throws Exception
+    {
         return ASMUtil.parse(load(fileName));
     }
 
-    private static String convert(String value) {
+    private static String convert(String value)
+    {
         Pattern pattern = Pattern.compile("[(\\w+).)]+");
         Matcher matcher = pattern.matcher(value);
 
-        if(matcher.find())
+        if (matcher.find())
         {
             return matcher.group(0).replace('.', '/') + ".class";
         }

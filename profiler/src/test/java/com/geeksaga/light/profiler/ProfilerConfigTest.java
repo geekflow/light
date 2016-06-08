@@ -18,20 +18,51 @@ package com.geeksaga.light.profiler;
 import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.config.ConfigDef;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import target.TestMethods;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author geeksaga
  */
-public class ProfilerConfigTest {
+@RunWith(value = Parameterized.class)
+public class ProfilerConfigTest
+{
+    private int expected;
+    private int valueOne;
+    private int valueTwo;
+
+    @Parameterized.Parameters
+    public static Collection<Integer[]> getTestParameters()
+    {
+        return Arrays.asList(new Integer[][] { { 2, 1, 1 }, { 3, 2, 1 }, { 4, 3, 1 } });
+    }
+
+    public ProfilerConfigTest(int expected, int valueOne, int valueTwo)
+    {
+        this.expected = expected;
+        this.valueOne = valueOne;
+        this.valueTwo = valueTwo;
+    }
+
     @Test
-    public void testLoad() {
+    public void testValidationValue()
+    {
+        assertEquals(expected, valueOne + valueTwo, 0);
+    }
+
+    @Test
+    public void testLoad()
+    {
         ProfilerConfig profilerConfig = new ProfilerConfig();
 
         assertThat(profilerConfig.read(ConfigDef.entry_point, "default"), is("default"));
@@ -44,7 +75,8 @@ public class ProfilerConfigTest {
     }
 
     @Test
-    public void testReadValue() throws IOException {
+    public void testReadValue() throws IOException
+    {
         Config config = ProfilerConfig.load(ProfilerConfigTest.class.getClassLoader(), "light.conf");
 
         assertThat(config.read(ConfigDef.entry_point, "default"), containsString(TestMethods.class.getName()));

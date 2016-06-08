@@ -27,9 +27,11 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * @author geeksaga
  */
-public class SimplePropertiesTest {
+public class SimplePropertiesTest
+{
     @Test
-    public void testLoad() {
+    public void testLoad()
+    {
         SimpleProperties properties = new SimpleProperties("ignore.ini");
 
         assertThat(properties.getProperty("empty"), notNullValue());

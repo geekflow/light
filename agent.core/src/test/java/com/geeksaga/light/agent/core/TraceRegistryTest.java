@@ -19,9 +19,7 @@ import com.geeksaga.light.agent.trace.Trace;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,18 +27,21 @@ import static org.mockito.Mockito.when;
 /**
  * @author geeksaga
  */
-public class TraceRegistryTest {
-    TraceRegistryAdaptor mockTraceRegistryAdaptor;
+public class TraceRegistryTest
+{
+    private TraceRegistryAdaptor mockTraceRegistryAdaptor;
 
     @Before
-    public void setUp() {
+    public void setUp()
+    {
         mockTraceRegistryAdaptor = mock(TraceRegistryAdaptor.class);
 
         TraceRegistry.bind(mockTraceRegistryAdaptor);
     }
 
     @Test //(expected=AssertionError.class)
-    public void testBindIfNull() {
+    public void testBindIfNull()
+    {
         TraceRegistry.bind(null);
 
         Trace mockTrace = mock(Trace.class);
@@ -53,7 +54,8 @@ public class TraceRegistryTest {
     }
 
     @Test
-    public void testBindAndUnbind() {
+    public void testBindAndUnbind()
+    {
         TraceRegistryAdaptor mockTraceRegistryAdaptor = mock(TraceRegistryAdaptor.class);
 
         TraceRegistry.bind(mockTraceRegistryAdaptor);
@@ -66,7 +68,8 @@ public class TraceRegistryTest {
     }
 
     @Test
-    public void testGetTrace() {
+    public void testGetTrace()
+    {
         Trace trace = mock(Trace.class);
         when(mockTraceRegistryAdaptor.get(0)).thenReturn(trace);
 
