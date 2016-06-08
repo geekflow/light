@@ -1,0 +1,31 @@
+apply plugin: 'java'
+apply plugin: 'war'
+
+war {
+    baseName = 'light.tomcat'
+    version = '0.0.1'
+
+    manifest {
+        attributes 'Boot-Class-Path': baseName + "-" + version + ".jar",
+                'Implementation-Title': 'GeekSaga Light Server Tomcat',
+                'Implementation-Version': version,
+                'Implementation-Vendor' : 'GeekSaga, Inc.',
+                'Specification-Title' : 'GeekSaga Light APM Tools',
+                'Specification-Version' : version,
+                'Specification-Vendor' : 'GeekSaga, Inc.',
+                'Main-Class': 'com.geeksaga.web.Main'
+    }
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    String tomcatVersion = '8.0.35'
+    compile "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
+    compile "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
+    compile "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+    compile "org.apache.tomcat:tomcat-jasper:${tomcatVersion}"
+    compile "org.apache.tomcat:tomcat-jasper-el:${tomcatVersion}"
+    compile "org.apache.tomcat:tomcat-jsp-api:${tomcatVersion}"
+}

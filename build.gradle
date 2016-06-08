@@ -17,7 +17,7 @@ buildscript {
         mavenLocal()
         jcenter()
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url "https://plugins.gradle.org/"
         }
     }
 
@@ -125,6 +125,12 @@ project(':profiler') {
         compile project(':agent.core')
         compile project(':common')
     }
+}
+
+project(':server.jetty') {
+}
+
+project(':server.tomcat') {
 }
 
 task jacocoRootReport(type: JacocoReport) {

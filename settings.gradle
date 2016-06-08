@@ -5,4 +5,7 @@ include 'common'
 include 'profiler'
 include 'quickstart/demo'
 include 'console'
+//findProject(':web')?.name = 'server.web'
+include 'server.jetty'
+include 'server.tomcat'
 
