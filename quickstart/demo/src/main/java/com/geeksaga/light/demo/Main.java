@@ -18,26 +18,28 @@ package com.geeksaga.light.demo;
 /**
  * @author geeksaga
  */
-public class Main {
-    public long random() {
+public class Main
+{
+    public long random()
+    {
         return (long) ((Math.random() * 100) + 500);
     }
 
-    public void print(String message) throws InterruptedException {
+    public void print(String message) throws InterruptedException
+    {
         Thread.sleep(random());
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException
+    {
         Main main = new Main();
 
         System.out.println("Demo start...");
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1000; i++)
+        {
             main.print(String.valueOf(i));
         }
-
-        AttachMain attachMain = new AttachMain();
-        attachMain.attach();
 
         main.print("attach");
 
