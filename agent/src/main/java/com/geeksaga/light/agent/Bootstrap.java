@@ -26,7 +26,8 @@ import java.util.logging.Logger;
 /**
  * @author geeksaga
  */
-public class Bootstrap {
+public class Bootstrap
+{
     private static final Logger logger = Logger.getLogger(Bootstrap.class.getName());
 
     private static final String DEFAULT_PROFILE_MODULE = "com.geeksaga.light.profiler.ProfilerModule";
@@ -34,24 +35,28 @@ public class Bootstrap {
     private final String options;
     private final Instrumentation instrumentation;
 
-    public Bootstrap(String options, Instrumentation instrumentation) {
+    public Bootstrap(String options, Instrumentation instrumentation)
+    {
         this.options = options;
         this.instrumentation = instrumentation;
     }
 
-    public void initialize(boolean attach) {
+    public void initialize(boolean attach)
+    {
         logger.info("initialize...");
 
         final AgentClassPathResolver classPathResolver = createResolver(attach);
 
         //
-        if (!classPathResolver.isInitialize()) {
+        if (!classPathResolver.isInitialize())
+        {
             failInitialize();
         }
 
         //
         final String agentCoreJarName = classPathResolver.getAgentCoreJarName();
-        if (agentCoreJarName == null) {
+        if (agentCoreJarName == null)
+        {
             logger.info("light.agent.core-x.x.x(-SNAPSHOT).jar not found.");
 
             failInitialize();
@@ -59,53 +64,65 @@ public class Bootstrap {
             return;
         }
 
-        appendToBootstrapClassLoaderSearch(classPathResolver.getJarFile(classPathResolver.getAgentCoreJarName()));
+        appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCoreJarName()));
 
         List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
-//        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "config/log4j2.xml");
+        //        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "config/log4j2.xml");
 
         ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[urlList.size()]), Bootstrap.class.getClassLoader());
 
-        try {
+        try
+        {
             Class<?> profilerModule = Class.forName(DEFAULT_PROFILE_MODULE, true, classLoader);
             Constructor<?> constructor = profilerModule.getConstructor(Instrumentation.class);
             Module profiler = (Module) constructor.newInstance(instrumentation);
             profiler.start();
 
             logger.info("initialize success.");
-        } catch (Exception exception) {
+        }
+        catch (Exception exception)
+        {
             logger.log(Level.INFO, exception.getMessage(), exception);
         }
     }
 
-    private AgentClassPathResolver createResolver(boolean attach) {
-        if(attach) {
+    private AgentClassPathResolver createResolver(boolean attach)
+    {
+        if (attach)
+        {
             return new AgentClassPathResolver(getAgentJarName());
         }
 
         return new AgentClassPathResolver();
     }
 
-    public String getAgentJarName() {
-        String jarPath;
+    private String getAgentJarName()
+    {
+        String jarPath = null;
         ClassLoader classLoader = Bootstrap.class.getClassLoader();
-        if (classLoader == null) {
+        if (classLoader == null)
+        {
             classLoader = ClassLoader.getSystemClassLoader();
         }
 
         URL url = classLoader.getResource(Bootstrap.class.getName().replace('.', '/') + ".class");
-        jarPath = url.toString().replace("jar:file:/", "");
-        jarPath = jarPath.substring(0, jarPath.indexOf(".jar!") + 4);
+        if (url != null)
+        {
+            jarPath = url.toString().replace("jar:file:", "");
+            jarPath = jarPath.substring(0, jarPath.indexOf(".jar!") + 4);
+        }
 
         return jarPath;
     }
 
-    private void appendToBootstrapClassLoaderSearch(JarFile jarFile) {
+    private void appendToBootstrapClassLoaderSearch(JarFile jarFile)
+    {
         instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
     }
 
-    private void failInitialize() {
+    private void failInitialize()
+    {
         logger.log(Level.ALL, "***********************************************************");
         logger.log(Level.ALL, "* Light Agent Initialize failure");
         logger.log(Level.ALL, "***********************************************************");

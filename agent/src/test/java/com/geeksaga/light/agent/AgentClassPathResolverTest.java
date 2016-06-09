@@ -29,13 +29,15 @@ import static org.junit.Assert.assertThat;
 /**
  * @author geeksaga
  */
-public class AgentClassPathResolverTest {
+public class AgentClassPathResolverTest
+{
     private String LIGHT_AGENT_JAR = "light.agent-0.0.1-SNAPSHOT.jar";
     private String LIGHT_AGENT_JAR_PATH = System.getProperty("user.dir");
     private String CLASS_PATH = System.getProperty("java.class.path") + File.pathSeparator + LIGHT_AGENT_JAR_PATH + File.separator + LIGHT_AGENT_JAR;
 
     @Test
-    public void testFindAgentJar() {
+    public void testFindAgentJar()
+    {
         AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
         assertThat(true, is(resolver.isInitialize()));
 
@@ -51,7 +53,8 @@ public class AgentClassPathResolverTest {
     }
 
     @Test
-    public void testFindAllAgentLibrary() {
+    public void testFindAllAgentLibrary()
+    {
         String CLASS_PATH = LIGHT_AGENT_JAR_PATH + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "AGENT_HOME" + File.separator + LIGHT_AGENT_JAR;
 
         AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);

@@ -18,6 +18,7 @@ package com.geeksaga.light;
 /**
  * @author geeksaga
  */
-public final class Product {
+public final class Product
+{
     public static final String NAME = "Light";
 }

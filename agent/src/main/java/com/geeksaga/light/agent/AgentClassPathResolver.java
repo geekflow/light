@@ -33,7 +33,8 @@ import java.util.regex.Pattern;
 /**
  * @author geeksaga
  */
-public class AgentClassPathResolver {
+public class AgentClassPathResolver
+{
     private final Logger logger = Logger.getLogger(AgentClassPathResolver.class.getName());
 
     public static final String java_class_path = getSystemProperty("java.class.path");
@@ -48,20 +49,24 @@ public class AgentClassPathResolver {
 
     private boolean initialize = false;
 
-    public AgentClassPathResolver() {
+    public AgentClassPathResolver()
+    {
         this(java_class_path);
     }
 
-    public AgentClassPathResolver(String classPath) {
+    public AgentClassPathResolver(String classPath)
+    {
         this.classPath = classPath;
 
         initialize();
     }
 
-    public void initialize() {
+    public void initialize()
+    {
         Matcher matcher = LIGHT_AGENT_PATTERN.matcher(classPath);
 
-        if (matcher.find()) {
+        if (matcher.find())
+        {
             agentJarName = parseAgentJar(matcher);
             agentJarPath = parseAgentJarPathOrNull();
 
@@ -71,29 +76,37 @@ public class AgentClassPathResolver {
         }
     }
 
-    public boolean isInitialize() {
+    public boolean isInitialize()
+    {
         return initialize;
     }
 
-    public List<URL> findAllAgentLibrary() {
+    public List<URL> findAllAgentLibrary()
+    {
         File libraryDirectory = new File(getAgentLibraryPath());
-        if (!libraryDirectory.exists() && !libraryDirectory.isDirectory()) {
+        if (!libraryDirectory.exists() && !libraryDirectory.isDirectory())
+        {
             return Collections.emptyList();
         }
 
-        File[] files = libraryDirectory.listFiles(new FilenameFilter() {
+        File[] files = libraryDirectory.listFiles(new FilenameFilter()
+        {
             @Override
-            public boolean accept(File dir, String name) {
+            public boolean accept(File dir, String name)
+            {
                 return name.endsWith(".jar") || name.endsWith(".xml");
             }
         });
 
         List<URL> list = new ArrayList<URL>();
 
-        if (files != null) {
-            for (File file : files) {
+        if (files != null)
+        {
+            for (File file : files)
+            {
                 URL url = toURIOrNullIfOccurException(file);
-                if (url != null) {
+                if (url != null)
+                {
                     list.add(url);
                 }
             }
@@ -102,31 +115,39 @@ public class AgentClassPathResolver {
         return list;
     }
 
-    public String getAgentJarName() {
+    public String getAgentJarName()
+    {
         return agentJarName;
     }
 
-    public String getAgentJarPath() {
+    public String getAgentJarPath()
+    {
         return agentJarPath;
     }
 
-    public String getAgentCoreJarName() {
+    public String getAgentCoreJarName()
+    {
         return agentCoreJarName;
     }
 
-    public String getAgentLibraryPath() {
+    public String getAgentLibraryPath()
+    {
         return getAgentJarPath() + File.separator + "libs";
     }
 
-    private String parseAgentJar(Matcher matcher) {
+    private String parseAgentJar(Matcher matcher)
+    {
         return classPath.substring(matcher.start(), matcher.end());
     }
 
-    private String parseAgentJarPathOrNull() {
+    private String parseAgentJarPathOrNull()
+    {
         String[] classPaths = classPath.split(File.pathSeparator);
 
-        for (String path : classPaths) {
-            if (path.contains(agentJarName)) {
+        for (String path : classPaths)
+        {
+            if (path.contains(agentJarName))
+            {
                 return parseAgentJarPathOrCurrentPath(path);
             }
         }
@@ -134,63 +155,79 @@ public class AgentClassPathResolver {
         return null;
     }
 
-    private String parseAgentJarPathOrCurrentPath(String path) {
+    private String parseAgentJarPathOrCurrentPath(String path)
+    {
         int index = path.lastIndexOf(File.separator);
 
-        if (index == -1) {
+        if (index == -1)
+        {
             return "." + File.separator;
         }
 
         return path.substring(0, index);
     }
 
-    private String findAgentCoreJarNameOrNull() {
-        File[] files = new File(agentJarPath).listFiles(new FilenameFilter() {
+    private String findAgentCoreJarNameOrNull()
+    {
+        String[] files = new File(agentJarPath).list(new FilenameFilter()
+        {
             @Override
-            public boolean accept(File dir, String name) {
-                Matcher matcher = LIGHT_AGENT_CORE_PATTERN.matcher(name);
-                return matcher.matches();
+            public boolean accept(File dir, String name)
+            {
+                return LIGHT_AGENT_CORE_PATTERN.matcher(name).matches();
             }
         });
 
         // FIXME If a redundant module exist to load the module in the final version.
-        if (files == null || files.length == 0) {
-            return null;
-        } else if (files.length == 1) {
-            return files[0].getAbsolutePath();
+        if (files != null && files.length == 1)
+        {
+            return files[0];
         }
 
         return null;
     }
 
-    public JarFile getJarFile(String name) {
-        try {
+    JarFile getJarFileOrNull(String name)
+    {
+        try
+        {
             return new JarFile(name);
-        } catch (IOException ioException) {
+        }
+        catch (IOException ioException)
+        {
             logger.log(Level.INFO, name + " file not found.", ioException);
         }
 
         return null;
     }
 
-    private URL toURIOrNullIfOccurException(File file) {
-        try {
+    private URL toURIOrNullIfOccurException(File file)
+    {
+        try
+        {
             return file.toURI().toURL();
-        } catch (MalformedURLException malformedURLException) {
+        }
+        catch (MalformedURLException malformedURLException)
+        {
             logger.log(Level.INFO, file.getName() + ".toURL(). Exception : " + malformedURLException.getMessage(), malformedURLException);
         }
 
         return null;
     }
 
-    private static String getSystemProperty(String key) {
+    private static String getSystemProperty(String key)
+    {
         return getSystemProperty(key, "");
     }
 
-    private static String getSystemProperty(String key, String def) {
-        try {
+    private static String getSystemProperty(String key, String def)
+    {
+        try
+        {
             return System.getProperty(key, def);
-        } catch (RuntimeException exception) {
+        }
+        catch (RuntimeException exception)
+        {
             return def;
         }
     }
