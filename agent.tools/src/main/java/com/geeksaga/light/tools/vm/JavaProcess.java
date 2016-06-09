@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.vm;
+package com.geeksaga.light.tools.vm;
 
 import sun.jvmstat.monitor.MonitoredHost;
 import sun.jvmstat.monitor.MonitoredVm;
@@ -35,11 +35,14 @@ import java.util.logging.Logger;
 /**
  * @author geeksaga
  */
-public class JavaProcess {
+public class JavaProcess
+{
     private static final Logger logger = Logger.getLogger(JavaProcess.class.getName());
 
-    public int getProcessId() {
-        try {
+    public int getProcessId()
+    {
+        try
+        {
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
             Field jvmField = runtimeMXBean.getClass().getDeclaredField("jvm");
             jvmField.setAccessible(true);
@@ -47,7 +50,9 @@ public class JavaProcess {
             Method getProcessIdMethod = vmManagement.getClass().getDeclaredMethod("getProcessId");
             getProcessIdMethod.setAccessible(true);
             return (Integer) getProcessIdMethod.invoke(vmManagement);
-        } catch (Exception exception) {
+        }
+        catch (Exception exception)
+        {
             logger.log(Level.INFO, exception.getMessage(), exception);
         }
 
@@ -55,12 +60,14 @@ public class JavaProcess {
     }
 
     // supported JDK7
-    public List<MonitoredVm> findList() throws Exception {
+    public List<MonitoredVm> findList() throws Exception
+    {
         List<MonitoredVm> list = new ArrayList<MonitoredVm>();
 
         MonitoredHost local = MonitoredHost.getMonitoredHost("localhost");
         Set<Integer> vmlist = new HashSet<Integer>(local.activeVms());
-        for (int id : vmlist) {
+        for (int id : vmlist)
+        {
             MonitoredVm vm = local.getMonitoredVm(new VmIdentifier("//" + id));
             String processname = MonitoredVmUtil.mainClass(vm, true);
             System.out.println(id + " [" + processname + "]");
@@ -71,9 +78,10 @@ public class JavaProcess {
         return list;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         JavaProcess javaProcess = new JavaProcess();
         System.out.println(javaProcess.getProcessId());
-//        javaProcess.findList();
+        //        javaProcess.findList();
     }
 }

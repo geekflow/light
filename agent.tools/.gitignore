@@ -1,0 +1,11 @@
+/*.iml
+/bin/
+/build/
+/.classpath
+/.project
+/.settings/
+
+# Allow
+!/bin/*.sh
+!/bin/*.bat
+!/src/test/resources/AGENT_HOME/**

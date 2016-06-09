@@ -8,4 +8,5 @@ include 'console'
 //findProject(':web')?.name = 'server.web'
 include 'server.jetty'
 include 'server.tomcat'
+include 'agent.tools'
 

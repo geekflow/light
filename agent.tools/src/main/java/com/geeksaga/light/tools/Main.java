@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent;
+package com.geeksaga.light.tools;
 
-import com.geeksaga.light.vm.VMAttach;
-import org.junit.Ignore;
-import org.junit.Test;
+import com.geeksaga.light.tools.vm.AttachMain;
+
+import java.util.logging.Logger;
 
 /**
  * @author geeksaga
  */
-@Ignore
-public class AttachMainTest {
-    @Test
-    public void testList() {
-        VMAttach attach = new VMAttach();
-        attach.show();
+public class Main
+{
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
+    public static void main(String[] args)
+    {
+        logger.info(Product.NAME + " APM Tools.");
+        logger.info("Usage : ");
+        logger.info("ex) light-tools.sh --help");
+
+        AttachMain main = new AttachMain();
+        main.show();
+        main.attach();
     }
 }

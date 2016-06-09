@@ -1,0 +1,44 @@
+apply plugin: 'java'
+
+jar {
+    baseName = 'light.agent.tools'
+    version = '0.0.1'
+
+    manifest {
+        attributes 'Boot-Class-Path': baseName + "-" + version + ".jar",
+                'Implementation-Title': 'GeekSaga Light Agent',
+                'Implementation-Version': version,
+                'Implementation-Vendor': 'GeekSaga, Inc.',
+                'Specification-Title': 'GeekSaga Light APM Tools',
+                'Specification-Version': version,
+                'Specification-Vendor': 'GeekSaga, Inc.',
+                'Main-Class': 'com.geeksaga.light.tools.Main'
+    }
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    compile files("${System.properties['java.home']}/../lib/tools.jar")
+}
+
+task install(dependsOn: [copyToLibrary]) {
+    doLast {
+        File build = mkdir("${rootProject.rootDir}/install/libs")
+
+        copy {
+            from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
+            into build
+        }
+
+        build = mkdir("${rootProject.rootDir}/install/bin")
+
+        copy {
+            from "${rootProject.rootDir}/agent.tools/bin"
+            into build
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.install)

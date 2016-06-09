@@ -120,6 +120,12 @@ project(':agent.core') {
     }
 }
 
+project(':agent.tools') {
+    dependencies {
+        compile project(':agent')
+    }
+}
+
 project(':profiler') {
     dependencies {
         compile project(':agent.core')
