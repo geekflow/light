@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.agent;
 
+import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.net.URL;
@@ -43,9 +44,19 @@ public class Bootstrap
 
     public void initialize(boolean attach)
     {
-        logger.info("initialize...");
+        initialize(attach, null);
+    }
 
-        final AgentClassPathResolver classPathResolver = createResolver(attach);
+    public void initialize(boolean attach, String classPath)
+    {
+        logger.info("initialize..." + " (attach : " + attach + ")");
+
+        if(options != null)
+        {
+            logger.info("javaagent options : " + options);
+        }
+
+        final AgentClassPathResolver classPathResolver = createResolver(attach, classPath);
 
         //
         if (!classPathResolver.isInitialize())
@@ -64,7 +75,7 @@ public class Bootstrap
             return;
         }
 
-        appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCoreJarName()));
+        appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCoreJarAbsoluteName()));
 
         List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
@@ -89,17 +100,21 @@ public class Bootstrap
 
     private AgentClassPathResolver createResolver(boolean attach)
     {
+        return createResolver(attach, null);
+    }
+
+    private AgentClassPathResolver createResolver(boolean attach, String classPath)
+    {
         if (attach)
         {
-            return new AgentClassPathResolver(getAgentJarName());
+            return new AgentClassPathResolver(getAgentJarPathOrEmpty() + ((classPath != null) ? File.pathSeparator + classPath : ""));
         }
 
         return new AgentClassPathResolver();
     }
 
-    private String getAgentJarName()
+    private String getAgentJarPathOrEmpty()
     {
-        String jarPath = null;
         ClassLoader classLoader = Bootstrap.class.getClassLoader();
         if (classLoader == null)
         {
@@ -107,9 +122,13 @@ public class Bootstrap
         }
 
         URL url = classLoader.getResource(Bootstrap.class.getName().replace('.', '/') + ".class");
-        if (url != null)
+        String urlString = (url != null) ? url.toString() : "";
+
+        String jarPath = "";
+
+        if (urlString.contains("jar:file:"))
         {
-            jarPath = url.toString().replace("jar:file:", "");
+            jarPath = urlString.replace("jar:file:", "");
             jarPath = jarPath.substring(0, jarPath.indexOf(".jar!") + 4);
         }
 

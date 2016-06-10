@@ -130,6 +130,11 @@ public class AgentClassPathResolver
         return agentCoreJarName;
     }
 
+    public String getAgentCoreJarAbsoluteName()
+    {
+        return getAgentJarPath() + File.separator + getAgentCoreJarName();
+    }
+
     public String getAgentLibraryPath()
     {
         return getAgentJarPath() + File.separator + "libs";

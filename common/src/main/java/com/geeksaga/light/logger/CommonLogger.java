@@ -26,63 +26,47 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author geeksaga
  */
-public class CommonLogger {
-    private ConcurrentMap<String, LightLogger> LOGGER_CACHE = new ConcurrentHashMap<String, LightLogger>(256, 075f, 128);
+public class CommonLogger
+{
+    private static ConcurrentMap<String, LightLogger> LOGGER_CACHE = new ConcurrentHashMap<String, LightLogger>(256, 075f, 128);
 
-    private LightLogger impl = new LightLogger() {
-        @Override
-        public void info(String message) {
-            System.out.println(message);
-        }
-
-        @Override
-        public void info(Object obj) {
-            if (obj != null) {
-                info(obj.toString());
-            }
-        }
-
-        @Override
-        public void info(Throwable throwable) {
-            info(getStackTrace(throwable));
-        }
-
-        @Override
-        public void info(StackTraceElement[] stackTraceElements) {
-            info(getStackTrace(stackTraceElements));
-        }
-    };
-
-    public LightLogger getLogger(String name) {
+    public static LightLogger getLogger(String name)
+    {
         final LightLogger logger = LOGGER_CACHE.get(name);
 
-        if (logger != null) {
+        if (logger != null)
+        {
             return logger;
         }
 
         final SLF4JLoggerAdapter slf4JLoggerAdapter = new SLF4JLoggerAdapter(LoggerFactory.getLogger(name));
 
         final LightLogger slf4JLogger = LOGGER_CACHE.putIfAbsent(name, slf4JLoggerAdapter);
-        if(slf4JLogger != null) {
+        if (slf4JLogger != null)
+        {
             return slf4JLogger;
         }
 
-        return impl;
+        return slf4JLoggerAdapter;
     }
 
-    public static String getStackTrace(StackTraceElement[] stackTraceElements) {
+    public static String getStackTrace(StackTraceElement[] stackTraceElements)
+    {
         StringBuilder sb = new StringBuilder(1024);
         sb.append(SystemProperty.LINE_SEPARATOR);
 
-        for (StackTraceElement stackTraceElement : stackTraceElements) {
+        for (StackTraceElement stackTraceElement : stackTraceElements)
+        {
             sb.append("\tat ").append(stackTraceElement).append(SystemProperty.LINE_SEPARATOR);
         }
 
         return sb.toString();
     }
 
-    public static String getStackTrace(Throwable throwable) {
-        if (throwable != null) {
+    public static String getStackTrace(Throwable throwable)
+    {
+        if (throwable != null)
+        {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
             throwable.printStackTrace(printWriter);

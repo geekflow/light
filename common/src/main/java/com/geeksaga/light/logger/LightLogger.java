@@ -18,9 +18,15 @@ package com.geeksaga.light.logger;
 /**
  * @author geeksaga
  */
-public interface LightLogger {
+public interface LightLogger
+{
     void info(String message);
+
+    void info(String format, Object... arguments);
+
     void info(Object obj);
+
     void info(Throwable throwable);
+
     void info(StackTraceElement[] stackTraceElements);
 }

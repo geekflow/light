@@ -15,74 +15,45 @@
  */
 package com.geeksaga.light.tools.vm;
 
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.tools.Main;
 import com.geeksaga.light.tools.util.ToolsLoader;
+import com.geeksaga.light.util.SystemProperty;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author geeksaga
  */
-public class AttachMain
+public class VirtualMachineAttache
 {
-    private static final Logger logger = Logger.getLogger(AttachMain.class.getName());
+    private static final LightLogger logger = CommonLogger.getLogger(VirtualMachineAttache.class.getName());
+
+    private static final String ATTACH_CLASS_NAME = "com.geeksaga.light.tools.vm.VirtualMachineWrapper";
 
     public void attach()
     {
-        URL url = Main.class.getResource("/");
-        if (url != null)
+        attach(null);
+    }
+
+    public void attach(String options)
+    {
+        if (!invoke(ATTACH_CLASS_NAME, "loadAgent", new Class<?>[] { String.class, String.class }, new String[] { getAgentJarName(), options }, Object.class.getClassLoader()))
         {
-            System.out.println(url.getFile());
-        }
-
-        //        ClassLoader loader = ToolsLoader.getLoader(Thread.currentThread().getContextClassLoader());
-        ClassLoader loader = ToolsLoader.getLoader(Object.class.getClassLoader());
-
-        try
-        {
-            if (loader != null)
-            {
-                logger.info(loader.toString());
-
-                URL[] urls = ((URLClassLoader) loader).getURLs();
-                for (URL u : urls)
-                {
-                    logger.info(u.toString());
-                }
-            }
-
-            Class<?> clazz = Class.forName("com.geeksaga.light.tools.vm.VMAttach", false, loader);
-
-            Object main = clazz.newInstance();
-            if (main != null)
-            {
-                logger.info(getThisJarName());
-
-                Method method = clazz.getDeclaredMethod("loadAgent", String.class);
-                method.invoke(main, getAgentJarName());
-
-                //                 main.loadAgent(getThisJarName());
-            }
-        }
-        catch (Exception exception)
-        {
-            logger.log(Level.INFO, exception.getMessage(), exception);
+            invoke(ATTACH_CLASS_NAME, "loadAgent", new Class<?>[] { String.class, String.class }, new String[] { getAgentJarName(), options }, Thread.currentThread().getContextClassLoader());
         }
     }
 
     public void show()
     {
-        if (!invoke("com.geeksaga.light.tools.vm.VMAttach", "show", Object.class.getClassLoader()))
+        if (!invoke(ATTACH_CLASS_NAME, "show", Object.class.getClassLoader()))
         {
-            invoke("com.geeksaga.light.tools.vm.VMAttach", "show", Thread.currentThread().getContextClassLoader());
+            invoke(ATTACH_CLASS_NAME, "show", Thread.currentThread().getContextClassLoader());
         }
     }
 
@@ -95,7 +66,7 @@ public class AttachMain
             Object main = clazz.newInstance();
             if (main != null)
             {
-                Method method = clazz.getMethod(methodName);
+                Method method = clazz.getDeclaredMethod(methodName);
                 method.invoke(main);
             }
 
@@ -107,7 +78,36 @@ public class AttachMain
         }
         catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
         {
-            logger.log(Level.INFO, e.getMessage(), e);
+            //            logger.log(Level.INFO, e.getMessage(), e);
+            logger.info(e);
+        }
+
+        return false;
+    }
+
+    private boolean invoke(String className, String methodName, Class<?>[] parameterTypes, Object[] parameterValues, ClassLoader classLoader)
+    {
+        try
+        {
+            Class<?> clazz = Class.forName(className, false, ToolsLoader.getLoader(classLoader, getThisJarName()));
+
+            Object main = clazz.newInstance();
+            if (main != null)
+            {
+                Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
+                method.invoke(main, parameterValues);
+            }
+
+            return true;
+        }
+        catch (ClassNotFoundException classNotFoundException)
+        {
+            ToolsLoader.setToolsLoader(null);
+        }
+        catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
+        {
+            //            logger.log(Level.INFO, e.getMessage(), e);
+            logger.info(e);
         }
 
         return false;
@@ -141,24 +141,23 @@ public class AttachMain
 
     private String getAgentJarName()
     {
-        String jar;
-        ClassLoader classLoader = Main.class.getClassLoader();
-        if (classLoader == null)
+        if (!"".equals(SystemProperty.LIGHT_HOME))
         {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
-
-        URL url = classLoader.getResource(Main.class.getName().replace('.', '/') + ".class");
-
-        if (url != null)
-        {
-            jar = url.toString().replace("jar:file:", "");
-            jar = jar.substring(0, jar.indexOf(".jar!") + 4);
-
-            // return jar;
+            return SystemProperty.LIGHT_HOME + File.separator + "light.agent-" + findLastAgentJarOrNull(SystemProperty.LIGHT_HOME) + ".jar";
         }
 
         return System.getProperty("user.dir") + File.separator + "light.agent-" + findLastAgentJarOrNull("./") + ".jar";
+    }
+
+    // for Test
+    String getAgentClassPath()
+    {
+        if (!"".equals(SystemProperty.LIGHT_HOME))
+        {
+            return getAgentJarName() + File.pathSeparator + SystemProperty.LIGHT_HOME + File.separator + "light.agent.core-" + findLastAgentJarOrNull(SystemProperty.LIGHT_HOME) + ".jar";
+        }
+
+        return getAgentJarName() + File.pathSeparator + System.getProperty("user.dir") + File.separator + "light.agent.core-" + findLastAgentJarOrNull("./") + ".jar";
     }
 
     String findLastAgentJarOrNull()
@@ -191,9 +190,10 @@ public class AttachMain
 
             return lastFileName(fileList);
         }
-        catch (Exception exception)
+        catch (Exception e)
         {
-            logger.log(Level.INFO, exception.getMessage(), exception);
+            //            logger.log(Level.INFO, e.getMessage(), e);
+            logger.info(e);
         }
 
         return null;

@@ -15,16 +15,17 @@
  */
 package com.geeksaga.light.tools;
 
-import com.geeksaga.light.tools.vm.AttachMain;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.tools.vm.VirtualMachineAttache;
 
-import java.util.logging.Logger;
 
 /**
  * @author geeksaga
  */
 public class Main
 {
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
+    private static LightLogger logger = CommonLogger.getLogger(Main.class.getName());
 
     public static void main(String[] args)
     {
@@ -32,8 +33,8 @@ public class Main
         logger.info("Usage : ");
         logger.info("ex) light-tools.sh --help");
 
-        AttachMain main = new AttachMain();
-        main.show();
+        VirtualMachineAttache main = new VirtualMachineAttache();
+        //        main.show();
         main.attach();
     }
 }

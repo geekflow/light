@@ -60,7 +60,22 @@ public class JavaAgent
         JavaAgent.instrumentation = instrumentation;
 
         Bootstrap bootstrap = new Bootstrap(options, instrumentation);
-        bootstrap.initialize(attach);
+        bootstrap.initialize(attach, parseOptionOrNull(options, "agent.class.path="));
+    }
+
+    private static String parseOptionOrNull(String options, String option)
+    {
+        if (options != null)
+        {
+            int indexOf = options.indexOf(option);
+
+            if (indexOf > -1)
+            {
+                return options.substring(indexOf + option.length());
+            }
+        }
+
+        return null;
     }
 
     private static boolean updateStatusAndCheckDuplicate()

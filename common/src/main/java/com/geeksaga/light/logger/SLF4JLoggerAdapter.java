@@ -20,40 +20,56 @@ import org.slf4j.Logger;
 /**
  * @author geeksaga
  */
-public class SLF4JLoggerAdapter implements LightLogger {
+public class SLF4JLoggerAdapter implements LightLogger
+{
 
     private final Logger logger;
 
-    public SLF4JLoggerAdapter(Logger logger) {
+    public SLF4JLoggerAdapter(Logger logger)
+    {
         this.logger = logger;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return logger.getName();
     }
 
     @Override
-    public void info(String message) {
+    public void info(String message)
+    {
         logger.info(message);
     }
 
     @Override
-    public void info(Object obj) {
-        if(obj != null) {
+    public void info(Object obj)
+    {
+        if (obj != null)
+        {
             logger.info(obj.toString());
         }
     }
 
     @Override
-    public void info(Throwable throwable) {
-        if(throwable != null) {
+    public void info(String format, Object... arguments)
+    {
+        logger.info(format, arguments);
+    }
+
+    @Override
+    public void info(Throwable throwable)
+    {
+        if (throwable != null)
+        {
             info(CommonLogger.getStackTrace(throwable));
         }
     }
 
     @Override
-    public void info(StackTraceElement[] stackTraceElements) {
-        if(stackTraceElements != null) {
+    public void info(StackTraceElement[] stackTraceElements)
+    {
+        if (stackTraceElements != null)
+        {
             info(CommonLogger.getStackTrace(stackTraceElements));
         }
     }

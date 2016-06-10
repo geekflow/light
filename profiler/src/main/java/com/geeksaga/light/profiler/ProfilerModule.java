@@ -40,7 +40,7 @@ public class ProfilerModule implements Module
     {
         this.instrumentation = instrumentation;
 
-        this.logger = new CommonLogger().getLogger(this.getClass().getName());
+        this.logger = CommonLogger.getLogger(this.getClass().getName());
 
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();

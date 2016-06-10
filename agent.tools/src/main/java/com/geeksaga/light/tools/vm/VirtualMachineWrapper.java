@@ -30,23 +30,26 @@ import java.util.logging.Logger;
 /**
  * @author geeksaga
  */
-public class VMAttach
+public class VirtualMachineWrapper
 {
-    private static final Logger logger = Logger.getLogger(VMAttach.class.getName());
+    private static final Logger logger = Logger.getLogger(VirtualMachineWrapper.class.getName());
 
     public void loadAgent(String agent)
     {
-        String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
-        int p = nameOfRunningVM.indexOf('@');
-        String pid = nameOfRunningVM.substring(0, p);
+        loadAgent(agent, null);
+    }
 
-        logger.info("dynamically loading javaagent = " + pid);
+    public void loadAgent(String agent, String options)
+    {
+        String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
+        String pid = nameOfRunningVM.substring(0, nameOfRunningVM.indexOf('@'));
+
+        logger.info("dynamically loading javaagent for process = " + pid);
 
         try
         {
             VirtualMachine virtualMachine = VirtualMachine.attach(pid);
-            virtualMachine.loadAgent(agent, null);
-//            virtualMachine.detach();
+            virtualMachine.loadAgent(agent, options);
         }
         catch (AttachNotSupportedException attachNotSupportedException)
         {
@@ -61,10 +64,10 @@ public class VMAttach
     // supported JDK7
     public void show()
     {
-        List<VirtualMachineDescriptor> vms = VirtualMachine.list();
+        List<VirtualMachineDescriptor> virtualMachineDescriptorList = VirtualMachine.list();
 
         String version = null;
-        for (VirtualMachineDescriptor virtualMachineDescriptor : vms)
+        for (VirtualMachineDescriptor virtualMachineDescriptor : virtualMachineDescriptorList)
         {
             VirtualMachine virtualMachine = attach(virtualMachineDescriptor);
             if (virtualMachine != null)
@@ -72,7 +75,7 @@ public class VMAttach
                 version = readSystemProperty(virtualMachine, "java.version");
             }
 
-            System.out.println("=> Show JVM : pid = " + virtualMachineDescriptor.id() + ", DisplayName = " + virtualMachineDescriptor.displayName() + ", Java Version = " + version);
+            logger.log(Level.INFO, "Show JVM : pid = " + virtualMachineDescriptor.id() + ", DisplayName = " + virtualMachineDescriptor.displayName() + ", Java Version = " + version);
 
             detach(virtualMachine);
         }
@@ -85,8 +88,8 @@ public class VMAttach
         try
         {
             virtualMachine = VirtualMachine.attach(virtualMachineDescriptor);
-            Properties props = new Properties();
-            props.put("com.sun.management.jmxremote.port", "5000");
+            //            Properties props = new Properties();
+            //            props.put("com.sun.management.jmxremote.port", "5000");
             //            props.put("bootclasspath", "");
             //            virtualMachine.startManagementAgent(props);
         }

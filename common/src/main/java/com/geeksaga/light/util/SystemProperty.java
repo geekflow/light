@@ -50,6 +50,7 @@ public class SystemProperty
     public static final String LINE_SEPARATOR = getSystemProperty("line.separator");
     public static final String PATH_SEPARATOR = getSystemProperty("path.separator");
 
+    public static final String LIGHT_HOME = getSystemProperty("LIGHT_HOME");
     public static final String LIGHT_CONFIG = getSystemProperty("light.config", "light.conf");
 
     private static String getSystemProperty(String key)
