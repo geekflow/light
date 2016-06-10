@@ -1,11 +1,20 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
+mainClassName = 'com.geeksaga.light.tools.Main'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+// https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html
+// https://docs.gradle.org/current/userguide/java_plugin.html
 jar {
     baseName = 'light.agent.tools'
     version = '0.0.1'
 
     manifest {
-        attributes 'Boot-Class-Path': baseName + "-" + version + ".jar",
+//        attributes 'Boot-Class-Path': baseName + "-" + version + ".jar light.common-0.0.1.jar ../libs/light.common-0.0.1.jar",
+        attributes 'Boot-Class-Path': 'light.common-0.0.1.jar',
                 'Implementation-Title': 'GeekSaga Light Agent',
                 'Implementation-Version': version,
                 'Implementation-Vendor': 'GeekSaga, Inc.',
@@ -14,10 +23,13 @@ jar {
                 'Specification-Vendor': 'GeekSaga, Inc.',
                 'Main-Class': 'com.geeksaga.light.tools.Main'
     }
-}
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+    archiveName "light.agent.tools-${version}.jar"
+//    dependsOn configurations.runtime
+//    from {
+//        configurations.compile.collect {it.isDirectory()? it: zipTree(it)}
+//    }
+}
 
 dependencies {
     compile files("${System.properties['java.home']}/../lib/tools.jar")
