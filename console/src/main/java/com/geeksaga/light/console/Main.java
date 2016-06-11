@@ -34,7 +34,7 @@ public class Main
 
         //        main.doConsole();
 
-        usage();
+        main.usage();
     }
 
     private void doConsole() throws Exception
@@ -46,7 +46,7 @@ public class Main
         System.out.println(command);
     }
 
-    public CommandLine parseOption(String[] arguments)
+    private CommandLine parseOption(String[] arguments)
     {
         CommandLineParser commandLineParser = new DefaultParser();
 
@@ -62,7 +62,7 @@ public class Main
         return null;
     }
 
-    private static Options getOptions()
+    private Options getOptions()
     {
         Option bootStrapOption = new Option("b", "bootstrap", true, "library append to class loader of bootstrap");
         bootStrapOption.setArgs(Option.UNLIMITED_VALUES);
@@ -82,7 +82,7 @@ public class Main
         return options;
     }
 
-    private static void usage()
+    private void usage()
     {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("light-console.sh [-options] [args...]", getOptions());

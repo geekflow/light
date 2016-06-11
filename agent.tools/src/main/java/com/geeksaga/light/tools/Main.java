@@ -15,9 +15,8 @@
  */
 package com.geeksaga.light.tools;
 
-import com.geeksaga.light.logger.CommonLogger;
-import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.tools.vm.VirtualMachineAttache;
+import org.apache.commons.cli.*;
 
 
 /**
@@ -25,15 +24,70 @@ import com.geeksaga.light.tools.vm.VirtualMachineAttache;
  */
 public class Main
 {
-    private static LightLogger logger = CommonLogger.getLogger(Main.class.getName());
+    // private static LightLogger logger = CommonLogger.getLogger(Main.class.getName());
 
     public static void main(String[] args)
     {
-        System.out.println(Product.NAME + " APM Tools.");
-        System.out.println("Type 'light-tools.sh --help' for usage.");
+        Main main = new Main();
+        main.process(args);
+    }
 
-        VirtualMachineAttache main = new VirtualMachineAttache();
-        //        main.show();
-        main.attach();
+    private void process(String[] args)
+    {
+        VirtualMachineAttache virtualMachineAttache = new VirtualMachineAttache();
+
+        CommandLine commandLine = parseOption(args);
+        if (commandLine != null && commandLine.hasOption("a"))
+        {
+            virtualMachineAttache.attach(commandLine.getOptionValue("a"));
+        }
+        else if (commandLine != null && commandLine.hasOption("p"))
+        {
+            virtualMachineAttache.show();
+        }
+        else if (commandLine != null && commandLine.hasOption("s"))
+        {
+            virtualMachineAttache.attach();
+        }
+        else
+        {
+            usage();
+        }
+    }
+
+    private CommandLine parseOption(String[] arguments)
+    {
+        CommandLineParser commandLineParser = new DefaultParser();
+
+        try
+        {
+            return commandLineParser.parse(getOptions(), arguments);
+        }
+        catch (ParseException parseException)
+        {
+            System.err.println("Parsing failed.  Reason: " + parseException.getMessage());
+        }
+
+        return null;
+    }
+
+    private Options getOptions()
+    {
+        Option attachOption = new Option("a", "attach", true, "attach java process");
+        attachOption.setArgs(Option.UNLIMITED_VALUES);
+        attachOption.setArgName("process ID");
+
+        Options options = new Options();
+        options.addOption(attachOption);
+        options.addOption(new Option("p", "process", false, "find java process"));
+        options.addOption(new Option("s", "self", false, "self attach java process"));
+
+        return options;
+    }
+
+    private void usage()
+    {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("light-tools.sh [-options] [args...]", getOptions());
     }
 }
