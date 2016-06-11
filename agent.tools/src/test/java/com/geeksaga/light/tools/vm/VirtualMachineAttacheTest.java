@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.isEmptyOrNullString;
  */
 public class VirtualMachineAttacheTest
 {
-    private static final LightLogger logger = CommonLogger.getLogger(VirtualMachineAttacheTest.class.getName());
+    private final LightLogger logger = CommonLogger.getLogger(VirtualMachineAttacheTest.class.getName());
 
     private VirtualMachineAttache attache = new VirtualMachineAttache();
 

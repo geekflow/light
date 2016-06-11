@@ -29,9 +29,8 @@ public class Main
 
     public static void main(String[] args)
     {
-        logger.info(Product.NAME + " APM Tools.");
-        logger.info("Usage : ");
-        logger.info("ex) light-tools.sh --help");
+        System.out.println(Product.NAME + " APM Tools.");
+        System.out.println("Type 'light-tools.sh --help' for usage.");
 
         VirtualMachineAttache main = new VirtualMachineAttache();
         //        main.show();
