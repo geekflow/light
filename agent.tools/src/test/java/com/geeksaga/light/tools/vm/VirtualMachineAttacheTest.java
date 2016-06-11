@@ -45,9 +45,9 @@ public class VirtualMachineAttacheTest
     }
 
     @Test
-    public void testList()
+    public void testShowProcessList()
     {
-        attache.show();
+        attache.showProcessList();
     }
 
     @Test
@@ -55,7 +55,7 @@ public class VirtualMachineAttacheTest
     {
         logger.info("testAttach {}", "agent.class.path=");
 
-        attache.attach("agent.class.path=" + attache.getAgentClassPath());
+        attache.loadAgentAfterAttach("agent.class.path=" + attache.getAgentClassPath());
     }
 
     @Test

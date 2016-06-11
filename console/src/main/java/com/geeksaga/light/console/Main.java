@@ -46,7 +46,7 @@ public class Main
         System.out.println(command);
     }
 
-    private CommandLine parseOption(String[] arguments)
+    CommandLine parseOption(String[] arguments)
     {
         CommandLineParser commandLineParser = new DefaultParser();
 

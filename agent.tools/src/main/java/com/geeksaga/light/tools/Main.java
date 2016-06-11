@@ -39,15 +39,15 @@ public class Main
         CommandLine commandLine = parseOption(args);
         if (commandLine != null && commandLine.hasOption("a"))
         {
-            virtualMachineAttache.attach(commandLine.getOptionValue("a"));
+            virtualMachineAttache.loadAgentAfterAttach(commandLine.getOptionValue("a"));
         }
         else if (commandLine != null && commandLine.hasOption("p"))
         {
-            virtualMachineAttache.show();
+            virtualMachineAttache.showProcessList();
         }
         else if (commandLine != null && commandLine.hasOption("s"))
         {
-            virtualMachineAttache.attach();
+            virtualMachineAttache.loadAgentAfterAttach();
         }
         else
         {

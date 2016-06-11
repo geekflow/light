@@ -23,6 +23,7 @@ import com.geeksaga.light.util.SystemProperty;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -36,24 +37,29 @@ public class VirtualMachineAttache
 
     private static final String ATTACH_CLASS_NAME = "com.geeksaga.light.tools.vm.VirtualMachineWrapper";
 
-    public void attach()
+    public void loadAgentAfterAttach()
     {
-        attach(null);
+        loadAgentAfterAttach(null);
     }
 
-    public void attach(String options)
+    public void loadAgentAfterAttach(String options)
     {
-        if (!invoke(ATTACH_CLASS_NAME, "loadAgent", new Class<?>[] { String.class, String.class }, new String[] { getAgentJarName(), options }, Object.class.getClassLoader()))
+        loadAgentAfterAttach(ManagementFactory.getRuntimeMXBean().getName().split("@")[0], options);
+    }
+
+    public void loadAgentAfterAttach(String processId, String options)
+    {
+        if (!invoke(ATTACH_CLASS_NAME, "loadAgentAfterAttach", new Class<?>[] { String.class, String.class, String.class }, new String[] { processId, getAgentJarName(), options }, Object.class.getClassLoader()))
         {
-            invoke(ATTACH_CLASS_NAME, "loadAgent", new Class<?>[] { String.class, String.class }, new String[] { getAgentJarName(), options }, Thread.currentThread().getContextClassLoader());
+            invoke(ATTACH_CLASS_NAME, "loadAgentAfterAttach", new Class<?>[] { String.class, String.class, String.class }, new String[] { processId, getAgentJarName(), options }, Thread.currentThread().getContextClassLoader());
         }
     }
 
-    public void show()
+    public void showProcessList()
     {
-        if (!invoke(ATTACH_CLASS_NAME, "show", Object.class.getClassLoader()))
+        if (!invoke(ATTACH_CLASS_NAME, "showProcessList", Object.class.getClassLoader()))
         {
-            invoke(ATTACH_CLASS_NAME, "show", Thread.currentThread().getContextClassLoader());
+            invoke(ATTACH_CLASS_NAME, "showProcessList", Thread.currentThread().getContextClassLoader());
         }
     }
 
@@ -78,7 +84,6 @@ public class VirtualMachineAttache
         }
         catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
         {
-            //            logger.log(Level.INFO, e.getMessage(), e);
             logger.info(e);
         }
 
@@ -106,7 +111,6 @@ public class VirtualMachineAttache
         }
         catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
         {
-            //            logger.log(Level.INFO, e.getMessage(), e);
             logger.info(e);
         }
 
@@ -192,7 +196,6 @@ public class VirtualMachineAttache
         }
         catch (Exception e)
         {
-            //            logger.log(Level.INFO, e.getMessage(), e);
             logger.info(e);
         }
 

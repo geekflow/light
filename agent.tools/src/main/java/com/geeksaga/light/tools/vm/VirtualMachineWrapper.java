@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.tools.vm;
 
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -32,28 +34,30 @@ import java.util.logging.Logger;
  */
 public class VirtualMachineWrapper
 {
-    private static final Logger logger = Logger.getLogger(VirtualMachineWrapper.class.getName());
+    private static final LightLogger logger = CommonLogger.getLogger(VirtualMachineWrapper.class.getName());
 
-    public void loadAgent(String agent)
+    public void loadAgentAfterAttach(String agent)
     {
-        loadAgent(agent, null);
+        loadAgentAfterAttach(getProcessID(), agent, null);
     }
 
-    public void loadAgent(String agent, String options)
+    public void loadAgentAfterAttach(String processId, String agent)
     {
-        String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
-        String pid = nameOfRunningVM.substring(0, nameOfRunningVM.indexOf('@'));
+        loadAgentAfterAttach(processId, agent, null);
+    }
 
-        logger.info("dynamically loading javaagent for process = " + pid);
+    public void loadAgentAfterAttach(String processId, String agent, String options)
+    {
+        logger.info("dynamically loading javaagent for process = " + processId);
 
         try
         {
-            VirtualMachine virtualMachine = VirtualMachine.attach(pid);
+            VirtualMachine virtualMachine = VirtualMachine.attach(processId);
             virtualMachine.loadAgent(agent, options);
         }
         catch (AttachNotSupportedException attachNotSupportedException)
         {
-            logger.log(Level.INFO, attachNotSupportedException.getMessage(), attachNotSupportedException);
+            logger.info(attachNotSupportedException);
         }
         catch (Exception e)
         {
@@ -62,7 +66,7 @@ public class VirtualMachineWrapper
     }
 
     // supported JDK7
-    public void show()
+    public void showProcessList()
     {
         List<VirtualMachineDescriptor> virtualMachineDescriptorList = VirtualMachine.list();
 
@@ -75,10 +79,15 @@ public class VirtualMachineWrapper
                 version = readSystemProperty(virtualMachine, "java.version");
             }
 
-            logger.log(Level.INFO, "Show JVM : pid = " + virtualMachineDescriptor.id() + ", DisplayName = " + virtualMachineDescriptor.displayName() + ", Java Version = " + version);
+            logger.info("Show JVM : pid = {}, DisplayName = {}, Java Version = {}", virtualMachineDescriptor.id(), virtualMachineDescriptor.displayName(), version);
 
             detach(virtualMachine);
         }
+    }
+
+    private String getProcessID()
+    {
+        return ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
     }
 
     private VirtualMachine attach(VirtualMachineDescriptor virtualMachineDescriptor)
@@ -95,7 +104,7 @@ public class VirtualMachineWrapper
         }
         catch (AttachNotSupportedException | IOException attachNotSupportedException)
         {
-            logger.log(Level.INFO, attachNotSupportedException.getMessage(), attachNotSupportedException);
+            logger.info(attachNotSupportedException);
         }
 
         return virtualMachine;
@@ -121,7 +130,7 @@ public class VirtualMachineWrapper
         }
         catch (IOException ioException)
         {
-            logger.log(Level.INFO, ioException.getMessage(), ioException);
+            logger.info(ioException);
         }
 
         return propertyValue;
@@ -137,7 +146,7 @@ public class VirtualMachineWrapper
             }
             catch (IOException ioException)
             {
-                logger.log(Level.INFO, ioException.getMessage(), ioException);
+                logger.info(ioException);
             }
         }
     }

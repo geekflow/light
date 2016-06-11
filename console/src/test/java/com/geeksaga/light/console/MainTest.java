@@ -24,12 +24,13 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author geeksaga
  */
-public class MainTest {
-
+public class MainTest
+{
     @Test
-    public void testOption() {
+    public void testOption()
+    {
         Main main = new Main();
-        CommandLine command = main.parseOption(new String[] {"light.sh", "-a1234", "-p"});
+        CommandLine command = main.parseOption(new String[] { "light.sh", "-a1234", "-p" });
 
         assertThat(command.hasOption("a"), is(true));
         assertThat(command.hasOption("attach"), is(true));
