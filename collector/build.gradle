@@ -1,0 +1,10 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.8'
+    compile 'org.scala-lang:scala-compiler:2.11.8'
+    compile 'org.scala-lang:scala-reflect:2.11.8'
+}

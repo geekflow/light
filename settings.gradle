@@ -9,4 +9,5 @@ include 'console'
 include 'server.jetty'
 include 'server.tomcat'
 include 'agent.tools'
+include 'collector'
 

@@ -82,6 +82,6 @@ public class JavaProcess
     {
         JavaProcess javaProcess = new JavaProcess();
         System.out.println(javaProcess.getProcessId());
-        //        javaProcess.findList();
+        javaProcess.findList();
     }
 }
