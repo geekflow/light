@@ -10,4 +10,5 @@ include 'server.jetty'
 include 'server.tomcat'
 include 'agent.tools'
 include 'collector'
+include 'plugins/flow'
 
