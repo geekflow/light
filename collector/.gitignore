@@ -1,0 +1,10 @@
+/*.iml
+/bin/
+/build/
+/.classpath
+/.project
+/.settings/
+
+# Allow
+!/bin/*.sh
+!/bin/*.bat

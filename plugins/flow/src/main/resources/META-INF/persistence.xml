@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0"
+             xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+    <persistence-unit name="appJpaUnit">
+        <provider>com.orientechnologies.orient.object.jpa.OJPAPersistenceProvider</provider>
+
+        <!-- JPA entities must be registered here -->
+        <class>com.geeksaga.flow.entity.Classes</class>
+
+        <properties>
+            <property name="javax.persistence.jdbc.url" value="plocal:./database/flow" />
+            <property name="javax.persistence.jdbc.user" value="admin" />
+            <property name="javax.persistence.jdbc.password" value="admin" />
+            <!-- Register whole package.
+                             See com.orientechnologies.orient.core.entity.OEntityManager.registerEntityClasses(String) for more details -->
+            <property name="com.orientdb.entityClasses" value="com.geeksaga.flow.entity" />
+        </properties>
+    </persistence-unit>
+</persistence>
