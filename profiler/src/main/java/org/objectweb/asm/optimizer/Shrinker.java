@@ -1,19 +1,47 @@
-/*
- * Copyright 2015 GeekSaga.
+/***
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (c) 2000-2011 INRIA, France Telecom
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.objectweb.asm.optimizer;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -21,9 +49,6 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * A class file shrinker utility.
@@ -35,8 +60,7 @@ public class Shrinker {
 
     static final HashMap<String, String> MAPPING = new HashMap<String, String>();
 
-    public static void main(final String[] args) throws IOException
-    {
+    public static void main(final String[] args) throws IOException {
         Properties properties = new Properties();
         int n = args.length - 1;
         for (int i = 0; i < n - 1; ++i) {
@@ -73,8 +97,7 @@ public class Shrinker {
     }
 
     static void optimize(final File f, final File d, final Remapper remapper)
-            throws IOException
-    {
+            throws IOException {
         if (f.isDirectory()) {
             File[] files = f.listFiles();
             for (int i = 0; i < files.length; ++i) {
@@ -83,7 +106,8 @@ public class Shrinker {
         } else if (f.getName().endsWith(".class")) {
             ConstantPool cp = new ConstantPool();
             ClassReader cr = new ClassReader(new FileInputStream(f));
-            ClassWriter cw = new ClassWriter(0);
+            // auto-boxing removal requires to recompute the maxs 
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             ClassConstantsCollector ccc = new ClassConstantsCollector(cw, cp);
             ClassOptimizer co = new ClassOptimizer(ccc, remapper);
             cr.accept(co, ClassReader.SKIP_DEBUG);
@@ -121,24 +145,20 @@ public class Shrinker {
         }
     }
 
-    static class ConstantComparator implements Comparator<Constant>
-    {
+    static class ConstantComparator implements Comparator<Constant> {
 
         public int compare(final Constant c1, final Constant c2) {
             int d = getSort(c1) - getSort(c2);
             if (d == 0) {
                 switch (c1.type) {
                 case 'I':
-                    return new Integer(c1.intVal).compareTo(new Integer(
-                            c2.intVal));
+                    return ((Integer)c1.intVal).compareTo(c2.intVal);
                 case 'J':
-                    return new Long(c1.longVal).compareTo(new Long(c2.longVal));
+                    return ((Long)c1.longVal).compareTo(c2.longVal);
                 case 'F':
-                    return new Float(c1.floatVal).compareTo(new Float(
-                            c2.floatVal));
+                    return ((Float)c1.floatVal).compareTo(c2.floatVal);
                 case 'D':
-                    return new Double(c1.doubleVal).compareTo(new Double(
-                            c2.doubleVal));
+                    return ((Double)c1.doubleVal).compareTo(c2.doubleVal);
                 case 's':
                 case 'S':
                 case 'C':
@@ -197,6 +217,7 @@ public class Shrinker {
             return mtype1.getDescriptor().compareTo(mtype2.getDescriptor());
         }
 
+        @SuppressWarnings("unchecked")
         private static int compareObjects(Object[] objVals1, Object[] objVals2) {
             int length = objVals1.length;
             int d = length - objVals2.length;
@@ -213,7 +234,7 @@ public class Shrinker {
                             d = compareHandle((Handle) objVal1,
                                     (Handle) objVal2);
                         } else {
-                            d = ((Comparable) objVal1).compareTo(objVal2);
+                            d = ((Comparable<Object>) objVal1).compareTo(objVal2);
                         }
                     }
 

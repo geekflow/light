@@ -1,33 +1,48 @@
-/*
- * Copyright 2015 GeekSaga.
+/***
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (c) 2000-2011 INRIA, France Telecom
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.objectweb.asm.optimizer;
+
+import java.util.HashMap;
 
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import java.util.HashMap;
 
 /**
  * A constant pool.
  * 
  * @author Eric Bruneton
  */
-public class ConstantPool extends HashMap<Constant, Constant>
-{
+public class ConstantPool extends HashMap<Constant, Constant> {
+
+    private static final long serialVersionUID = 1L;
 
     private final Constant key1 = new Constant();
 
@@ -123,14 +138,14 @@ public class ConstantPool extends HashMap<Constant, Constant>
     }
 
     public Constant newHandle(final int tag, final String owner,
-                              final String name, final String desc) {
-        key4.set((char) ('h' - 1 + tag), owner, name, desc);
+            final String name, final String desc, final boolean itf) {
+        key4.set((char) ('h' + tag - 1 + (itf && tag != Opcodes.H_INVOKEINTERFACE? 4: 0)), owner, name, desc);
         Constant result = get(key4);
         if (result == null) {
             if (tag <= Opcodes.H_PUTSTATIC) {
                 newField(owner, name, desc);
             } else {
-                newMethod(owner, name, desc, tag == Opcodes.H_INVOKEINTERFACE);
+                newMethod(owner, name, desc, itf);
             }
             result = new Constant(key4);
             put(result);
@@ -165,14 +180,14 @@ public class ConstantPool extends HashMap<Constant, Constant>
             }
         } else if (cst instanceof Handle) {
             Handle h = (Handle) cst;
-            return newHandle(h.getTag(), h.getOwner(), h.getName(), h.getDesc());
+            return newHandle(h.getTag(), h.getOwner(), h.getName(), h.getDesc(), h.isInterface());
         } else {
             throw new IllegalArgumentException("value " + cst);
         }
     }
 
     public Constant newField(final String owner, final String name,
-                             final String desc) {
+            final String desc) {
         key3.set('G', owner, name, desc);
         Constant result = get(key3);
         if (result == null) {
@@ -185,7 +200,7 @@ public class ConstantPool extends HashMap<Constant, Constant>
     }
 
     public Constant newMethod(final String owner, final String name,
-                              final String desc, final boolean itf) {
+            final String desc, final boolean itf) {
         key3.set(itf ? 'N' : 'M', owner, name, desc);
         Constant result = get(key3);
         if (result == null) {
@@ -198,13 +213,13 @@ public class ConstantPool extends HashMap<Constant, Constant>
     }
 
     public Constant newInvokeDynamic(String name, String desc, Handle bsm,
-                                     Object... bsmArgs) {
+            Object... bsmArgs) {
         key5.set(name, desc, bsm, bsmArgs);
         Constant result = get(key5);
         if (result == null) {
             newNameType(name, desc);
             newHandle(bsm.getTag(), bsm.getOwner(), bsm.getName(),
-                    bsm.getDesc());
+                    bsm.getDesc(), bsm.isInterface());
             for (int i = 0; i < bsmArgs.length; i++) {
                 newConst(bsmArgs[i]);
             }

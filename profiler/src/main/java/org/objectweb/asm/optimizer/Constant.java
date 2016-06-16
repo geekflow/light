@@ -15,10 +15,10 @@
  */
 package org.objectweb.asm.optimizer;
 
+import java.util.Arrays;
+
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
-
-import java.util.Arrays;
 
 /**
  * A constant pool item.
@@ -31,11 +31,24 @@ public class Constant {
      * Type of this constant pool item. A single class is used to represent all
      * constant pool item types, in order to minimize the bytecode size of this
      * package. The value of this field is I, J, F, D, S, s, C, T, G, M, N, y,
-     * t, [h..p] (for Constant Integer, Long, Float, Double, STR, UTF8, Class,
+     * t, [h..r] (for Constant Integer, Long, Float, Double, STR, UTF8, Class,
      * NameType, Fieldref, Methodref, InterfaceMethodref, InvokeDynamic,
      * MethodType and MethodHandle constant pool items respectively).
      * 
-     * The 9 variable of MethodHandle constants are stored between h and p.
+     * The 9 variable of MethodHandle constants are stored between h and r
+     * following this table
+     *                    tag   type  interface
+     * H_GETFIELD          1     h    false
+     * H_GETSTATIC         2     i    false
+     * H_PUTFIELD          3     j    false
+     * H_PUTSTATIC         4     k    false
+     * H_INVOKEVIRTUAL     5     l    false
+     * H_INVOKESTATIC      6     m    false
+     * H_INVOKESPECIAL     7     n    false
+     * H_NEWINVOKESPECIAL  8     o    false
+     * H_INVOKEINTERFACE   9     p    true
+     * H_INVOKESTATIC      6     q    true
+     * H_INVOKESPECIAL     7     r    true
      */
     char type;
 
@@ -164,7 +177,7 @@ public class Constant {
      *            third part of the value of this item.
      */
     void set(final char type, final String strVal1, final String strVal2,
-             final String strVal3) {
+            final String strVal3) {
         this.type = type;
         this.strVal1 = strVal1;
         this.strVal2 = strVal2;
@@ -183,7 +196,7 @@ public class Constant {
             // case 'G':
             // case 'M':
             // case 'N':
-            // case 'h' ... 'p':
+            // case 'h' ... 'r':
         default:
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                     * strVal2.hashCode() * strVal3.hashCode());
@@ -203,7 +216,7 @@ public class Constant {
      *            bootstrap method constant arguments.
      */
     void set(final String name, final String desc, final Handle bsm,
-             final Object[] bsmArgs) {
+            final Object[] bsmArgs) {
         this.type = 'y';
         this.strVal1 = name;
         this.strVal2 = desc;
@@ -220,16 +233,16 @@ public class Constant {
     void write(final ClassWriter cw) {
         switch (type) {
         case 'I':
-            cw.newConst(new Integer(intVal));
+            cw.newConst(intVal);
             break;
         case 'J':
-            cw.newConst(new Long(longVal));
+            cw.newConst(longVal);
             break;
         case 'F':
-            cw.newConst(new Float(floatVal));
+            cw.newConst(floatVal);
             break;
         case 'D':
-            cw.newConst(new Double(doubleVal));
+            cw.newConst(doubleVal);
             break;
         case 'S':
             cw.newConst(strVal1);
@@ -258,8 +271,8 @@ public class Constant {
         case 't':
             cw.newMethodType(strVal1);
             break;
-        default: // 'h' ... 'p': handle
-            cw.newHandle(type - 'h' + 1, strVal1, strVal2, (String) objVal3);
+        default:  // 'h' ... 'r' : handle
+            cw.newHandle(type - 'h' + 1 - ((type >= 'q')? 4: 0), strVal1, strVal2, (String) objVal3, type >= 'p');
         }
     }
 
@@ -293,7 +306,7 @@ public class Constant {
                 // case 'G':
                 // case 'M':
                 // case 'N':
-                // case 'h' ... 'p':
+                // case 'h' ... 'r':
             default:
                 return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2)
                         && c.objVal3.equals(objVal3);

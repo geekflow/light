@@ -1,23 +1,46 @@
-/*
- * Copyright 2015 GeekSaga.
+/***
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (c) 2000-2011 INRIA, France Telecom
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.objectweb.asm.optimizer;
 
-import org.objectweb.asm.*;
+import java.util.HashMap;
+
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.commons.RemappingMethodAdapter;
+import org.objectweb.asm.commons.MethodRemapper;
 
 /**
  * A {@link MethodVisitor} that renames fields and methods, and removes debug
@@ -25,13 +48,13 @@ import org.objectweb.asm.commons.RemappingMethodAdapter;
  * 
  * @author Eugene Kuleshov
  */
-public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
+public class MethodOptimizer extends MethodRemapper implements Opcodes {
 
     private final ClassOptimizer classOptimizer;
 
-    public MethodOptimizer(ClassOptimizer classOptimizer, int access,
-                           String desc, MethodVisitor mv, Remapper remapper) {
-        super(Opcodes.ASM5, access, desc, mv, remapper);
+    public MethodOptimizer(ClassOptimizer classOptimizer, MethodVisitor mv,
+            Remapper remapper) {
+        super(Opcodes.ASM5, mv, remapper);
         this.classOptimizer = classOptimizer;
     }
 
@@ -58,21 +81,21 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-                                                 TypePath typePath, String desc, boolean visible) {
+            TypePath typePath, String desc, boolean visible) {
         return null;
     }
 
     @Override
     public AnnotationVisitor visitParameterAnnotation(final int parameter,
-                                                      final String desc, final boolean visible) {
+            final String desc, final boolean visible) {
         // remove annotations
         return null;
     }
 
     @Override
     public void visitLocalVariable(final String name, final String desc,
-                                   final String signature, final Label start, final Label end,
-                                   final int index) {
+            final String signature, final Label start, final Label end,
+            final int index) {
         // remove debug info
     }
 
@@ -83,7 +106,7 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
 
     @Override
     public void visitFrame(int type, int local, Object[] local2, int stack,
-                           Object[] stack2) {
+            Object[] stack2) {
         // remove frame info
     }
 
@@ -111,5 +134,47 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
 
         String clsName = classOptimizer.clsName;
         mv.visitFieldInsn(GETSTATIC, clsName, fieldName, "Ljava/lang/Class;");
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+            String desc, boolean itf) {
+        // rewrite boxing method call to use constructor to keep 1.3/1.4
+        // compatibility
+        String[] constructorParams;
+        if (opcode == INVOKESTATIC && name.equals("valueOf")
+                && (constructorParams = BOXING_MAP.get(owner + desc)) != null) {
+            String type = constructorParams[0];
+            String initDesc = constructorParams[1];
+            super.visitTypeInsn(NEW, type);
+            super.visitInsn(DUP);
+            super.visitInsn((initDesc == "(J)V" || initDesc == "(D)V") ? DUP2_X2
+                    : DUP2_X1);
+            super.visitInsn(POP2);
+            super.visitMethodInsn(INVOKESPECIAL, type, "<init>", initDesc,
+                    false);
+            return;
+        }
+        super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
+
+    private static final HashMap<String, String[]> BOXING_MAP;
+    static {
+        String[][] boxingNames = {
+                // Boolean.valueOf is 1.4 and is used by the xml package, so no
+                // rewrite
+                { "java/lang/Byte", "(B)V" }, { "java/lang/Short", "(S)V" },
+                { "java/lang/Character", "(C)V" },
+                { "java/lang/Integer", "(I)V" }, { "java/lang/Long", "(J)V" },
+                { "java/lang/Float", "(F)V" }, { "java/lang/Double", "(D)V" }, };
+        HashMap<String, String[]> map = new HashMap<String, String[]>();
+        for (String[] boxingName : boxingNames) {
+            String wrapper = boxingName[0];
+            String desc = boxingName[1];
+            String boxingMethod = wrapper + '(' + desc.charAt(1) + ")L"
+                    + wrapper + ';';
+            map.put(boxingMethod, boxingName);
+        }
+        BOXING_MAP = map;
     }
 }
