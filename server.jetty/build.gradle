@@ -11,10 +11,10 @@ war {
         attributes 'Boot-Class-Path': baseName + "-" + version + ".jar",
                 'Implementation-Title': 'GeekSaga Light Server Jetty',
                 'Implementation-Version': version,
-                'Implementation-Vendor' : 'GeekSaga, Inc.',
-                'Specification-Title' : 'GeekSaga Light APM Tools',
-                'Specification-Version' : version,
-                'Specification-Vendor' : 'GeekSaga, Inc.',
+                'Implementation-Vendor': 'GeekSaga, Inc.',
+                'Specification-Title': 'GeekSaga Light APM Tools',
+                'Specification-Version': version,
+                'Specification-Vendor': 'GeekSaga, Inc.',
                 'Main-Class': 'com.geeksaga.web.Main'
     }
 }
@@ -24,14 +24,23 @@ targetCompatibility = 1.8
 
 dependencies {
     String version = '9.3.9.v20160517'
+    compile 'org.ow2.asm:asm-all:5.1'
     compile "org.eclipse.jetty:jetty-server:${version}"
     compile "org.eclipse.jetty:jetty-webapp:${version}"
     compile "org.eclipse.jetty:jetty-servlets:${version}"
     compile "org.eclipse.jetty:jetty-continuation:${version}"
-    compile "org.eclipse.jetty:jetty-annotations:${version}"
+    compile("org.eclipse.jetty:jetty-annotations:${version}") {
+        exclude group: 'org.ow2.asm', module: 'asm'
+        exclude group: 'org.ow2.asm', module: 'asm-tree'
+        exclude group: 'org.ow2.asm', module: 'asm-commons'
+    }
     compile "org.eclipse.jetty:jetty-jmx:${version}"
     compile "org.eclipse.jetty.websocket:websocket-server:${version}"
-    compile "org.eclipse.jetty.websocket:javax-websocket-server-impl:${version}"
+    compile("org.eclipse.jetty.websocket:javax-websocket-server-impl:${version}") {
+        exclude group: 'org.ow2.asm', module: 'asm'
+        exclude group: 'org.ow2.asm', module: 'asm-tree'
+        exclude group: 'org.ow2.asm', module: 'asm-commons'
+    }
     compile "org.eclipse.jetty.websocket:websocket-client:${version}"
-    compile "org.eclipse.jetty:jetty-jsp:9.2.17.v20160517"
+    compile("org.eclipse.jetty:jetty-jsp:9.2.17.v20160517")
 }
