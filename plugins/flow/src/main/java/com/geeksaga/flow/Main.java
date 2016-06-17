@@ -15,13 +15,42 @@
  */
 package com.geeksaga.flow;
 
+import com.geeksaga.flow.command.CommandFactory;
+import com.geeksaga.flow.command.CommandManager;
+
+import java.io.Console;
+
 /**
  * @author geeksaga
  */
 public class Main
 {
-    public static void main(String[] args)
+    private static final String NEW_LINE = System.getProperty("line.separator");
+
+    public static void main(String[] args) throws Exception
     {
-        System.out.println(Product.NAME);
+        System.out.println(String.format("GeekSaga - %s 0.1v", Product.NAME));
+
+        Main main = new Main();
+        main.doConsole();
+    }
+
+    private void doConsole() throws Exception
+    {
+        Console console = System.console();
+
+        if (console != null) // IDE not support
+        {
+            String className = console.readLine("> ");
+
+            CommandManager commandManager = new CommandManager();
+
+            while (commandManager.execute(new CommandFactory().createCommand(className)))
+            {
+                console.printf(NEW_LINE);
+
+                className = console.readLine("> ");
+            }
+        }
     }
 }
