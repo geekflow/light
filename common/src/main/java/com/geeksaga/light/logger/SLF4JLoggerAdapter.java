@@ -73,4 +73,43 @@ public class SLF4JLoggerAdapter implements LightLogger
             info(CommonLogger.getStackTrace(stackTraceElements));
         }
     }
+
+    @Override
+    public void debug(String message)
+    {
+        logger.debug(message);
+    }
+
+    @Override
+    public void debug(Object obj)
+    {
+        if (obj != null)
+        {
+            logger.debug(obj.toString());
+        }
+    }
+
+    @Override
+    public void debug(String format, Object... arguments)
+    {
+        logger.debug(format, arguments);
+    }
+
+    @Override
+    public void debug(Throwable throwable)
+    {
+        if (throwable != null)
+        {
+            debug(CommonLogger.getStackTrace(throwable));
+        }
+    }
+
+    @Override
+    public void debug(StackTraceElement[] stackTraceElements)
+    {
+        if (stackTraceElements != null)
+        {
+            debug(CommonLogger.getStackTrace(stackTraceElements));
+        }
+    }
 }

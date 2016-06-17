@@ -29,4 +29,14 @@ public interface LightLogger
     void info(Throwable throwable);
 
     void info(StackTraceElement[] stackTraceElements);
+
+    void debug(String message);
+
+    void debug(String format, Object... arguments);
+
+    void debug(Object obj);
+
+    void debug(Throwable throwable);
+
+    void debug(StackTraceElement[] stackTraceElements);
 }

@@ -33,7 +33,8 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * @author geeksaga
  */
-public class LightDecompilerTest {
+public class LightDecompilerTest
+{
     private static String EXPECT = "package target;\n" +
             "\n" +
             "public class TestMethods {\n" +
@@ -81,56 +82,69 @@ public class LightDecompilerTest {
             "   }\n" +
             "}\n";
 
-    private String absolutePath() throws URISyntaxException {
+    private String absolutePath() throws URISyntaxException
+    {
         return TestMethods.class.getProtectionDomain().getCodeSource().getLocation().toString().replace("file:", "") + TestMethods.class.getCanonicalName().replace(".", File.separator) + ".class";
     }
 
     @BeforeClass
-    public static void init() {
-        if(SystemProperty.WINDOWS_OS) {
+    public static void init()
+    {
+        if (SystemProperty.WINDOWS_OS)
+        {
             EXPECT = EXPECT.replace("\n", "\r\n");
         }
     }
 
     @Test
-    public void testDecompile() throws Exception {
+    public void testDecompile() throws Exception
+    {
         FernFlowerDecompiler decompiler = new FernFlowerDecompiler();
         decompiler.setByteCode(TestUtil.load(TestMethods.class.getName()));
 
         Fernflower fernflower = new Fernflower(decompiler, decompiler, new HashMap<String, Object>(), new FernFlowerLogger());
 
-        try {
+        try
+        {
             fernflower.getStructContext().addSpaceForLight("", absolutePath(), true);
             fernflower.decompileContext();
 
-            if(SystemProperty.WINDOWS_OS) {
+            if (SystemProperty.WINDOWS_OS)
+            {
                 assertThat(decompiler.getContent(), is(EXPECT));
             }
-        } finally {
+        }
+        finally
+        {
             fernflower.clearContext();
         }
     }
 
     @Test
-    public void testDecompileUseAPI() throws Exception {
+    public void testDecompileUseAPI() throws Exception
+    {
         FernFlowerDecompiler decompiler = new FernFlowerDecompiler();
         decompiler.setByteCode(TestUtil.load(TestMethods.class.getName()));
 
         Fernflower fernflower = new Fernflower(decompiler, decompiler, new HashMap<String, Object>(), new FernFlowerLogger());
 
-        try {
+        try
+        {
             fernflower.getStructContext().addSpace(new File(absolutePath()), true);
             fernflower.decompileContext();
 
             assertThat(LightDecompiler.decompile(TestUtil.load(TestMethods.class.getName())), is(decompiler.getContent()));
             assertThat(LightDecompiler.decompile(TestMethods.class.getSimpleName(), TestUtil.load(TestMethods.class.getName())), is(decompiler.getContent()));
-        } finally {
+        }
+        finally
+        {
             fernflower.clearContext();
         }
     }
 
     @Test
-    public void testDecompileUseAPIForArray() throws Exception {
+    public void testDecompileUseAPIForArray() throws Exception
+    {
         assertThat(LightDecompiler.decompile(TestUtil.load(TestMethods.class.getName())), is(EXPECT));
         assertThat(LightDecompiler.decompile(new ArrayList<byte[]>()), notNullValue());
 
@@ -143,7 +157,8 @@ public class LightDecompilerTest {
 
         assertThat(result.size(), is(sources.size()));
 
-        for (String source : result) {
+        for (String source : result)
+        {
             assertThat(source, is(EXPECT));
         }
     }
