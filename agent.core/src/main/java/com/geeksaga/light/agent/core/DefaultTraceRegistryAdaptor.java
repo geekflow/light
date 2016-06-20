@@ -23,23 +23,27 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 /**
  * @author geeksaga
  */
-public class DefaultTraceRegistryAdaptor implements TraceRegistryAdaptor {
-
+public class DefaultTraceRegistryAdaptor implements TraceRegistryAdaptor
+{
     public static final int DEFAULT_MAX_LENGTH = 8;
     private final AtomicInteger id = new AtomicInteger(0);
     private final AtomicReferenceArray<Trace> atomicArray;
 
-    public DefaultTraceRegistryAdaptor() {
+    public DefaultTraceRegistryAdaptor()
+    {
         this(DEFAULT_MAX_LENGTH);
     }
 
-    public DefaultTraceRegistryAdaptor(int length) {
+    public DefaultTraceRegistryAdaptor(int length)
+    {
         atomicArray = new AtomicReferenceArray<Trace>(length);
     }
 
     @Override
-    public int add(Trace trace) {
-        if(trace == null) {
+    public int add(Trace trace)
+    {
+        if (trace == null)
+        {
             return -1;
         }
 
@@ -51,7 +55,8 @@ public class DefaultTraceRegistryAdaptor implements TraceRegistryAdaptor {
     }
 
     @Override
-    public Trace get(int id) {
+    public Trace get(int id)
+    {
         return atomicArray.get(id);
     }
 }

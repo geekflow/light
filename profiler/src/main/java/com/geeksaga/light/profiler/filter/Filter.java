@@ -22,4 +22,6 @@ public interface Filter {
     // FIXME need to filter chain ?
 
     boolean allow(ClassLoader classLoader, String className);
+
+    boolean allow(ClassLoader classLoader, String className, byte[] classfileBuffer);
 }

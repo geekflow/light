@@ -18,29 +18,35 @@ package com.geeksaga.light.agent.core;
 /**
  * @author geeksaga
  */
-public class DefaultTraceRegisterBinder implements TraceRegisterBinder {
+public class DefaultTraceRegisterBinder implements TraceRegisterBinder
+{
     private TraceRegistryAdaptor traceRegistryAdaptor;
 
-    public DefaultTraceRegisterBinder() {
+    public DefaultTraceRegisterBinder()
+    {
         this(DefaultTraceRegistryAdaptor.DEFAULT_MAX_LENGTH);
     }
 
-    public DefaultTraceRegisterBinder(int length) {
+    public DefaultTraceRegisterBinder(int length)
+    {
         traceRegistryAdaptor = new DefaultTraceRegistryAdaptor(length);
     }
 
     @Override
-    public void bind() {
+    public void bind()
+    {
         TraceRegistry.bind(traceRegistryAdaptor);
     }
 
     @Override
-    public void unbind() {
+    public void unbind()
+    {
         TraceRegistry.unbind();
     }
 
     @Override
-    public TraceRegistryAdaptor getTraceRegistryAdaptor() {
+    public TraceRegistryAdaptor getTraceRegistryAdaptor()
+    {
         return traceRegistryAdaptor;
     }
 }

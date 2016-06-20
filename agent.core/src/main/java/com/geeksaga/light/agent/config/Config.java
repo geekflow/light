@@ -20,7 +20,8 @@ import java.util.List;
 /**
  * @author geeksaga
  */
-public interface Config {
+public interface Config
+{
     String read(String propertyKey, String defaultValue);
 
     int read(String propertyKey, int defaultValue);

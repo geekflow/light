@@ -15,8 +15,8 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
 import com.geeksaga.light.profiler.filter.LightFilter;
 import com.geeksaga.light.profiler.util.ASMUtil;
@@ -31,27 +31,33 @@ import java.util.logging.Logger;
 /**
  * @author geeksaga
  */
-public class MethodTransformer implements ClassFileTransformer {
+public class MethodTransformer implements ClassFileTransformer
+{
     private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
 
     private Filter filter = new LightFilter();
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (filter.allow(classLoader, className)) {
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    {
+        if (filter.allow(classLoader, className))
+        {
             logger.info("Transform => " + className);
 
             ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
             ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-            reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper) {
+            reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
+            {
                 @Override
-                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+                {
                     MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
                     return new MethodAdapter(access, name, desc, mv);
                 }
             }, ClassReader.EXPAND_FRAMES);
 
-            if (classNodeWrapper.isInterface()) {
+            if (classNodeWrapper.isInterface())
+            {
                 return classfileBuffer;
             }
 
@@ -61,19 +67,22 @@ public class MethodTransformer implements ClassFileTransformer {
         return classfileBuffer;
     }
 
-    class MethodAdapter extends AdviceAdapter {
+    private class MethodAdapter extends AdviceAdapter
+    {
         private String name;
         private Label timeStart = new Label();
         private Label timeEnd = new Label();
 
-        public MethodAdapter(int access, String name, String desc, MethodVisitor methodVisitor) {
+        MethodAdapter(int access, String name, String desc, MethodVisitor methodVisitor)
+        {
             super(Opcodes.ASM5, methodVisitor, access, name, desc);
 
             this.name = name;
         }
 
         @Override
-        protected void onMethodEnter() {
+        protected void onMethodEnter()
+        {
             mv.visitLabel(timeStart);
             int time = newLocal(Type.getType("J"));
             visitLocalVariable("time", "J", null, timeStart, timeEnd, time);
@@ -84,15 +93,18 @@ public class MethodTransformer implements ClassFileTransformer {
         }
 
         @Override
-        public void visitMaxs(int maxStack, int maxLocals) {
+        public void visitMaxs(int maxStack, int maxLocals)
+        {
             visitLabel(timeEnd);
 
             super.visitMaxs(maxStack, maxLocals);
         }
 
         @Override
-        protected void onMethodExit(int opcode) {
-            if (opcode != ATHROW) {
+        protected void onMethodExit(int opcode)
+        {
+            if (opcode != ATHROW)
+            {
                 // FIXME finally
             }
         }

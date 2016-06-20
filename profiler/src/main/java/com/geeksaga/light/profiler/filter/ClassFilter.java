@@ -18,18 +18,32 @@ package com.geeksaga.light.profiler.filter;
 /**
  * @author geeksaga
  */
-public class ClassFilter implements Filter {
+public class ClassFilter implements Filter
+{
     @Override
-    public boolean allow(ClassLoader classLoader, String className) {
-        if(classLoader == null) {
+    public boolean allow(ClassLoader classLoader, String className)
+    {
+        if (classLoader == null)
+        {
             return true;
         }
 
-        if(className.startsWith("java") || className.startsWith("sun"))
+        if (className.startsWith("java") || className.startsWith("sun"))
         {
             return false;
         }
 
         return true;
+    }
+
+    @Override
+    public boolean allow(ClassLoader classLoader, String className, byte[] classfileBuffer)
+    {
+        if(classfileBuffer == null) // || classfileBuffer.length) FIXME is max size
+        {
+            return false;
+        }
+
+        return allow(classLoader, className);
     }
 }

@@ -17,6 +17,8 @@ package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.config.Configure;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.util.SystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,7 @@ import java.util.Properties;
  */
 public class ProfilerConfig implements Config
 {
-    private static Logger logger = LoggerFactory.getLogger(ProfilerConfig.class.getName());
+    private static final LightLogger logger = CommonLogger.getLogger(ProfilerConfig.class.getName());
 
     private Properties properties;
 
@@ -59,7 +61,7 @@ public class ProfilerConfig implements Config
         }
         catch (IOException e)
         {
-            logger.info(e.getMessage(), e);
+            logger.info(e);
         }
 
         return new ProfilerConfig();

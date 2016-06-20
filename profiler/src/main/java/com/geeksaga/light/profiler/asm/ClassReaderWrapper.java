@@ -25,25 +25,32 @@ import org.objectweb.asm.ClassReader;
 /**
  * @author geeksaga
  */
-public class ClassReaderWrapper extends ClassReader {
-    public ClassReaderWrapper(byte[] classBuffer) {
+public class ClassReaderWrapper extends ClassReader
+{
+    public ClassReaderWrapper(byte[] classBuffer)
+    {
         super(classBuffer);
     }
 
-    public ClassReaderWrapper(final String name) {
+    public ClassReaderWrapper(final String name)
+    {
         super(readClass(name));
     }
 
-    public ClassReaderWrapper(final Class clazz) {
+    public ClassReaderWrapper(final Class clazz)
+    {
         super(readClass(clazz));
     }
 
-    public ClassReaderWrapper(final Object object) {
+    public ClassReaderWrapper(final Object object)
+    {
         super(readClass(object));
     }
 
-    protected static byte[] readClass(final Class clazz) {
-        if (clazz != null) {
+    protected static byte[] readClass(final Class clazz)
+    {
+        if (clazz != null)
+        {
             ClassLoader loader = clazz.getClassLoader();
 
             return readClass(loader, clazz.getName());
@@ -52,8 +59,10 @@ public class ClassReaderWrapper extends ClassReader {
         return new byte[0];
     }
 
-    protected static byte[] readClass(final Object object) {
-        if (object != null && object.getClass() != null) {
+    protected static byte[] readClass(final Object object)
+    {
+        if (object != null && object.getClass() != null)
+        {
             ClassLoader loader = object.getClass().getClassLoader();
 
             return readClass(loader, object.getClass().getName());
@@ -62,38 +71,50 @@ public class ClassReaderWrapper extends ClassReader {
         return new byte[0];
     }
 
-    protected static byte[] readClass(final String name) {
+    protected static byte[] readClass(final String name)
+    {
         return readClass(null, name);
     }
 
-    private static byte[] readClass(ClassLoader loader, String name) {
-        try {
+    private static byte[] readClass(ClassLoader loader, String name)
+    {
+        try
+        {
             String internalClassName = ASMUtil.getInternalName(name);
 
-            if (loader == null) {
+            if (loader == null)
+            {
                 return readClass(ClassLoader.getSystemResourceAsStream(internalClassName + ".class"), true, internalClassName);
             }
 
             return readClass(loader.getResourceAsStream(internalClassName + ".class"), true, internalClassName);
-        } catch (Exception exception) {
+        }
+        catch (Exception exception)
+        {
             exception.printStackTrace();
         }
 
         return new byte[0];
     }
 
-    private static byte[] readClass(InputStream is, boolean close, String name) throws IOException {
-        if (is == null) {
+    private static byte[] readClass(InputStream is, boolean close, String name) throws IOException
+    {
+        if (is == null)
+        {
             throw new IOException("Class not found : " + name);
         }
 
-        try {
+        try
+        {
             byte[] b = new byte[is.available()];
             int len = 0;
-            while (true) {
+            while (true)
+            {
                 int n = is.read(b, len, b.length - len);
-                if (n == -1) {
-                    if (len < b.length) {
+                if (n == -1)
+                {
+                    if (len < b.length)
+                    {
                         byte[] c = new byte[len];
                         System.arraycopy(b, 0, c, 0, len);
                         b = c;
@@ -101,9 +122,11 @@ public class ClassReaderWrapper extends ClassReader {
                     return b;
                 }
                 len += n;
-                if (len == b.length) {
+                if (len == b.length)
+                {
                     int last = is.read();
-                    if (last < 0) {
+                    if (last < 0)
+                    {
                         return b;
                     }
                     byte[] c = new byte[b.length + 1000];
@@ -112,34 +135,44 @@ public class ClassReaderWrapper extends ClassReader {
                     b = c;
                 }
             }
-        } finally {
-            if (close) {
+        }
+        finally
+        {
+            if (close)
+            {
                 is.close();
             }
         }
     }
 
-    public static boolean isValid(String className) {
+    public static boolean isValid(String className)
+    {
         return mockRead(ClassFileTransformerDispatcher.context.get(), className);
     }
 
-    protected static boolean mockRead(ClassLoader loader, String name) {
-        try {
+    protected static boolean mockRead(ClassLoader loader, String name)
+    {
+        try
+        {
             String internalClassName = ASMUtil.getInternalName(name);
 
-            if (loader == null) {
+            if (loader == null)
+            {
                 return mockRead(ClassLoader.getSystemResourceAsStream(internalClassName + ".class"));
             }
 
             return mockRead(loader.getResourceAsStream(internalClassName + ".class"));
-        } catch (Exception exception) {
+        }
+        catch (Exception exception)
+        {
             exception.printStackTrace();
         }
 
         return false;
     }
 
-    private static boolean mockRead(InputStream is) {
+    private static boolean mockRead(InputStream is)
+    {
         return is != null;
     }
 }

@@ -28,25 +28,30 @@ import java.util.logging.Logger;
 /**
  * @author geeksaga
  */
-public class LightClassFileTransformer implements ClassFileTransformer {
+public class LightClassFileTransformer implements ClassFileTransformer
+{
     private static final Logger logger = Logger.getLogger(LightClassFileTransformer.class.getName());
 
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
 
-    public LightClassFileTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext) {
+    public LightClassFileTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
+    {
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
     }
 
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (!className.startsWith("java") && !className.startsWith("sun")) {
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    {
+        if (!className.startsWith("java") && !className.startsWith("sun"))
+        {
             logger.info("Transform => " + className);
 
             ClassNodeWrapper clazz = ASMUtil.parse(classfileBuffer);
 
-            if (clazz.isInterface()) {
+            if (clazz.isInterface())
+            {
                 return classfileBuffer;
             }
 

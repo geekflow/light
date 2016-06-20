@@ -22,9 +22,12 @@ import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
+import com.geeksaga.light.profiler.instrument.transformer.*;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @author geeksaga
@@ -36,15 +39,18 @@ public class ProfilerModule implements Module
     private TraceContext traceContext;
     private LightLogger logger;
 
+    private Map<String, ClassFileTransformer> pointCuts;
+
     public ProfilerModule(Instrumentation instrumentation)
     {
-        this.instrumentation = instrumentation;
-
         this.logger = CommonLogger.getLogger(this.getClass().getName());
 
+        this.instrumentation = instrumentation;
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
         this.traceContext = new AgentTraceContext(ProfilerConfig.load());
+
+        this.pointCuts = new Hashtable<String, ClassFileTransformer>();
     }
 
     @Override
@@ -52,17 +58,24 @@ public class ProfilerModule implements Module
     {
         logger.info("profiler module start");
 
+        registPointCut();
+
         addTransformer(instrumentation.isRetransformClassesSupported());
+    }
+
+    private void registPointCut()
+    {
+        pointCuts.put("", new MethodParameterTransformer());
+        pointCuts.put("", new MethodReturnTransformer());
+        pointCuts.put("", new MethodTransformer());
+        pointCuts.put("", new LightClassFileTransformer(traceRegisterBinder, traceContext));
+        pointCuts.put("", new PluginsTransformer(traceRegisterBinder, traceContext));
+        pointCuts.put("", new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
     }
 
     private void addTransformer(boolean canRetransform)
     {
-        // TODO transformer dispatcher
-        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext), canRetransform);
-        //        instrumentation.addTransformer(new EntryPointTransformer(traceRegisterBinder, traceContext), canRetransform);
-        //        instrumentation.addTransformer(new MethodParameterTransformer(), canRetransform);
-        //        instrumentation.addTransformer(new MethodReturnTransformer(), canRetransform);
-        //        instrumentation.addTransformer(new LightClassFileTransformer(traceRegisterBinder, traceContext), canRetransform);
+        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext, pointCuts), canRetransform);
     }
 
     @Override

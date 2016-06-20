@@ -17,6 +17,8 @@ package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
 import com.geeksaga.light.profiler.filter.LightFilter;
@@ -25,80 +27,103 @@ import com.geeksaga.light.profiler.util.ASMUtil;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @author geeksaga
  */
-public class ClassFileTransformerDispatcher implements ClassFileTransformer {
-    private static final Logger logger = Logger.getLogger(ClassFileTransformerDispatcher.class.getName());
+public class ClassFileTransformerDispatcher implements ClassFileTransformer
+{
+    public static final ThreadLocal<ClassLoader> context = new ThreadLocal<ClassLoader>();
 
-    public static ThreadLocal<ClassLoader> context = new ThreadLocal<ClassLoader>();
-
+    private LightLogger logger;
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
-    private ClassFileTransformer classFileTransformer;
+    private Filter filter;
+    private Map<String, ClassFileTransformer> pointCuts;
 
-    private Filter filter = new LightFilter();
+    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
+    {
+        this(traceRegisterBinder, traceContext, new Hashtable<String, ClassFileTransformer>());
+    }
 
-    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext) {
+    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, Map<String, ClassFileTransformer> pointCuts)
+    {
+        this.logger = CommonLogger.getLogger(this.getClass().getName());
+
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
-        this.classFileTransformer = new EntryPointTransformer(traceRegisterBinder, traceContext);
+        this.filter = new LightFilter();
+        this.pointCuts = pointCuts;
+
+        logger.info("create transformer {}", this.getClass().getName());
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        try {
-            if (classfileBuffer == null || className == null) { // || className.startsWith("com/geeksaga/light")) {
-                return null;
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    {
+        try
+        {
+            if (!filter.allow(classLoader, className, classfileBuffer))
+            {
+                return classfileBuffer;
             }
 
-            if (filter.allow(classLoader, className)) {
+            logger.info(className);
 
-                long now = System.currentTimeMillis();
-                context.set(classLoader);
+            long now = System.currentTimeMillis();
+            context.set(classLoader);
 
-                ClassNodeWrapper clazz = ASMUtil.parse(classfileBuffer);
+            ClassNodeWrapper clazz = ASMUtil.parse(classfileBuffer);
 
-                if (clazz.isInterface()) {
-                    return classfileBuffer;
-                }
-
-                byte[] bytes = classFileTransformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classfileBuffer);
-
-                long dur = System.currentTimeMillis();
-
-                StringBuilder sb = new StringBuilder();
-                sb.append("LOAD:[");
-
-                if (classLoader == null) {
-                    sb.append("BootstrapClassLoader");
-                    sb.append("] [");
-                } else {
-                    sb.append(Integer.toHexString(classLoader.hashCode()));
-                    sb.append("] [");
-                    sb.append(classLoader.getClass().getName());
-
-                    sb.append("] ");
-                }
-
-                sb.append(clazz.getClassName());
-                sb.append(" ");
-                sb.append(classfileBuffer.length);
-                sb.append(" bytes ");
-                sb.append((dur - now));
-                sb.append(" ms");
-
-                logger.info(sb.toString());
-
-                if (bytes != null) {
-                    return bytes;
-                }
+            if (clazz.isInterface())
+            {
+                return classfileBuffer;
             }
-        } catch (Throwable throwable) {
-            logger.log(Level.WARNING, throwable.getMessage(), throwable);
+
+            byte[] bytes = null;
+            for (ClassFileTransformer classFileTransformer : pointCuts.values())
+            {
+                bytes = classFileTransformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+            }
+
+            long dur = System.currentTimeMillis();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("LOAD:[");
+
+            if (classLoader == null)
+            {
+                sb.append("BootstrapClassLoader");
+                sb.append("] [");
+            }
+            else
+            {
+                sb.append(Integer.toHexString(classLoader.hashCode()));
+                sb.append("] [");
+                sb.append(classLoader.getClass().getName());
+
+                sb.append("] ");
+            }
+
+            sb.append(clazz.getClassName());
+            sb.append(" ");
+            sb.append(classfileBuffer.length);
+            sb.append(" bytes ");
+            sb.append((dur - now));
+            sb.append(" ms");
+
+            logger.info(sb.toString());
+
+            if (bytes != null)
+            {
+                return bytes;
+            }
+        }
+        catch (Throwable throwable)
+        {
+            logger.debug(throwable);
         }
 
         return classfileBuffer;

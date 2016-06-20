@@ -53,7 +53,7 @@ public class VirtualMachineAttacheTest
     @Test
     public void testAttach() throws InterruptedException
     {
-        logger.info("testAttach {}", "agent.class.path=");
+        logger.info("testAttach {}{}", "agent.class.path=", attache.getAgentClassPath());
 
         attache.loadAgentAfterAttach("agent.class.path=" + attache.getAgentClassPath());
     }

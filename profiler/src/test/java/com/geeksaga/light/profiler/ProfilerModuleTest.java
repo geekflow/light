@@ -16,6 +16,9 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.core.DefaultTraceRegistryAdaptor;
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,6 +27,7 @@ import java.io.File;
 import java.lang.instrument.Instrumentation;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author geeksaga
@@ -41,6 +45,13 @@ public class ProfilerModuleTest
     public void testStart()
     {
         Instrumentation instrumentation = mock(Instrumentation.class);
+        TraceRegisterBinder traceRegisterBinder = mock(TraceRegisterBinder.class);
+        TraceContext traceContext = mock(TraceContext.class);
+
+        when(traceRegisterBinder.getTraceRegistryAdaptor()).thenReturn(new DefaultTraceRegistryAdaptor());
+
+//        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext));
+//        instrumentation.addTransformer(new PluginsTransformerDispatcher(traceRegisterBinder, traceContext));
 
         Module module = new ProfilerModule(instrumentation);
         module.start();

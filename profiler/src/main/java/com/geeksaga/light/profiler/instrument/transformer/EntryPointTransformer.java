@@ -21,6 +21,8 @@ import com.geeksaga.light.agent.trace.EntryTrace;
 import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.Parameter;
 import com.geeksaga.light.agent.trace.Profiler;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
@@ -33,18 +35,17 @@ import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
 
 /**
  * @author geeksaga
  */
-public class EntryPointTransformer implements ClassFileTransformer {
-    private static final Logger logger = Logger.getLogger(EntryPointTransformer.class.getName());
+public class EntryPointTransformer implements ClassFileTransformer
+{
+    private LightLogger logger;
 
-    private Filter filter = new LightFilter();
+    private Filter filter;
 
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
@@ -55,11 +56,16 @@ public class EntryPointTransformer implements ClassFileTransformer {
     private String end;
     private String endDescriptor;
 
-    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext) {
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
+    {
         this(traceRegisterBinder, traceContext, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor) {
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
+    {
+        this.logger = CommonLogger.getLogger(this.getClass().getName());
+
+        this.filter = new LightFilter();
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
         this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));
@@ -71,18 +77,24 @@ public class EntryPointTransformer implements ClassFileTransformer {
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        try {
-            if (filter.allow(classLoader, className)) {
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    {
+        try
+        {
+            if (filter.allow(classLoader, className))
+            {
                 logger.info("Transform => " + className);
 
                 ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
                 ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-                reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper) {
+                reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
+                {
                     @Override
-                    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+                    {
                         MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main")) {
+                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main") || name.equals("print"))
+                        {
                             return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
                         }
 
@@ -97,14 +109,17 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                 return bytes;
             }
-        } catch (Throwable throwable) {
-            logger.log(Level.WARNING, throwable.getMessage(), throwable);
+        }
+        catch (Throwable throwable)
+        {
+            logger.info(throwable);
         }
 
         return null;
     }
 
-    class EntryPointAdapter extends AdviceAdapter {
+    private class EntryPointAdapter extends AdviceAdapter
+    {
         private final String PARAMETER_CLASS_INTERNAL_NAME = getInternalName(Parameter.class.getName());
         private final String METHOD_INFO_CLASS_INTERNAL_NAME = getInternalName(MethodInfo.class.getName());
 
@@ -118,7 +133,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
         private Label startFinally = new Label();
         int methodInfoIndex;
 
-        public EntryPointAdapter(int access, String name, String desc, MethodVisitor methodVisitor, boolean isStatic) {
+        EntryPointAdapter(int access, String name, String desc, MethodVisitor methodVisitor, boolean isStatic)
+        {
             super(Opcodes.ASM5, methodVisitor, access, name, desc);
 
             this.name = name;
@@ -129,13 +145,15 @@ public class EntryPointTransformer implements ClassFileTransformer {
         }
 
         @Override
-        public void visitCode() {
+        public void visitCode()
+        {
             super.visitCode();
             mv.visitLabel(startFinally);
         }
 
         @Override
-        protected void onMethodEnter() {
+        protected void onMethodEnter()
+        {
             methodInfoIndex = newLocal(Type.getType(METHOD_INFO_CLASS_INTERNAL_NAME));
             int parameterVariableIndex = newLocal(Type.getType(PARAMETER_CLASS_INTERNAL_NAME));
             Type[] argumentTypes = Type.getArgumentTypes(desc);
@@ -154,7 +172,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
             mv.visitVarInsn(ASTORE, parameterVariableIndex);
 
             int parameterIndex = 0;
-            if (!isStatic) {
+            if (!isStatic)
+            {
                 mv.visitVarInsn(ALOAD, parameterVariableIndex);
                 mv.visitInsn(DUP);
                 mv.visitIntInsn(BIPUSH, parameterIndex);
@@ -164,7 +183,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
                 parameterIndex++;
             }
 
-            for (int i = 0, argumentIndex = isStatic ? 0 : 1; i < argumentTypes.length; i++, argumentIndex++) {
+            for (int i = 0, argumentIndex = isStatic ? 0 : 1; i < argumentTypes.length; i++, argumentIndex++)
+            {
                 visitInstruction(argumentTypes[i], argumentIndex, parameterVariableIndex, parameterIndex);
 
                 parameterIndex++;
@@ -180,8 +200,10 @@ public class EntryPointTransformer implements ClassFileTransformer {
             mv.visitCode();
         }
 
-        private void visitInstruction(Type type, int index, int parameterVariableIndex, int parameterIndex) {
-            switch (type.getSort()) {
+        private void visitInstruction(Type type, int index, int parameterVariableIndex, int parameterIndex)
+        {
+            switch (type.getSort())
+            {
                 case Type.BOOLEAN:
                     visitInstruction(ILOAD, index, parameterVariableIndex, parameterIndex);
 
@@ -241,14 +263,16 @@ public class EntryPointTransformer implements ClassFileTransformer {
             }
         }
 
-        private void visitInstruction(int opcode, int index, int parameterVariableIndex, int parameterIndex) {
+        private void visitInstruction(int opcode, int index, int parameterVariableIndex, int parameterIndex)
+        {
             mv.visitVarInsn(ALOAD, parameterVariableIndex);
             mv.visitLdcInsn(index);
             mv.visitVarInsn(opcode, parameterIndices[parameterIndex]);
         }
 
         @Override
-        public void visitMaxs(int maxStack, int maxLocals) {
+        public void visitMaxs(int maxStack, int maxLocals)
+        {
             Label endFinally = new Label();
             int throwableIndex = newLocal(Type.getType(Throwable.class));
 
@@ -267,27 +291,35 @@ public class EntryPointTransformer implements ClassFileTransformer {
         }
 
         @Override
-        protected void onMethodExit(int opcode) {
-            if (isReturn(opcode)) {
+        protected void onMethodExit(int opcode)
+        {
+            if (isReturn(opcode))
+            {
                 captureReturn();
             }
 
-            if (opcode != ATHROW) {
+            if (opcode != ATHROW)
+            {
                 // FIXME finally
                 // captureReturn();
             }
         }
 
-        private boolean isReturn(int opcode) {
+        private boolean isReturn(int opcode)
+        {
             return (opcode >= IRETURN && opcode <= RETURN);
         }
 
-        public void captureReturn() {
-            if (returnType != null && !returnType.equals(Type.VOID_TYPE)) {
+        public void captureReturn()
+        {
+            if (returnType != null && !returnType.equals(Type.VOID_TYPE))
+            {
                 int returnVariableIndex = newLocal(returnType);
 
-                switch (returnType.getSort()) {
-                    case Type.BOOLEAN: {
+                switch (returnType.getSort())
+                {
+                    case Type.BOOLEAN:
+                    {
                         mv.visitVarInsn(ISTORE, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
@@ -295,7 +327,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.CHAR: {
+                    case Type.CHAR:
+                    {
                         mv.visitVarInsn(ISTORE, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
@@ -303,7 +336,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.BYTE: {
+                    case Type.BYTE:
+                    {
                         mv.visitVarInsn(ISTORE, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
@@ -311,7 +345,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.SHORT: {
+                    case Type.SHORT:
+                    {
                         mv.visitVarInsn(ISTORE, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
@@ -319,7 +354,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.INT: {
+                    case Type.INT:
+                    {
                         mv.visitVarInsn(ISTORE, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
                         mv.visitVarInsn(ILOAD, returnVariableIndex);
@@ -327,7 +363,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.FLOAT: {
+                    case Type.FLOAT:
+                    {
                         mv.visitVarInsn(FSTORE, returnVariableIndex);
                         mv.visitVarInsn(FLOAD, returnVariableIndex);
                         mv.visitVarInsn(FLOAD, returnVariableIndex);
@@ -335,7 +372,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.LONG: {
+                    case Type.LONG:
+                    {
                         mv.visitVarInsn(LSTORE, returnVariableIndex);
                         mv.visitVarInsn(LLOAD, returnVariableIndex);
                         mv.visitVarInsn(LLOAD, returnVariableIndex);
@@ -343,7 +381,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.DOUBLE: {
+                    case Type.DOUBLE:
+                    {
                         mv.visitVarInsn(DSTORE, returnVariableIndex);
                         mv.visitVarInsn(DLOAD, returnVariableIndex);
                         mv.visitVarInsn(DLOAD, returnVariableIndex);
@@ -352,7 +391,8 @@ public class EntryPointTransformer implements ClassFileTransformer {
                         break;
                     }
                     case Type.ARRAY:
-                    case Type.OBJECT: {
+                    case Type.OBJECT:
+                    {
                         mv.visitVarInsn(ASTORE, returnVariableIndex);
                         mv.visitVarInsn(ALOAD, returnVariableIndex);
 

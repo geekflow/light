@@ -18,29 +18,46 @@ package com.geeksaga.light.profiler.filter;
 /**
  * @author geeksaga
  */
-public class LightFilter implements Filter {
+public class LightFilter implements Filter
+{
     @Override
-    public boolean allow(ClassLoader classLoader, String className) {
-        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun") || className.startsWith("com/sun")) {
+    public boolean allow(ClassLoader classLoader, String className)
+    {
+        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun") || className.startsWith("com/sun"))
+        {
             return false;
         }
 
-        if (className.startsWith("com/geeksaga/light/demo/Main")) {
+        if (className.startsWith("com/geeksaga/light/demo/Main"))
+        {
             return true;
         }
 
-        if (className.startsWith("com/geeksaga/light")) {
+        if (className.startsWith("com/geeksaga/light"))
+        {
             return false;
         }
 
-        if (classLoader == null) {
+        if (classLoader == null)
+        {
             return true;
         }
 
-        if (classLoader.getClass().getName().startsWith("com.geeksaga.light")) {
+        if (classLoader.getClass().getName().startsWith("com.geeksaga.light"))
+        {
             return false;
         }
 
         return true;
+    }
+
+    public boolean allow(ClassLoader classLoader, String className, byte[] classfileBuffer)
+    {
+        if(classfileBuffer == null) // || classfileBuffer.length) FIXME is max size
+        {
+            return false;
+        }
+
+        return allow(classLoader, className);
     }
 }

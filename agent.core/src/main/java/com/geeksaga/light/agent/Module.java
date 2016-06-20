@@ -18,7 +18,8 @@ package com.geeksaga.light.agent;
 /**
  * @author geeksaga
  */
-public interface Module {
+public interface Module
+{
     void start();
 
     void stop();

@@ -32,9 +32,11 @@ import static org.junit.Assert.assertThat;
 /**
  * @author geeksaga
  */
-public class EntryPointTransformerTest {
+public class EntryPointTransformerTest
+{
     @Test
-    public void testTransform() throws Exception {
+    public void testTransform() throws Exception
+    {
         String className = TestMethods.class.getName();
 
         ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
@@ -61,12 +63,15 @@ public class EntryPointTransformerTest {
         assertThat(method.invoke(instance), nullValue());
     }
 
-    class TestClassLoader extends ClassLoader {
-        TestClassLoader(ClassLoader parent) {
+    private class TestClassLoader extends ClassLoader
+    {
+        TestClassLoader(ClassLoader parent)
+        {
             super(parent);
         }
 
-        Class<?> findClass(String name, byte[] bytes) {
+        Class<?> findClass(String name, byte[] bytes)
+        {
             return defineClass(name, bytes, 0, bytes.length);
         }
     }

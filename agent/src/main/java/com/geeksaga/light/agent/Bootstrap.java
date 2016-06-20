@@ -51,9 +51,14 @@ public class Bootstrap
     {
         logger.info("initialize..." + " (attach : " + attach + ")");
 
-        if(options != null)
+        if (options != null)
         {
             logger.info("javaagent options : " + options);
+        }
+
+        if (classPath != null)
+        {
+            logger.info("Class Path : " + classPath);
         }
 
         final AgentClassPathResolver classPathResolver = createResolver(attach, classPath);
@@ -78,8 +83,6 @@ public class Bootstrap
         appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCoreJarAbsoluteName()));
 
         List<URL> urlList = classPathResolver.findAllAgentLibrary();
-
-        //        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "config/log4j2.xml");
 
         ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[urlList.size()]), Bootstrap.class.getClassLoader());
 

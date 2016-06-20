@@ -22,9 +22,13 @@ import com.geeksaga.light.agent.trace.MethodInfo;
 /**
  * @author geeksaga
  */
-public interface TraceContext {
+public interface TraceContext
+{
     ActiveObject create(MethodInfo methodInfo);
+
     ActiveObject current();
+
     void remove();
+
     Config getConfig();
 }

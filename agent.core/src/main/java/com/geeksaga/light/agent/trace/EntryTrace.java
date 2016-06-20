@@ -16,7 +16,6 @@
 package com.geeksaga.light.agent.trace;
 
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.config.Config;
 import com.geeksaga.light.agent.core.ActiveObject;
 
 import java.util.Arrays;
@@ -26,44 +25,59 @@ import java.util.logging.Logger;
 /**
  * @author geeksaga
  */
-public class EntryTrace implements Trace {
+public class EntryTrace implements Trace
+{
     private static final Logger logger = Logger.getLogger(EntryTrace.class.getName());
 
     private TraceContext traceContext;
 
-    public EntryTrace(TraceContext traceContext) {
+    public EntryTrace(TraceContext traceContext)
+    {
         this.traceContext = traceContext;
     }
 
-    public void begin(MethodInfo methodInfo) {
-        try {
+    public void begin(MethodInfo methodInfo)
+    {
+        try
+        {
             logger.info(methodInfo.getName() + methodInfo.getDesc());
 
             ActiveObject activeObject = create(methodInfo);
             activeObject.setStartTime(System.currentTimeMillis());
 
             logger.info(activeObject.toString());
-        } catch (Throwable throwable) {
+        }
+        catch (Throwable throwable)
+        {
             logger.log(Level.INFO, throwable.getMessage(), throwable);
         }
     }
 
-    public void end(MethodInfo methodInfo, Throwable throwable) {
-        try {
+    public void end(MethodInfo methodInfo, Throwable throwable)
+    {
+        try
+        {
             logger.info(String.valueOf(methodInfo.getParameter().size()) + "=" + Arrays.toString(methodInfo.getParameter().getValues()));
+
             ActiveObject activeObject = traceContext.current();
 
-            logger.info("start time = " + activeObject.getStartTime());
-            logger.info("end time = " + System.currentTimeMillis());
-            logger.info("elapsed time = " + String.valueOf(System.currentTimeMillis() - activeObject.getStartTime()));
+            if (activeObject != null)
+            {
+                logger.info("start time = " + activeObject.getStartTime());
+                logger.info("end time = " + System.currentTimeMillis());
+                logger.info("elapsed time = " + String.valueOf(System.currentTimeMillis() - activeObject.getStartTime()));
 
-            logger.info(activeObject.toString());
-        } finally {
+                logger.info(activeObject.toString());
+            }
+        }
+        finally
+        {
             traceContext.remove();
         }
     }
 
-    private ActiveObject create(MethodInfo methodInfo) {
+    private ActiveObject create(MethodInfo methodInfo)
+    {
         return traceContext.create(methodInfo);
     }
 }
