@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.flow.store;
+package com.geeksaga.light.repository.dao;
+
+import com.geeksaga.light.repository.entity.Transaction;
+
+import java.util.List;
 
 /**
  * @author geeksaga
  */
-public class Store
-{}
+public interface TransactionDao
+{
+    boolean save(Transaction transaction);
+
+    Transaction modify(Transaction transaction);
+
+    Transaction find(Transaction transaction);
+
+    List<Transaction> findList();
+}

@@ -133,6 +133,12 @@ project(':profiler') {
     }
 }
 
+project(':repository') {
+    dependencies {
+        compile project(':common')
+    }
+}
+
 project(':server.jetty') {
 }
 

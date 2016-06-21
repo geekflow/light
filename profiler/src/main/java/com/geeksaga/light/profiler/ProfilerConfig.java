@@ -75,7 +75,7 @@ public class ProfilerConfig implements Config
         }
         catch (IOException e)
         {
-            logger.info(e.getMessage(), e);
+            logger.info(e);
         }
 
         return new ProfilerConfig();

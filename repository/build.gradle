@@ -1,0 +1,34 @@
+
+apply plugin: 'java'
+
+jar {
+    baseName = 'light.repository'
+    version = '0.0.1'
+
+//    manifest.attributes 'Main-Class': 'com.geeksaga.light.repository.Main'
+}
+
+dependencies {
+    compile 'com.orientechnologies:orientdb-graphdb:2.2.2'
+    compile 'com.orientechnologies:orientdb-object:2.2.2'
+}
+
+task install(dependsOn: [copyToLibrary]) {
+    doLast {
+        File build = mkdir("${rootProject.rootDir}/install/libs")
+
+        copy {
+            from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
+            into build
+        }
+
+        build = mkdir("${rootProject.rootDir}/install/bin")
+
+        copy {
+            from "${rootProject.rootDir}/repository/bin"
+            into build
+        }
+    }
+}
+
+build.finalizedBy(project.tasks.install)
