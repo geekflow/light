@@ -20,7 +20,6 @@ import com.geeksaga.light.repository.entity.Transaction;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
@@ -53,6 +52,9 @@ public class StoreFactory
         {
             factory.create();
         }
+
+        //        factory.getMetadata().getSchema().generateSchema(Transaction.class);
+        factory.setAutomaticSchemaGeneration(true);
 
         factory.getEntityManager().registerEntityClasses(Transaction.class.getPackage().getName());
 
@@ -93,28 +95,11 @@ public class StoreFactory
     {
         //        ODatabaseDocumentTx documentTx = factory.getDatabase();
         OObjectDatabaseTx documentTx = factory;
-        OSchema schema = documentTx.getMetadata().getSchema();
-        OClass oClass = schema.getClass("transaction");
+        OClass oClass = documentTx.getMetadata().getSchema().getClass(Transaction.class);
 
-        if (oClass == null)
+        if (oClass != null)
         {
-            oClass = schema.createClass("transaction");
-            oClass.createProperty("id", OType.LONG);
-            oClass.createProperty("oid", OType.INTEGER);
-            oClass.createProperty("guid", OType.BINARY);
-            oClass.createProperty("endTime", OType.LONG);
-            oClass.createProperty("elapsedTime", OType.INTEGER);
-            oClass.createProperty("cpuTime", OType.INTEGER);
-            oClass.createProperty("sqlCount", OType.INTEGER);
-            oClass.createProperty("sqlTime", OType.INTEGER);
-            oClass.createProperty("fetchCount", OType.INTEGER);
-            oClass.createProperty("fetchTime", OType.INTEGER);
-            oClass.createProperty("ipAddress", OType.BINARY);
-            oClass.createProperty("transactionHash", OType.INTEGER);
-            oClass.createProperty("browserHash", OType.INTEGER);
-            oClass.createProperty("userHash", OType.INTEGER);
-
-            oClass.createIndex("idUnique", OClass.INDEX_TYPE.UNIQUE, "id");
+            oClass.createIndex("TransactionIdUnique", OClass.INDEX_TYPE.UNIQUE, "tid");
         }
     }
 

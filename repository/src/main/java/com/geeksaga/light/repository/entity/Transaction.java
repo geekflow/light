@@ -16,19 +16,22 @@
 package com.geeksaga.light.repository.entity;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
  * @author geeksaga
  */
-@Entity
+//@Entity
 public class Transaction implements Serializable
 {
-    @Id
+        @Id
+    //    @Column(nullable = false, updatable = false)
+    private Object id;
+
+//    @Id
     @Column(nullable = false, updatable = false)
-    private long id;
+    private long tid;
 
     @Column
     private int oid;
@@ -71,19 +74,24 @@ public class Transaction implements Serializable
 
     public Transaction() {}
 
-    public Transaction(long id)
+    public Transaction(long tid)
     {
-        this.id = id;
+        this.tid = tid;
     }
 
-    public long getId()
+    public Object getId()
     {
         return id;
     }
 
-    public void setId(long id)
+    public long getTid()
     {
-        this.id = id;
+        return tid;
+    }
+
+    public void setTid(long tid)
+    {
+        this.tid = tid;
     }
 
     public int getOid()

@@ -18,54 +18,63 @@ package com.geeksaga.light.repository.dao;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.util.SystemProperty;
+import com.geeksaga.light.repository.store.StoreFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  * @author geeksaga
  */
 public class TransactionDaoTest
 {
-    private static final String DEFAULT_PATH = "/../../databases/";
+    private static StoreFactory factory;
     private static TransactionDao transactionDao;
 
     @BeforeClass
     public static void init()
     {
-        System.setProperty("light.db.path", String.format("plocal:%s%s", System.getProperty("user.dir"), replaceWindowsSeparator(DEFAULT_PATH)));
+        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
 
-        transactionDao = new TransactionDaoImpl(Product.NAME + "Test");
-    }
-
-    private static String replaceWindowsSeparator(String path)
-    {
-        if (SystemProperty.WINDOWS_OS && path != null)
-        {
-            return path.replace("\\", File.separator);
-        }
-
-        return path;
+        factory = StoreFactory.getInstance(Product.NAME);
+        transactionDao = new TransactionDaoImpl(factory);
     }
 
     @Test
     public void testSave()
     {
-        TransactionDao transactionDao = new TransactionDaoImpl(Product.NAME + "Test");
-
-        Transaction transaction = new Transaction(1L);
+        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 1L);
 
         transactionDao.save(transaction);
+    }
+
+    @Test(expected = com.orientechnologies.orient.core.storage.ORecordDuplicatedException.class)
+    public void testUniqueIndex()
+    {
+        testSave();
+        testSave();
     }
 
     @Test
     public void testFind()
     {
-        Transaction transaction = new Transaction(1L);
+        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 2L);
 
-        transactionDao.find(transaction);
-        transactionDao.find(new Transaction(2L));
+        transactionDao.save(transaction);
+
+        assertThat(transactionDao.find(transaction).getTid(), is(transaction.getTid()));
+    }
+
+    @Test
+    public void testFindList()
+    {
+        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 2L);
+
+        transactionDao.save(transaction);
+
+        assertThat(transactionDao.findList(), notNullValue());
+        assertThat(transactionDao.findList().size(), greaterThanOrEqualTo(1));
     }
 }

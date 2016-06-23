@@ -31,14 +31,9 @@ public class TransactionDaoImpl implements TransactionDao
 {
     private StoreFactory factory;
 
-    public TransactionDaoImpl()
+    public TransactionDaoImpl(StoreFactory factory)
     {
-        factory = StoreFactory.getInstance();
-    }
-
-    public TransactionDaoImpl(String database)
-    {
-        factory = StoreFactory.getInstance(database);
+        this.factory = factory;
     }
 
     @Override
@@ -49,41 +44,41 @@ public class TransactionDaoImpl implements TransactionDao
 
         documentTx.save(transaction);
 
-        try
-        {
-            documentTx.begin();
-
-            ODocument document = new ODocument("transaction");
-            document.field("id", transaction.getId());
-            document.field("oid", transaction.getOid());
-            document.field("guid", transaction.getGuid());
-            document.field("endTime", transaction.getEndTime());
-            document.field("elapsedTime", transaction.getElapsedTime());
-            document.field("cpuTime", transaction.getCpuTime());
-            document.field("sqlCount", transaction.getSqlCount());
-            document.field("sqlTime", transaction.getSqlTime());
-            document.field("fetchCount", transaction.getFetchCount());
-            document.field("fetchTime", transaction.getFetchTime());
-            document.field("ipAddress", transaction.getIpAddress());
-            document.field("transactionHash", transaction.getTransactionHash());
-            document.field("browserHash", transaction.getBrowserHash());
-            document.field("userHash", transaction.getUserHash());
-            document.save();
-
-            documentTx.commit();
-        }
-        catch (Exception exception)
-        {
-            System.out.println(exception.getMessage());
-
-            documentTx.rollback();
-
-            return false;
-        }
-        finally
-        {
-            documentTx.close();
-        }
+        //        try
+        //        {
+        //            documentTx.begin();
+        //
+        //            ODocument document = new ODocument("transaction");
+        //            document.field("id", transaction.getId());
+        //            document.field("oid", transaction.getOid());
+        //            document.field("guid", transaction.getGuid());
+        //            document.field("endTime", transaction.getEndTime());
+        //            document.field("elapsedTime", transaction.getElapsedTime());
+        //            document.field("cpuTime", transaction.getCpuTime());
+        //            document.field("sqlCount", transaction.getSqlCount());
+        //            document.field("sqlTime", transaction.getSqlTime());
+        //            document.field("fetchCount", transaction.getFetchCount());
+        //            document.field("fetchTime", transaction.getFetchTime());
+        //            document.field("ipAddress", transaction.getIpAddress());
+        //            document.field("transactionHash", transaction.getTransactionHash());
+        //            document.field("browserHash", transaction.getBrowserHash());
+        //            document.field("userHash", transaction.getUserHash());
+        //            document.save();
+        //
+        //            documentTx.commit();
+        //        }
+        //        catch (Exception exception)
+        //        {
+        //            System.out.println(exception.getMessage());
+        //
+        //            documentTx.rollback();
+        //
+        //            return false;
+        //        }
+        //        finally
+        //        {
+        //            documentTx.close();
+        //        }
 
         return true;
     }
@@ -98,7 +93,8 @@ public class TransactionDaoImpl implements TransactionDao
         {
             documentTx.begin();
 
-            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction WHERE id = " + transaction.getId() + ""));
+            //            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction WHERE id = " + transaction.getId() + ""));
+            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction"));
 
             if (result.size() > 0)
             {
@@ -145,23 +141,19 @@ public class TransactionDaoImpl implements TransactionDao
         //        ODatabaseDocumentTx documentTx = factory.getDatabase();
         OObjectDatabaseTx documentTx = factory.getDatabase();
 
-        for(Transaction t : documentTx.browseClass(Transaction.class))
+        for (Transaction eachTransaction : documentTx.browseClass(Transaction.class))
         {
-            System.out.println(t.getId());
+            System.out.println("Transaction = " + eachTransaction);
         }
 
-        List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction WHERE id = " + transaction.getId()));
-        //        List<Transaction> result = documentTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM transaction WHERE id = " + transaction.getId())).execute();
+        List<Transaction> result = documentTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
 
-        //
-        //        documentTx.getEntityManager().registerEntityClasses("com.orientechnologies.orient.test.domain");
+        for (Transaction storedTransaction : result)
+        {
+            return storedTransaction;
+        }
 
-        //        for (Transaction document : result)
-        //        {
-        //            System.out.println(document);
-        //        }
-
-        return null;
+        return new Transaction();
     }
 
     @Override
@@ -170,13 +162,14 @@ public class TransactionDaoImpl implements TransactionDao
         //        ODatabaseDocumentTx documentTx = factory.getDatabase();
         OObjectDatabaseTx documentTx = factory.getDatabase();
 
-        List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction"));
+        List<Transaction> result = documentTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
 
-        for (ODocument document : result)
+
+        for (Transaction document : result)
         {
             System.out.println(document);
         }
 
-        return null;
+        return result;
     }
 }

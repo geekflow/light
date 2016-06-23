@@ -38,9 +38,9 @@ public class StoreFactoryTest
     @BeforeClass
     public static void init()
     {
-        System.setProperty("light.db.path", String.format("plocal:%s%s", System.getProperty("user.dir"), replaceWindowsSeparator(DEFAULT_PATH)));
+        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
 
-        factory = StoreFactory.getInstance(Product.NAME + "Test");
+        factory = StoreFactory.getInstance(Product.NAME);
     }
 
     private static String replaceWindowsSeparator(String path)
@@ -67,17 +67,18 @@ public class StoreFactoryTest
     @Test
     public void testGetInstance()
     {
-        assertThat(factory, is(StoreFactory.getInstance(Product.NAME + "Test")));
+        assertThat(factory, is(StoreFactory.getInstance(Product.NAME)));
+        assertThat(factory.getDatabase(), is(StoreFactory.getInstance(Product.NAME).getDatabase()));
     }
 
     @Test
     public void testFindClass()
     {
-        OClass oClass = factory.findClass("transaction");
+        OClass oClass = factory.findClass("Transaction");
 
         assertThat(oClass, notNullValue());
 
-        assertThat(oClass.existsProperty("id"), is(true));
+        assertThat(oClass.existsProperty("tid"), is(true));
     }
 
 
