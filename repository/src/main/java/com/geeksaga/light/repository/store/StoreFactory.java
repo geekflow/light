@@ -32,11 +32,6 @@ public class StoreFactory
 
     private static String path = System.getProperty("light.db.path", "plocal:./databases/");
 
-    private StoreFactory()
-    {
-        this(Product.NAME);
-    }
-
     private StoreFactory(String database)
     {
         init(database);

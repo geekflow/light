@@ -39,46 +39,9 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public boolean save(Transaction transaction)
     {
-        //        ODatabaseDocumentTx documentTx = factory.getDatabase();
         OObjectDatabaseTx documentTx = factory.getDatabase();
 
         documentTx.save(transaction);
-
-        //        try
-        //        {
-        //            documentTx.begin();
-        //
-        //            ODocument document = new ODocument("transaction");
-        //            document.field("id", transaction.getId());
-        //            document.field("oid", transaction.getOid());
-        //            document.field("guid", transaction.getGuid());
-        //            document.field("endTime", transaction.getEndTime());
-        //            document.field("elapsedTime", transaction.getElapsedTime());
-        //            document.field("cpuTime", transaction.getCpuTime());
-        //            document.field("sqlCount", transaction.getSqlCount());
-        //            document.field("sqlTime", transaction.getSqlTime());
-        //            document.field("fetchCount", transaction.getFetchCount());
-        //            document.field("fetchTime", transaction.getFetchTime());
-        //            document.field("ipAddress", transaction.getIpAddress());
-        //            document.field("transactionHash", transaction.getTransactionHash());
-        //            document.field("browserHash", transaction.getBrowserHash());
-        //            document.field("userHash", transaction.getUserHash());
-        //            document.save();
-        //
-        //            documentTx.commit();
-        //        }
-        //        catch (Exception exception)
-        //        {
-        //            System.out.println(exception.getMessage());
-        //
-        //            documentTx.rollback();
-        //
-        //            return false;
-        //        }
-        //        finally
-        //        {
-        //            documentTx.close();
-        //        }
 
         return true;
     }
@@ -86,7 +49,6 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction modify(Transaction transaction)
     {
-        //        ODatabaseDocumentTx documentTx = factory.getDatabase();
         OObjectDatabaseTx documentTx = factory.getDatabase();
 
         try
@@ -96,30 +58,28 @@ public class TransactionDaoImpl implements TransactionDao
             //            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction WHERE id = " + transaction.getId() + ""));
             List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction"));
 
-            if (result.size() > 0)
-            {
-                //                int recordsUpdated = documentTx.command(new OCommandSQL("UPDATE Classes SET byteCode = " + classes.getByteCodes() + " WHERE name = " + classes.getName())).execute();
 
-                //                for (ODocument document : documentTx.browseClass("transaction"))
-                //                {
-                //                    document.field("id", transaction.getId());
-                //                    document.field("oid", transaction.getOid());
-                //                    document.field("guid", transaction.getGuid());
-                //                    document.field("endTime", transaction.getEndTime());
-                //                    document.field("elapsedTime", transaction.getElapsedTime());
-                //                    document.field("cpuTime", transaction.getCpuTime());
-                //                    document.field("sqlCount", transaction.getSqlCount());
-                //                    document.field("sqlTime", transaction.getSqlTime());
-                //                    document.field("fetchCount", transaction.getFetchCount());
-                //                    document.field("fetchTime", transaction.getFetchTime());
-                //                    document.field("ipAddress", transaction.getIpAddress());
-                //                    document.field("transactionHash", transaction.getTransactionHash());
-                //                    document.field("browserHash", transaction.getBrowserHash());
-                //                    document.field("userHash", transaction.getUserHash());
-                //                    document.save();
-                //                }
-                //                documentTx.getMetadata().getSchema().reload();
-            }
+            //                int recordsUpdated = documentTx.command(new OCommandSQL("UPDATE Classes SET byteCode = " + classes.getByteCodes() + " WHERE name = " + classes.getName())).execute();
+
+            //                for (ODocument document : documentTx.browseClass("transaction"))
+            //                {
+            //                    document.field("id", transaction.getId());
+            //                    document.field("oid", transaction.getOid());
+            //                    document.field("guid", transaction.getGuid());
+            //                    document.field("endTime", transaction.getEndTime());
+            //                    document.field("elapsedTime", transaction.getElapsedTime());
+            //                    document.field("cpuTime", transaction.getCpuTime());
+            //                    document.field("sqlCount", transaction.getSqlCount());
+            //                    document.field("sqlTime", transaction.getSqlTime());
+            //                    document.field("fetchCount", transaction.getFetchCount());
+            //                    document.field("fetchTime", transaction.getFetchTime());
+            //                    document.field("ipAddress", transaction.getIpAddress());
+            //                    document.field("transactionHash", transaction.getTransactionHash());
+            //                    document.field("browserHash", transaction.getBrowserHash());
+            //                    document.field("userHash", transaction.getUserHash());
+            //                    document.save();
+            //                }
+            //                documentTx.getMetadata().getSchema().reload();
 
             documentTx.commit();
         }
@@ -138,13 +98,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction find(Transaction transaction)
     {
-        //        ODatabaseDocumentTx documentTx = factory.getDatabase();
         OObjectDatabaseTx documentTx = factory.getDatabase();
-
-        for (Transaction eachTransaction : documentTx.browseClass(Transaction.class))
-        {
-            System.out.println("Transaction = " + eachTransaction);
-        }
 
         List<Transaction> result = documentTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
 
@@ -159,11 +113,9 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public List<Transaction> findList()
     {
-        //        ODatabaseDocumentTx documentTx = factory.getDatabase();
         OObjectDatabaseTx documentTx = factory.getDatabase();
 
         List<Transaction> result = documentTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
-
 
         for (Transaction document : result)
         {
