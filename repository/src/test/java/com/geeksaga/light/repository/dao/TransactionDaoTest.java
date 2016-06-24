@@ -70,7 +70,7 @@ public class TransactionDaoTest
     @Test
     public void testFindList()
     {
-        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 2L);
+        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 3L);
 
         transactionDao.save(transaction);
 
