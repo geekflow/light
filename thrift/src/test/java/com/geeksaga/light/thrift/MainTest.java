@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.repository;
+package com.geeksaga.light.thrift;
+
+import org.junit.Test;
 
 /**
  * @author geeksaga
  */
-public final class Product
+public class MainTest
 {
-    public static final String NAME = "Light";
+    @Test
+    public void testMain()
+    {
+        // default Test
+    }
 }

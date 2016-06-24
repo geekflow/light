@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.repository;
+package com.geeksaga.light.thrift;
 
 /**
  * @author geeksaga
  */
-public final class Product
+public class Main
 {
-    public static final String NAME = "Light";
+    public static void main(String[] args)
+    {
+        System.out.println(Product.NAME + " is simple APM.(thrift module)");
+    }
 }

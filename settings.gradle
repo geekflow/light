@@ -12,4 +12,5 @@ include 'agent.tools'
 include 'collector'
 include 'plugins/flow'
 include 'repository'
+include 'thrift'
 
