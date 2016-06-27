@@ -26,7 +26,7 @@ import java.io.File;
 /**
  * @author geeksaga
  */
-public class Main
+public class TomcatMain
 {
     public static void main(String[] args) throws Exception
     {

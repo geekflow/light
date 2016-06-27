@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light;
+package com.geeksaga.web;
 
 /**
  * @author geeksaga
  */
-public class Main {
-    public static void main(String[] args) {
-        System.out.println(Product.NAME + " is simple APM (Application Performance Management).");
-        System.out.println("Usage : execute java with -javaagent option");
-        System.out.println("ex) java -javaagent:light.agent-x.x.x.jar -jar light.demo.jar");
+public class JettyMain
+{
+    public static void main(String[] args) throws Exception
+    {
+        //
     }
 }

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author geeksaga
  */
-public class HelloServletTest
+public class HelloJettyServletTest
 {
     @Test
     public void testDoGet() throws ServletException, IOException
@@ -65,7 +65,7 @@ public class HelloServletTest
             {}
         });
 
-        HelloServlet servlet = new HelloServlet();
+        HelloJettyServlet servlet = new HelloJettyServlet();
         servlet.doGet(request, response);
 
         assertThat(response.getStatus(), is(200));

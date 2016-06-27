@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light;
+package com.geeksaga.light.profiler;
+
+import com.geeksaga.light.Product;
 
 /**
  * @author geeksaga

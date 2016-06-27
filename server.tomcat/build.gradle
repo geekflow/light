@@ -13,7 +13,7 @@ war {
                 'Specification-Title' : 'GeekSaga Light APM Tools',
                 'Specification-Version' : version,
                 'Specification-Vendor' : 'GeekSaga, Inc.',
-                'Main-Class': 'com.geeksaga.web.Main'
+                'Main-Class': 'com.geeksaga.web.TomcatMain'
     }
 }
 

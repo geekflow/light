@@ -29,7 +29,7 @@ import java.io.IOException;
 @WebServlet(
         name = "HelloServlet",
         urlPatterns = { "/hello" })
-public class HelloServlet extends HttpServlet
+public class HelloJettyServlet extends HttpServlet
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException

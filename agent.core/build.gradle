@@ -11,8 +11,7 @@ jar {
                 'Implementation-Vendor' : 'GeekSaga, Inc.',
                 'Specification-Title' : 'GeekSaga Light APM Tools',
                 'Specification-Version' : version,
-                'Specification-Vendor' : 'GeekSaga, Inc.',
-                'Main-Class': 'com.geeksaga.light.Main'
+                'Specification-Vendor' : 'GeekSaga, Inc.'
     }
 }
 
