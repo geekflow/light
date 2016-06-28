@@ -20,15 +20,15 @@ package com.geeksaga.light.logger;
  */
 public interface LightLogger
 {
-    void info(String message);
+    void trace(String message);
 
-    void info(String format, Object... arguments);
+    void trace(String format, Object... arguments);
 
-    void info(Object obj);
+    void trace(Object obj);
 
-    void info(Throwable throwable);
+    void trace(Throwable throwable);
 
-    void info(StackTraceElement[] stackTraceElements);
+    void trace(StackTraceElement[] stackTraceElements);
 
     void debug(String message);
 
@@ -39,4 +39,34 @@ public interface LightLogger
     void debug(Throwable throwable);
 
     void debug(StackTraceElement[] stackTraceElements);
+
+    void info(String message);
+
+    void info(String format, Object... arguments);
+
+    void info(Object obj);
+
+    void info(Throwable throwable);
+
+    void info(StackTraceElement[] stackTraceElements);
+
+    void warn(String message);
+
+    void warn(String format, Object... arguments);
+
+    void warn(Object obj);
+
+    void warn(Throwable throwable);
+
+    void warn(StackTraceElement[] stackTraceElements);
+
+    void error(String message);
+
+    void error(String format, Object... arguments);
+
+    void error(Object obj);
+
+    void error(Throwable throwable);
+
+    void error(StackTraceElement[] stackTraceElements);
 }

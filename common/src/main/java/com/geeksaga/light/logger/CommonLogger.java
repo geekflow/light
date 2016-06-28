@@ -16,38 +16,131 @@
 package com.geeksaga.light.logger;
 
 import com.geeksaga.light.util.SystemProperty;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author geeksaga
  */
 public class CommonLogger
 {
-    private static ConcurrentMap<String, LightLogger> LOGGER_CACHE = new ConcurrentHashMap<String, LightLogger>(256, 075f, 128);
+    private static LightLoggerBinder loggerBinder;
+
+    public static void initialize(LightLoggerBinder loggerBinder)
+    {
+        CommonLogger.loggerBinder = loggerBinder;
+    }
 
     public static LightLogger getLogger(String name)
     {
-        final LightLogger logger = LOGGER_CACHE.get(name);
-
-        if (logger != null)
+        if (loggerBinder == null)
         {
-            return logger;
+            return new LightLogger()
+            {
+                @Override
+                public void trace(String message)
+                {}
+
+                @Override
+                public void trace(String format, Object... arguments)
+                {}
+
+                @Override
+                public void trace(Object obj)
+                {}
+
+                @Override
+                public void trace(Throwable throwable)
+                {}
+
+                @Override
+                public void trace(StackTraceElement[] stackTraceElements)
+                {}
+
+                @Override
+                public void debug(String message)
+                {}
+
+                @Override
+                public void debug(String format, Object... arguments)
+                {}
+
+                @Override
+                public void debug(Object obj)
+                {}
+
+                @Override
+                public void debug(Throwable throwable)
+                {}
+
+                @Override
+                public void debug(StackTraceElement[] stackTraceElements)
+                {}
+
+                @Override
+                public void info(String message)
+                {}
+
+                @Override
+                public void info(String format, Object... arguments)
+                {}
+
+                @Override
+                public void info(Object obj)
+                {}
+
+                @Override
+                public void info(Throwable throwable)
+                {}
+
+                @Override
+                public void info(StackTraceElement[] stackTraceElements)
+                {}
+
+                @Override
+                public void warn(String message)
+                {}
+
+                @Override
+                public void warn(String format, Object... arguments)
+                {}
+
+                @Override
+                public void warn(Object obj)
+                {}
+
+                @Override
+                public void warn(Throwable throwable)
+                {}
+
+                @Override
+                public void warn(StackTraceElement[] stackTraceElements)
+                {}
+
+                @Override
+                public void error(String message)
+                {}
+
+                @Override
+                public void error(String format, Object... arguments)
+                {}
+
+                @Override
+                public void error(Object obj)
+                {}
+
+                @Override
+                public void error(Throwable throwable)
+                {}
+
+                @Override
+                public void error(StackTraceElement[] stackTraceElements)
+                {}
+            };
         }
 
-        final SLF4JLoggerAdapter slf4JLoggerAdapter = new SLF4JLoggerAdapter(LoggerFactory.getLogger(name));
-
-        final LightLogger slf4JLogger = LOGGER_CACHE.putIfAbsent(name, slf4JLoggerAdapter);
-        if (slf4JLogger != null)
-        {
-            return slf4JLogger;
-        }
-
-        return slf4JLoggerAdapter;
+        return loggerBinder.getLogger(name);
     }
 
     public static String getStackTrace(StackTraceElement[] stackTraceElements)

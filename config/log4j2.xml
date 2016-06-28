@@ -34,8 +34,8 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="com.geeksaga.light" level="info" additivity="false">
-            <AppenderRef ref="Console"/>
+        <Logger name="com.geeksaga.light" level="debug" additivity="false">
+            <!--AppenderRef ref="Console"/-->
             <AppenderRef ref="Light"/>
         </Logger>
         <Root level="error">
