@@ -111,7 +111,7 @@ public class OrientDBEmbeddable
         for (ODocument document : db.browseClass("Person"))
         {
             System.out.println(document);
-            System.out.println(document.field("name"));
+            System.out.println(String.valueOf(document.field("name")));
         }
 
         List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("select * from Person where name = 'Luke' and name like 'L%'"));
@@ -140,7 +140,7 @@ public class OrientDBEmbeddable
             for (Vertex v : graph.query().has("name").vertices())
             {
                 System.out.println(v.getId());
-                System.out.println(v.getProperty("name"));
+                System.out.println(String.valueOf(v.getProperty("name")));
             }
 
             System.out.println(graph.query().has("name").vertices());

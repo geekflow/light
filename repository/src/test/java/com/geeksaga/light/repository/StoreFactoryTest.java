@@ -43,11 +43,11 @@ public class StoreFactoryTest
         factory = StoreFactory.getInstance(Product.NAME);
     }
 
-    private static String replaceWindowsSeparator(String path)
+    private String replaceWindowsSeparator(String path)
     {
         if (SystemProperty.WINDOWS_OS && path != null)
         {
-            return path.replace("\\", File.separator);
+            return path.replace("/", File.separator);
         }
 
         return path;
@@ -56,12 +56,14 @@ public class StoreFactoryTest
     @Test
     public void testOSSeparator()
     {
-        if (SystemProperty.WINDOWS_OS)
+        if(SystemProperty.WINDOWS_OS)
         {
-            assertThat(DEFAULT_PATH, is(replaceWindowsSeparator(DEFAULT_PATH.replace("/", "\\"))));
+            assertThat(DEFAULT_PATH.replace("/", "\\"), is(replaceWindowsSeparator(DEFAULT_PATH)));
         }
-
-        assertThat(DEFAULT_PATH, is(replaceWindowsSeparator(DEFAULT_PATH)));
+        else
+        {
+            assertThat(DEFAULT_PATH, is(replaceWindowsSeparator(DEFAULT_PATH)));
+        }
     }
 
     @Test

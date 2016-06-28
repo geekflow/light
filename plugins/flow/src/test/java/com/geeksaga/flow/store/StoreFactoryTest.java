@@ -15,11 +15,9 @@
  */
 package com.geeksaga.flow.store;
 
-import com.geeksaga.light.util.SystemProperty;
+import com.geeksaga.flow.Product;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -29,36 +27,14 @@ import static org.junit.Assert.assertThat;
  */
 public class StoreFactoryTest
 {
-    private static StoreFactory factory = null;
-    private static final String DEFAULT_PATH = "/../../databases/";
+    private static StoreFactory factory;
 
     @BeforeClass
     public static void init()
     {
-        System.setProperty("flow.db.path", String.format("plocal:%s%s", System.getProperty("user.dir"), replaceWindowsSeparator(DEFAULT_PATH)));
+        System.setProperty("flow.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
 
         factory = StoreFactory.getInstance("flowtest");
-    }
-
-    private static String replaceWindowsSeparator(String path)
-    {
-        if (SystemProperty.WINDOWS_OS && path != null)
-        {
-            return path.replace("\\", File.separator);
-        }
-
-        return path;
-    }
-
-    @Test
-    public void testOSSeparator()
-    {
-        if(SystemProperty.WINDOWS_OS)
-        {
-            assertThat(DEFAULT_PATH, is(replaceWindowsSeparator(DEFAULT_PATH.replace("/", "\\"))));
-        }
-
-        assertThat(DEFAULT_PATH, is(replaceWindowsSeparator(DEFAULT_PATH)));
     }
 
     @Test

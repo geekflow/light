@@ -27,5 +27,7 @@ public class ConfigDef {
     public static final String method_min_size = "method_min_size";
     public static final String method_max_size = "method_max_size";
 
+    public static final String ignore_bci_pattern = "ignore_bci_pattern";
+
     public static FieldNameMap names = FieldNameMap.toMap(ConfigDef.class);
 }
