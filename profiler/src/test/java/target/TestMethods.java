@@ -18,47 +18,57 @@ package target;
 /**
  * @author geeksaga
  */
-public class TestMethods {
-    public boolean doWithBoolean(boolean value) {
+public class TestMethods
+{
+    public boolean doWithBoolean(boolean value)
+    {
         return value;
     }
 
-    public char doWithChar(char value) {
+    public char doWithChar(char value)
+    {
         return value;
     }
 
-    public byte doWithByte(byte value) {
+    public byte doWithByte(byte value)
+    {
         return value;
     }
 
-    public short doWithShort(short value) {
+    public short doWithShort(short value)
+    {
         return value;
     }
 
-    public int doWithInt(int value) {
+    public int doWithInt(int value)
+    {
         return value;
     }
 
-    public float doWithFloat(float value) {
+    public float doWithFloat(float value)
+    {
         return value;
     }
 
-    public double doWithDouble(double value) {
+    public double doWithDouble(double value)
+    {
         return value;
     }
 
-    public long doWithLong(long value) {
+    public long doWithLong(long value)
+    {
         return value;
     }
 
-    public int[] doWithArray(int[] value) {
+    public int[] doWithArray(int[] value)
+    {
         return value;
     }
 
-    public String doWithObject(String value) {
+    public String doWithObject(String value)
+    {
         return value;
     }
 
-    public void doWithNothing() {
-    }
+    public void doWithNothing() {}
 }
