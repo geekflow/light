@@ -15,8 +15,13 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.agent.trace.Parameter;
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.agent.trace.DebugTrace;
+import com.geeksaga.light.agent.trace.EntryTrace;
+import com.geeksaga.light.agent.trace.Parameter;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
@@ -32,41 +37,76 @@ import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.logging.Logger;
 
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * The type Method parameter transformer.
+ *
  * @author geeksaga
  */
-public class MethodParameterTransformer implements ClassFileTransformer {
-    private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
+public class MethodParameterTransformer implements ClassFileTransformer
+{
+    private LightLogger logger;
+
+    private Filter filter;
+
+    private TraceRegisterBinder traceRegisterBinder;
+    private TraceContext traceContext;
+    private int traceId;
+
+    /**
+     * The constant WINDOWS_OS.
+     */
     public static final boolean WINDOWS_OS = getSystemProperty("os.name", "unix").contains("Window");
 
-    private Filter filter = new LightFilter();
+    /**
+     * Instantiates a new Method parameter transformer.
+     *
+     * @param traceRegisterBinder the trace register binder
+     * @param traceContext        the trace context
+     */
+    public MethodParameterTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
+    {
+        this.logger = CommonLogger.getLogger(this.getClass().getName());
 
-    private static String getSystemProperty(String key, String def) {
-        try {
+        this.filter = new LightFilter();
+        this.traceRegisterBinder = traceRegisterBinder;
+        this.traceContext = traceContext;
+        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));
+    }
+
+    private static String getSystemProperty(String key, String def)
+    {
+        try
+        {
             return System.getProperty(key, def);
-        } catch (RuntimeException exception) {
+        }
+        catch (RuntimeException exception)
+        {
             return def;
         }
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (filter.allow(classLoader, className)) {
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    {
+        if (filter.allow(classLoader, className))
+        {
             logger.info("Transform => " + className);
 
             ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
             ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-            reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper) {
+            reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
+            {
                 @Override
-                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+                {
                     MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
 
-                    if (name.contains("<")) {
+                    if (name.contains("<"))
+                    {
                         return methodVisitor;
                     }
 
@@ -74,7 +114,8 @@ public class MethodParameterTransformer implements ClassFileTransformer {
                 }
             }, ClassReader.EXPAND_FRAMES);
 
-            if (classNodeWrapper.isInterface()) {
+            if (classNodeWrapper.isInterface())
+            {
                 return classfileBuffer;
             }
 
@@ -88,19 +129,38 @@ public class MethodParameterTransformer implements ClassFileTransformer {
         return classfileBuffer;
     }
 
-    public void save(String name, byte[] buff) {
-        try {
+    /**
+     * Save.
+     *
+     * @param name the name
+     * @param buff the buff
+     */
+    public void save(String name, byte[] buff)
+    {
+        try
+        {
             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(replaceWindowsSeparator(name))));
             out.write(buff);
             out.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    public String replaceWindowsSeparator(String path) {
-        if (WINDOWS_OS) {
-            if (path != null) {
+    /**
+     * Replace windows separator string.
+     *
+     * @param path the path
+     * @return the string
+     */
+    public String replaceWindowsSeparator(String path)
+    {
+        if (WINDOWS_OS)
+        {
+            if (path != null)
+            {
                 return path.replace("\\", "\\\\");
             }
         }
@@ -108,14 +168,30 @@ public class MethodParameterTransformer implements ClassFileTransformer {
         return path;
     }
 
-    class MethodParameterVisitor extends LocalVariablesSorter {
+    /**
+     * The type Method parameter visitor.
+     */
+    class MethodParameterVisitor extends LocalVariablesSorter
+    {
+        /**
+         * The Argument class internal name.
+         */
         public final String ARGUMENT_CLASS_INTERNAL_NAME = getInternalName(Parameter.class.getName());
 
         private String desc;
         private boolean isStatic = false;
         private int[] parameterIndices;
 
-        public MethodParameterVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic) {
+        /**
+         * Instantiates a new Method parameter visitor.
+         *
+         * @param access        the access
+         * @param desc          the desc
+         * @param methodVisitor the method visitor
+         * @param isStatic      the is static
+         */
+        public MethodParameterVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic)
+        {
             super(Opcodes.ASM5, access, desc, methodVisitor);
 
             this.desc = desc;
@@ -124,7 +200,8 @@ public class MethodParameterTransformer implements ClassFileTransformer {
         }
 
         @Override
-        public void visitCode() {
+        public void visitCode()
+        {
             int parameterVariableIndex = newLocal(Type.getType(ARGUMENT_CLASS_INTERNAL_NAME));
             Type[] argumentTypes = Type.getArgumentTypes(desc);
 
@@ -135,7 +212,8 @@ public class MethodParameterTransformer implements ClassFileTransformer {
             mv.visitVarInsn(ASTORE, parameterVariableIndex);
 
             int parameterIndex = 0;
-            if (!isStatic) {
+            if (!isStatic)
+            {
                 mv.visitVarInsn(ALOAD, parameterVariableIndex);
                 mv.visitInsn(DUP);
                 mv.visitIntInsn(BIPUSH, parameterIndex);
@@ -145,10 +223,12 @@ public class MethodParameterTransformer implements ClassFileTransformer {
                 parameterIndex++;
             }
 
-            for (int i = 0, j = isStatic ? 0 : 1; i < argumentTypes.length; i++, j++) {
+            for (int i = 0, j = isStatic ? 0 : 1; i < argumentTypes.length; i++, j++)
+            {
                 Type type = argumentTypes[i];
 
-                switch (type.getSort()) {
+                switch (type.getSort())
+                {
                     case Type.BOOLEAN:
                     case Type.CHAR:
                     case Type.BYTE:
@@ -157,7 +237,8 @@ public class MethodParameterTransformer implements ClassFileTransformer {
                         visitInstruction(ILOAD, j, parameterVariableIndex, parameterIndex);
 
                         String description = null;
-                        switch (type.getSort()) {
+                        switch (type.getSort())
+                        {
                             case Type.BOOLEAN:
                                 description = "(IZ)V";
                                 break;
@@ -215,13 +296,15 @@ public class MethodParameterTransformer implements ClassFileTransformer {
             mv.visitCode();
         }
 
-        private void visitInstruction(int opcode, int index, int parameterVariableIndex, int parameterIndex) {
+        private void visitInstruction(int opcode, int index, int parameterVariableIndex, int parameterIndex)
+        {
             mv.visitVarInsn(ALOAD, parameterVariableIndex);
             mv.visitLdcInsn(index);
             mv.visitVarInsn(opcode, parameterIndices[parameterIndex]);
         }
 
-        public void visitMaxs(int maxStack, int maxLocals) {
+        public void visitMaxs(int maxStack, int maxLocals)
+        {
             mv.visitMaxs(maxStack, maxLocals);
         }
     }
