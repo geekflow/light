@@ -25,12 +25,12 @@ import java.util.Arrays;
 /**
  * @author geeksaga
  */
-public class EntryTrace implements Trace
+public class MethodTrace implements Trace
 {
     private LightLogger logger;
     private TraceContext traceContext;
 
-    public EntryTrace(TraceContext traceContext)
+    public MethodTrace(TraceContext traceContext)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.traceContext = traceContext;
@@ -38,35 +38,21 @@ public class EntryTrace implements Trace
 
     public void begin(MethodInfo methodInfo)
     {
-        try
-        {
-            logger.info(methodInfo.getName() + methodInfo.getDesc());
+        logger.info(methodInfo.getName() + methodInfo.getDesc());
 
-            ActiveObject activeObject = create(methodInfo);
-            activeObject.setStartTime(System.currentTimeMillis());
-        }
-        catch (Throwable throwable)
-        {
-            logger.info(throwable);
-        }
+        ActiveObject activeObject = create(methodInfo);
+        activeObject.setStartTime(System.currentTimeMillis());
     }
 
     public void end(MethodInfo methodInfo, Throwable throwable)
     {
-        try
-        {
-            logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
+        logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
 
-            ActiveObject activeObject = traceContext.current();
+        ActiveObject activeObject = traceContext.current();
 
-            if (activeObject != null)
-            {
-                logger.info("start time = {}, end time = {}, elapsed time = ", activeObject.getStartTime(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTime()));
-            }
-        }
-        finally
+        if (activeObject != null)
         {
-            traceContext.remove();
+            logger.info("start time = {}, end time = {}, elapsed time = ", activeObject.getStartTime(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTime()));
         }
     }
 

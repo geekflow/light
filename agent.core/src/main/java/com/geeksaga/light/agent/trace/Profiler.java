@@ -22,23 +22,28 @@ import static com.geeksaga.light.agent.util.ClassUtility.getInternalName;
 /**
  * @author geeksaga
  */
-public class Profiler {
+public class Profiler
+{
     public static final String INTERNAL_CLASS_NAME = getInternalName(Profiler.class);
     public static final String BEGIN = "begin";
     public static final String BEGIN_DESCRIPTOR = "(IL" + getInternalName(MethodInfo.class) + ";)V";
     public static final String END = "end";
     public static final String END_DESCRIPTOR = "(IL" + getInternalName(MethodInfo.class) + ";L" + getInternalName(Throwable.class) + ";)V";
 
-    public static void begin(int traceKey, MethodInfo methodInfo) {
+    public static void begin(int traceKey, MethodInfo methodInfo)
+    {
         Trace trace = TraceRegistry.get(traceKey);
-        if (trace != null) {
+        if (trace != null)
+        {
             trace.begin(methodInfo);
         }
     }
 
-    public static void end(int traceKey, MethodInfo methodInfo, Throwable throwable) {
+    public static void end(int traceKey, MethodInfo methodInfo, Throwable throwable)
+    {
         Trace trace = TraceRegistry.get(traceKey);
-        if (trace != null) {
+        if (trace != null)
+        {
             trace.end(methodInfo, throwable);
         }
     }

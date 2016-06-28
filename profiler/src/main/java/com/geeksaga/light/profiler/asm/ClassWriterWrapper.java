@@ -15,59 +15,134 @@
  */
 package com.geeksaga.light.profiler.asm;
 
+import com.geeksaga.light.agent.JavaAgent;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
+import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
 /**
  * @author geeksaga
  */
-public class ClassWriterWrapper extends ClassWriter {
+public class ClassWriterWrapper extends ClassWriter
+{
     private final TypeHierarchyUtil typeHierarchyUtil = new TypeHierarchyUtil();
 
-    public ClassWriterWrapper(int flags) {
+    private LightLogger logger;
+
+    public ClassWriterWrapper(int flags)
+    {
         super(flags);
+
+        this.logger = CommonLogger.getLogger(this.getClass().getName());
     }
 
-    public ClassWriterWrapper(ClassReader classReader, int flags) {
+    public ClassWriterWrapper(ClassReader classReader, int flags)
+    {
         super(classReader, flags);
     }
 
     @Override
-    protected String getCommonSuperClass(final String type1, final String type2) {
+    protected String getCommonSuperClass(final String type1, final String type2)
+    {
         return commonSuperClass(type1, type2);
     }
 
-    private String commonSuperClass(final String type1, final String type2) {
+    private String commonSuperClass(final String type1, final String type2)
+    {
         Class<?> c = null, d = null;
 
-        try {
-//            c = findClass(type1.replace('/', '.'));
-//            d = findClass(type2.replace('/', '.'));
+        try
+        {
+            c = JavaAgent.findClass(type1.replace('/', '.'));
+            d = JavaAgent.findClass(type2.replace('/', '.'));
 
-            if (c == null || d == null) {
+            if (c == null || d == null)
+            {
                 return typeHierarchyUtil.getCommonSuperClass(type1, type2);
             }
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        }
+        catch (Exception exception)
+        {
+            if (c == null)
+            {
+                c = forName(type1, ClassFileTransformerDispatcher.context.get());
+            }
+
+            if (d == null)
+            {
+                d = forName(type2, ClassFileTransformerDispatcher.context.get());
+            }
         }
 
-        if ((c != null && d != null) && c.isAssignableFrom(d)) {
+        if ((c != null && d != null) && c.isAssignableFrom(d))
+        {
             return type1;
         }
 
-        if ((d != null && c != null) && d.isAssignableFrom(c)) {
+        if ((d != null && c != null) && d.isAssignableFrom(c))
+        {
             return type2;
         }
 
-        if (c == null || d == null || c.isInterface() || d.isInterface()) {
+        if (c == null || d == null)
+        {
+            whenOccurThrowable(null, type1, type2, null);
+        }
+
+        if (c == null || d == null || c.isInterface() || d.isInterface())
+        {
             return "java/lang/Object";
-        } else {
-            do {
+        }
+        else
+        {
+            do
+            {
                 c = c.getSuperclass();
             }
             while (!c.isAssignableFrom(d));
 
             return c.getName().replace('.', '/');
+        }
+    }
+
+    private Class<?> forName(String name, ClassLoader loader)
+    {
+        try
+        {
+            Class<?> clazz = Class.forName(ASMUtil.convertForAgent(name), false, loader);
+
+            redefine(clazz);
+
+            return clazz;
+        }
+        catch (ClassNotFoundException classNotFoundException)
+        {
+            // ignore find continue
+        }
+
+        return null;
+    }
+
+    private void redefine(Class<?> clazz)
+    {
+        //
+    }
+
+    private void whenOccurThrowable(Throwable throwable, String type1, String type2, ClassLoader classLoader)
+    {
+        logger.info("ClassWriter.getCommonSuperClass type1 = " + type1 + ", type2 = " + type2);
+
+        if (throwable != null && throwable.getMessage() != null)
+        {
+            logger.debug(throwable);
+        }
+
+        if (classLoader != null)
+        {
+            logger.debug(classLoader.toString());
         }
     }
 }

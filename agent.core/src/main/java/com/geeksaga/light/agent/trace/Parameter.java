@@ -18,12 +18,15 @@ package com.geeksaga.light.agent.trace;
 /**
  * @author geeksaga
  */
-public class Parameter {
+public class Parameter
+{
     // first this object
     private Object[] arguments;
 
-    public Parameter(int size) {
-        if (size <= 0) {
+    public Parameter(int size)
+    {
+        if (size <= 0)
+        {
             return;
         }
 
@@ -45,43 +48,53 @@ public class Parameter {
         return null;
     }
 
-    public int size() {
+    public int size()
+    {
         return (arguments == null ? 0 : arguments.length);
     }
 
-    public void set(int index, Object value) {
+    public void set(int index, Object value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, boolean value) {
+    public void set(int index, boolean value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, char value) {
+    public void set(int index, char value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, short value) {
+    public void set(int index, short value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, byte value) {
+    public void set(int index, byte value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, int value) {
+    public void set(int index, int value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, long value) {
+    public void set(int index, long value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, float value) {
+    public void set(int index, float value)
+    {
         arguments[index] = value;
     }
 
-    public void set(int index, double value) {
+    public void set(int index, double value)
+    {
         arguments[index] = value;
     }
 }

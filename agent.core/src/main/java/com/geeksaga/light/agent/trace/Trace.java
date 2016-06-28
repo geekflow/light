@@ -18,18 +18,22 @@ package com.geeksaga.light.agent.trace;
 /**
  * @author geeksaga
  */
-public interface Trace {
+public interface Trace
+{
     void begin(MethodInfo methodInfo);
 
     void end(MethodInfo methodInfo, Throwable throwable);
 
-    Trace NULL = new Trace() {
+    Trace NULL = new Trace()
+    {
         @Override
-        public void begin(MethodInfo methodInfo) {
+        public void begin(MethodInfo methodInfo)
+        {
         }
 
         @Override
-        public void end(MethodInfo methodInfo, Throwable throwable) {
+        public void end(MethodInfo methodInfo, Throwable throwable)
+        {
         }
     };
 }

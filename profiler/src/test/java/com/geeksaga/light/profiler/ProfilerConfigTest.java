@@ -83,5 +83,7 @@ public class ProfilerConfigTest
         assertThat(config.read(ConfigDef.class_max_size, 1024 * 1024), is(1048576));
         assertThat(config.read(ConfigDef.method_min_size, -1), is(0));
         assertThat(config.read(ConfigDef.method_max_size, -1), is(48000));
+
+        System.out.println(config.read(ConfigDef.entry_point, "default"));
     }
 }

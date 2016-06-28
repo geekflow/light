@@ -20,19 +20,23 @@ import com.geeksaga.light.agent.trace.Trace;
 /**
  * @author geeksaga
  */
-public interface TraceRegistryAdaptor {
+public interface TraceRegistryAdaptor
+{
     int add(Trace trace);
 
     Trace get(int id);
 
-    TraceRegistryAdaptor NULL = new TraceRegistryAdaptor() {
+    TraceRegistryAdaptor NULL = new TraceRegistryAdaptor()
+    {
         @Override
-        public int add(Trace trace) {
+        public int add(Trace trace)
+        {
             return -1;
         }
 
         @Override
-        public Trace get(int id) {
+        public Trace get(int id)
+        {
             return Trace.NULL;
         }
     };

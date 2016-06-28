@@ -33,7 +33,7 @@ public class PluginsTransformer implements ClassFileTransformer
 
     public PluginsTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
     {
-        logger = CommonLogger.getLogger(PluginsTransformer.class.getName());
+        this.logger = CommonLogger.getLogger(getClass().getName());
 
         logger.info("create transformer {}", PluginsTransformer.class.getName());
     }
@@ -41,7 +41,6 @@ public class PluginsTransformer implements ClassFileTransformer
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
     {
-        logger.info("Plugins transform = 1");
         // FIXME load plugins
 
         return classfileBuffer;

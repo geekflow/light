@@ -15,58 +15,67 @@
  */
 package com.geeksaga.light.agent.trace;
 
-import java.awt.print.PrinterAbortException;
-
 /**
  * @author geeksaga
  */
-public class MethodInfo {
+public class MethodInfo
+{
     private String name;
     private String desc;
 
     private Parameter parameter;
     private Object returnValue;
 
-    public MethodInfo(String name, String desc) {
+    public MethodInfo(String name, String desc)
+    {
         this(name, desc, null, null);
     }
 
-    public MethodInfo(String name, String desc, Parameter parameter) {
+    public MethodInfo(String name, String desc, Parameter parameter)
+    {
         this(name, desc, parameter, null);
     }
 
-    public MethodInfo(String name, String desc, Object returnValue) {
+    public MethodInfo(String name, String desc, Object returnValue)
+    {
         this(name, desc, null, returnValue);
     }
 
-    public MethodInfo(String name, String desc, Parameter parameter, Object returnValue) {
+    public MethodInfo(String name, String desc, Parameter parameter, Object returnValue)
+    {
         this.name = name;
         this.desc = desc;
         this.parameter = parameter;
         this.returnValue = returnValue;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public String getDesc() {
+    public String getDesc()
+    {
         return desc;
     }
 
-    public void setParameter(Parameter parameter) {
+    public void setParameter(Parameter parameter)
+    {
         this.parameter = parameter;
     }
 
-    public Parameter getParameter() {
+    public Parameter getParameter()
+    {
         return parameter;
     }
 
-    public void setReturnValue(Object returnValue) {
+    public void setReturnValue(Object returnValue)
+    {
         this.returnValue = returnValue;
     }
 
-    public Object getReturnValue() {
+    public Object getReturnValue()
+    {
         return returnValue;
     }
 }

@@ -17,7 +17,6 @@ package com.geeksaga.light.profiler.logger;
 
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.logger.LightLoggerBinder;
-//import com.geeksaga.light.logger.SLF4JLoggerAdapter;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;

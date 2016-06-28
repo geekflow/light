@@ -15,6 +15,11 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.agent.trace.MethodTrace;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
@@ -26,24 +31,34 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.logging.Logger;
 
 /**
  * @author geeksaga
  */
 public class MethodTransformer implements ClassFileTransformer
 {
-    private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
+    private LightLogger logger;
+    private Filter filter;
 
-    private Filter filter = new LightFilter();
+    private TraceRegisterBinder traceRegisterBinder;
+    private TraceContext traceContext;
+    private int traceId;
+
+    public MethodTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
+    {
+        this.logger = CommonLogger.getLogger(this.getClass().getName());
+        this.filter = new LightFilter();
+
+        this.traceRegisterBinder = traceRegisterBinder;
+        this.traceContext = traceContext;
+        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new MethodTrace(traceContext));
+    }
 
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
     {
         if (filter.allow(classLoader, className))
         {
-            logger.info("Transform => " + className);
-
             ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
             ClassReader reader = new ClassReaderWrapper(classfileBuffer);
             reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
@@ -87,9 +102,9 @@ public class MethodTransformer implements ClassFileTransformer
             int time = newLocal(Type.getType("J"));
             visitLocalVariable("time", "J", null, timeStart, timeEnd, time);
 
-            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitLdcInsn("Enter " + name);
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+            //            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            //            mv.visitLdcInsn("Enter " + name);
+            //            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
         }
 
         @Override

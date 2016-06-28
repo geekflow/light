@@ -31,7 +31,6 @@ import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AdviceAdapter;
 
-import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -39,12 +38,13 @@ import java.security.ProtectionDomain;
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
 
 /**
+ * The type Entry point transformer.
+ *
  * @author geeksaga
  */
 public class EntryPointTransformer implements ClassFileTransformer
 {
     private LightLogger logger;
-
     private Filter filter;
 
     private TraceRegisterBinder traceRegisterBinder;
@@ -56,16 +56,22 @@ public class EntryPointTransformer implements ClassFileTransformer
     private String end;
     private String endDescriptor;
 
+    /**
+     * Instantiates a new Entry point transformer.
+     *
+     * @param traceRegisterBinder the trace register binder
+     * @param traceContext        the trace context
+     */
     public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
     {
         this(traceRegisterBinder, traceContext, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
+    private EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
     {
         this.logger = CommonLogger.getLogger(this.getClass().getName());
-
         this.filter = new LightFilter();
+
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
         this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));
@@ -83,7 +89,7 @@ public class EntryPointTransformer implements ClassFileTransformer
         {
             if (filter.allow(classLoader, className))
             {
-                logger.info("Transform => " + className);
+                logger.trace("Transform => {}", className);
 
                 ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
                 ClassReader reader = new ClassReaderWrapper(classfileBuffer);
@@ -102,12 +108,7 @@ public class EntryPointTransformer implements ClassFileTransformer
                     }
                 }, ClassReader.EXPAND_FRAMES);
 
-                // return ASMUtil.toBytes(classNodeWrapper);
-                byte[] bytes = ASMUtil.toBytes(classNodeWrapper);
-
-                new MethodParameterTransformer().save(System.getProperty("user.dir") + File.separator + ".." + File.separator + "install" + File.separator + "Main.class", bytes);
-
-                return bytes;
+                return ASMUtil.toBytes(classNodeWrapper);
             }
         }
         catch (Throwable throwable)
@@ -131,8 +132,20 @@ public class EntryPointTransformer implements ClassFileTransformer
         private Type returnType;
 
         private Label startFinally = new Label();
+        /**
+         * The Method info index.
+         */
         int methodInfoIndex;
 
+        /**
+         * Instantiates a new Entry point adapter.
+         *
+         * @param access        the access
+         * @param name          the name
+         * @param desc          the desc
+         * @param methodVisitor the method visitor
+         * @param isStatic      the is static
+         */
         EntryPointAdapter(int access, String name, String desc, MethodVisitor methodVisitor, boolean isStatic)
         {
             super(Opcodes.ASM5, methodVisitor, access, name, desc);
@@ -310,6 +323,9 @@ public class EntryPointTransformer implements ClassFileTransformer
             return (opcode >= IRETURN && opcode <= RETURN);
         }
 
+        /**
+         * Capture return.
+         */
         public void captureReturn()
         {
             if (returnType != null && !returnType.equals(Type.VOID_TYPE))

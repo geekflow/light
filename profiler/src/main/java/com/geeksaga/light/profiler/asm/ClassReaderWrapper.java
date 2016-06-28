@@ -18,6 +18,8 @@ package com.geeksaga.light.profiler.asm;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
 import com.geeksaga.light.profiler.util.ASMUtil;
 import org.objectweb.asm.ClassReader;
@@ -27,6 +29,8 @@ import org.objectweb.asm.ClassReader;
  */
 public class ClassReaderWrapper extends ClassReader
 {
+    private static final LightLogger logger = CommonLogger.getLogger(ClassReaderWrapper.class.getName());
+
     public ClassReaderWrapper(byte[] classBuffer)
     {
         super(classBuffer);
@@ -47,7 +51,7 @@ public class ClassReaderWrapper extends ClassReader
         super(readClass(object));
     }
 
-    protected static byte[] readClass(final Class clazz)
+    private static byte[] readClass(final Class clazz)
     {
         if (clazz != null)
         {
@@ -59,7 +63,7 @@ public class ClassReaderWrapper extends ClassReader
         return new byte[0];
     }
 
-    protected static byte[] readClass(final Object object)
+    private static byte[] readClass(final Object object)
     {
         if (object != null && object.getClass() != null)
         {
@@ -71,9 +75,9 @@ public class ClassReaderWrapper extends ClassReader
         return new byte[0];
     }
 
-    protected static byte[] readClass(final String name)
+    private static byte[] readClass(final String name)
     {
-        return readClass(null, name);
+        return readClass(ClassFileTransformerDispatcher.context.get(), name);
     }
 
     private static byte[] readClass(ClassLoader loader, String name)
@@ -91,7 +95,7 @@ public class ClassReaderWrapper extends ClassReader
         }
         catch (Exception exception)
         {
-            exception.printStackTrace();
+            logger.debug(exception);
         }
 
         return new byte[0];
@@ -119,9 +123,12 @@ public class ClassReaderWrapper extends ClassReader
                         System.arraycopy(b, 0, c, 0, len);
                         b = c;
                     }
+
                     return b;
                 }
+
                 len += n;
+
                 if (len == b.length)
                 {
                     int last = is.read();
@@ -129,6 +136,7 @@ public class ClassReaderWrapper extends ClassReader
                     {
                         return b;
                     }
+
                     byte[] c = new byte[b.length + 1000];
                     System.arraycopy(b, 0, c, 0, len);
                     c[len++] = (byte) last;
@@ -150,7 +158,7 @@ public class ClassReaderWrapper extends ClassReader
         return mockRead(ClassFileTransformerDispatcher.context.get(), className);
     }
 
-    protected static boolean mockRead(ClassLoader loader, String name)
+    private static boolean mockRead(ClassLoader loader, String name)
     {
         try
         {
@@ -165,7 +173,7 @@ public class ClassReaderWrapper extends ClassReader
         }
         catch (Exception exception)
         {
-            exception.printStackTrace();
+            logger.debug(exception);
         }
 
         return false;

@@ -22,7 +22,12 @@ import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.profiler.instrument.transformer.*;
+import com.geeksaga.light.logger.LightLoggerBinder;
+import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
+import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
+import com.geeksaga.light.profiler.instrument.transformer.MethodTransformer;
+import com.geeksaga.light.profiler.instrument.transformer.PluginsTransformer;
+import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
@@ -38,11 +43,15 @@ public class ProfilerModule implements Module
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
     private LightLogger logger;
+    private LightLoggerBinder loggerBinder;
 
     private Map<String, ClassFileTransformer> pointCuts;
 
     public ProfilerModule(Instrumentation instrumentation)
     {
+        this.loggerBinder = new Slf4jLoggerBinder();
+        loggerBinder();
+
         this.logger = CommonLogger.getLogger(this.getClass().getName());
 
         this.instrumentation = instrumentation;
@@ -63,14 +72,18 @@ public class ProfilerModule implements Module
         addTransformer(instrumentation.isRetransformClassesSupported());
     }
 
+    private void loggerBinder()
+    {
+        CommonLogger.initialize(loggerBinder);
+    }
+
     private void registPointCut()
     {
-        pointCuts.put("", new MethodParameterTransformer());
-        pointCuts.put("", new MethodReturnTransformer());
-        pointCuts.put("", new MethodTransformer());
-        pointCuts.put("", new LightClassFileTransformer(traceRegisterBinder, traceContext));
-        pointCuts.put("", new PluginsTransformer(traceRegisterBinder, traceContext));
-        pointCuts.put("", new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
+        //        pointCuts.put(MethodParameterTransformer.class.getName(), new MethodParameterTransformer(traceRegisterBinder, traceContext));
+        //        pointCuts.put(MethodReturnTransformer.class.getName(), new MethodReturnTransformer());
+        pointCuts.put(MethodTransformer.class.getName(), new MethodTransformer(traceRegisterBinder, traceContext));
+        pointCuts.put(PluginsTransformer.class.getName(), new PluginsTransformer(traceRegisterBinder, traceContext));
+        pointCuts.put(EntryPointTransformer.class.getName(), new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
     }
 
     private void addTransformer(boolean canRetransform)
