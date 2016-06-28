@@ -44,35 +44,46 @@ import static org.objectweb.asm.Type.getType;
  * @author Graham Allan
  * @author geeksaga
  */
-public class TypeHierarchyUtil {
-    public boolean isInterface(final Type type) {
+public class TypeHierarchyUtil
+{
+    public boolean isInterface(final Type type)
+    {
         return hierarchyOf(type).isInterface();
     }
 
-    public Type getSuperClass(final Type type) {
+    private Type getSuperClass(final Type type)
+    {
         return hierarchyOf(type).getSuperType();
     }
 
-    public boolean isAssignableFrom(Type to, Type from) {
+    private boolean isAssignableFrom(Type to, Type from)
+    {
         return hierarchyOf(to).isAssignableFrom(hierarchyOf(from), this);
     }
 
-    public String getCommonSuperClass(final String type1, final String type2) {
+    String getCommonSuperClass(final String type1, final String type2)
+    {
         Type c = Type.getObjectType(type1);
         Type d = Type.getObjectType(type2);
 
-        if (isAssignableFrom(c, d)) {
+        if (isAssignableFrom(c, d))
+        {
             return type1;
         }
 
-        if (isAssignableFrom(d, c)) {
+        if (isAssignableFrom(d, c))
+        {
             return type2;
         }
 
-        if (isInterface(c) || isInterface(d)) {
+        if (isInterface(c) || isInterface(d))
+        {
             return "java/lang/Object";
-        } else {
-            do {
+        }
+        else
+        {
+            do
+            {
                 c = getSuperClass(c);
             }
             while (!isAssignableFrom(c, d));
@@ -81,9 +92,12 @@ public class TypeHierarchyUtil {
         }
     }
 
-    public TypeHierarchy hierarchyOf(Type type) {
-        try {
-            switch (type.getSort()) {
+    private TypeHierarchy hierarchyOf(Type type)
+    {
+        try
+        {
+            switch (type.getSort())
+            {
                 case Type.BOOLEAN:
                     return TypeHierarchy.BOOLEAN_HIERARCHY;
                 case Type.BYTE:
@@ -106,13 +120,15 @@ public class TypeHierarchyUtil {
                     return TypeHierarchy.hierarchyForArrayOfType(type);
                 case Type.OBJECT:
 
-                    if ("java/lang/Object".equals(type.getInternalName())) {
+                    if ("java/lang/Object".equals(type.getInternalName()))
+                    {
                         return TypeHierarchy.JAVA_LANG_OBJECT;
                     }
 
                     ClassReader reader = reader(type);
 
-                    if (reader != null) {
+                    if (reader != null)
+                    {
                         return obtainHierarchyOf(reader);
                     }
 
@@ -121,57 +137,63 @@ public class TypeHierarchyUtil {
                 default:
                     throw new Error("Programmer error: received a type whose getSort() wasn't matched.");
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             return TypeHierarchy.JAVA_LANG_OBJECT;
         }
     }
 
-    protected ClassReader reader(Type type) throws IOException {
+    private ClassReader reader(Type type) throws IOException
+    {
         ClassReader reader = new ClassReaderWrapper(type.getInternalName());
-        if (reader.b != null && reader.b.length > 0) {
+        if (reader.b != null && reader.b.length > 0)
+        {
             return reader;
         }
 
         return null;
     }
 
-    protected TypeHierarchy obtainHierarchyOf(ClassReader reader) {
-        return new TypeHierarchy(Type.getObjectType(reader.getClassName()), reader.getSuperName() == null ? null
-                : Type.getObjectType(reader.getSuperName()), interfacesTypesFrom(reader.getInterfaces()),
-                (reader.getAccess() & ACC_INTERFACE) != 0);
+    private TypeHierarchy obtainHierarchyOf(ClassReader reader)
+    {
+        return new TypeHierarchy(Type.getObjectType(reader.getClassName()), reader.getSuperName() == null ? null : Type.getObjectType(reader.getSuperName()), interfacesTypesFrom(reader.getInterfaces()), (reader.getAccess() & ACC_INTERFACE) != 0);
     }
 
-    private List<Type> interfacesTypesFrom(String[] interfaces) {
+    private List<Type> interfacesTypesFrom(String[] interfaces)
+    {
         Type[] interfaceTypes = new Type[interfaces.length];
 
-        for (int i = 0; i < interfaces.length; i++) {
+        for (int i = 0; i < interfaces.length; i++)
+        {
             interfaceTypes[i] = Type.getObjectType(interfaces[i]);
         }
         return Arrays.asList(interfaceTypes);
     }
 
-    public static class TypeHierarchy {
+    private static class TypeHierarchy
+    {
         private static final List<Type> IMPLEMENTS_NO_INTERFACES = Collections.emptyList();
-        private static final List<Type> IMPLICIT_ARRAY_INTERFACES = unmodifiableList(asList(getType(Cloneable.class),
-                getType(Serializable.class)));
-        public static final TypeHierarchy JAVA_LANG_OBJECT = new TypeHierarchy(Type.getType(Object.class), null, IMPLEMENTS_NO_INTERFACES,
-                false);
+        private static final List<Type> IMPLICIT_ARRAY_INTERFACES = unmodifiableList(asList(getType(Cloneable.class), getType(Serializable.class)));
+        static final TypeHierarchy JAVA_LANG_OBJECT = new TypeHierarchy(Type.getType(Object.class), null, IMPLEMENTS_NO_INTERFACES, false);
 
-        public static final TypeHierarchy BOOLEAN_HIERARCHY = typeHierarchyForPrimitiveType(Type.BOOLEAN_TYPE);
-        public static final TypeHierarchy BYTE_HIERARCHY = typeHierarchyForPrimitiveType(Type.BYTE_TYPE);
-        public static final TypeHierarchy CHAR_HIERARCHY = typeHierarchyForPrimitiveType(Type.CHAR_TYPE);
-        public static final TypeHierarchy SHORT_HIERARCHY = typeHierarchyForPrimitiveType(Type.SHORT_TYPE);
-        public static final TypeHierarchy INT_HIERARCHY = typeHierarchyForPrimitiveType(Type.INT_TYPE);
-        public static final TypeHierarchy LONG_HIERARCHY = typeHierarchyForPrimitiveType(Type.LONG_TYPE);
-        public static final TypeHierarchy FLOAT_HIERARCHY = typeHierarchyForPrimitiveType(Type.FLOAT_TYPE);
-        public static final TypeHierarchy DOUBLE_HIERARCHY = typeHierarchyForPrimitiveType(Type.DOUBLE_TYPE);
-        public static final TypeHierarchy VOID_HIERARCHY = typeHierarchyForPrimitiveType(Type.VOID_TYPE);
+        static final TypeHierarchy BOOLEAN_HIERARCHY = typeHierarchyForPrimitiveType(Type.BOOLEAN_TYPE);
+        static final TypeHierarchy BYTE_HIERARCHY = typeHierarchyForPrimitiveType(Type.BYTE_TYPE);
+        static final TypeHierarchy CHAR_HIERARCHY = typeHierarchyForPrimitiveType(Type.CHAR_TYPE);
+        static final TypeHierarchy SHORT_HIERARCHY = typeHierarchyForPrimitiveType(Type.SHORT_TYPE);
+        static final TypeHierarchy INT_HIERARCHY = typeHierarchyForPrimitiveType(Type.INT_TYPE);
+        static final TypeHierarchy LONG_HIERARCHY = typeHierarchyForPrimitiveType(Type.LONG_TYPE);
+        static final TypeHierarchy FLOAT_HIERARCHY = typeHierarchyForPrimitiveType(Type.FLOAT_TYPE);
+        static final TypeHierarchy DOUBLE_HIERARCHY = typeHierarchyForPrimitiveType(Type.DOUBLE_TYPE);
+        static final TypeHierarchy VOID_HIERARCHY = typeHierarchyForPrimitiveType(Type.VOID_TYPE);
 
-        static TypeHierarchy hierarchyForArrayOfType(Type t) {
+        static TypeHierarchy hierarchyForArrayOfType(Type t)
+        {
             return new TypeHierarchy(t, JAVA_LANG_OBJECT.type(), IMPLICIT_ARRAY_INTERFACES, false);
         }
 
-        private static TypeHierarchy typeHierarchyForPrimitiveType(Type primitiveType) {
+        private static TypeHierarchy typeHierarchyForPrimitiveType(Type primitiveType)
+        {
             return new TypeHierarchy(primitiveType, null, IMPLEMENTS_NO_INTERFACES, false);
         }
 
@@ -180,129 +202,169 @@ public class TypeHierarchyUtil {
         private final List<Type> interfaces;
         private final boolean isInterface;
 
-        public TypeHierarchy(Type thisType, Type superType, List<Type> interfaces, boolean isInterface) {
+        TypeHierarchy(Type thisType, Type superType, List<Type> interfaces, boolean isInterface)
+        {
             this.thisType = thisType;
             this.superType = superType;
             this.interfaces = interfaces;
             this.isInterface = isInterface;
         }
 
-        public Type type() {
+        public Type type()
+        {
             return thisType;
         }
 
-        public boolean representsType(Type t) {
+        boolean representsType(Type t)
+        {
             return t.equals(thisType);
         }
 
-        public boolean isInterface() {
+        public boolean isInterface()
+        {
             return isInterface;
         }
 
-        public Type getSuperType() {
+        Type getSuperType()
+        {
             return superType;
         }
 
-        public boolean isAssignableFrom(TypeHierarchy u, TypeHierarchyUtil typeHierarchyReader) {
-            if (assigningToObject()) {
+        boolean isAssignableFrom(TypeHierarchy u, TypeHierarchyUtil typeHierarchyReader)
+        {
+            if (assigningToObject())
+            {
                 return true;
             }
 
-            if (this.isSameType(u)) {
+            if (this.isSameType(u))
+            {
                 return true;
-            } else if (this.isSuperTypeOf(u)) {
+            }
+            else if (this.isSuperTypeOf(u))
+            {
                 return true;
-            } else if (this.isInterfaceImplementedBy(u)) {
+            }
+            else if (this.isInterfaceImplementedBy(u))
+            {
                 return true;
-            } else if (bothAreArrayTypes(u) && haveSameDimensionality(u)) {
+            }
+            else if (bothAreArrayTypes(u) && haveSameDimensionality(u))
+            {
                 return JAVA_LANG_OBJECT.representsType(typeOfArray()) || arrayTypeIsAssignableFrom(u, typeHierarchyReader);
-            } else if (bothAreArrayTypes(u) && isObjectArrayWithSmallerDimensionalityThan(u)) {
+            }
+            else if (bothAreArrayTypes(u) && isObjectArrayWithSmallerDimensionalityThan(u))
+            {
                 return true;
-            } else if (u.extendsObject() && !u.implementsAnyInterfaces()) {
+            }
+            else if (u.extendsObject() && !u.implementsAnyInterfaces())
+            {
                 return false;
             }
 
-            if (u.hasSuperType() && isAssignableFrom(u.getSuperType(), typeHierarchyReader)) {
+            if (u.hasSuperType() && isAssignableFrom(u.getSuperType(), typeHierarchyReader))
+            {
                 return true;
-            } else if (u.implementsAnyInterfaces() && isAssignableFromAnyInterfaceImplementedBy(u, typeHierarchyReader)) {
+            }
+            else if (u.implementsAnyInterfaces() && isAssignableFromAnyInterfaceImplementedBy(u, typeHierarchyReader))
+            {
                 return true;
             }
 
             return false;
         }
 
-        public boolean isAssignableFrom(Type type, TypeHierarchyUtil reader) {
+        boolean isAssignableFrom(Type type, TypeHierarchyUtil reader)
+        {
             return isAssignableFrom(reader.hierarchyOf(type), reader);
         }
 
-        private boolean isAssignableFromAnyInterfaceImplementedBy(TypeHierarchy u, TypeHierarchyUtil typeHierarchyReader) {
-            for (Type ui : u.interfaces) {
-                if (isAssignableFrom(ui, typeHierarchyReader)) {
+        private boolean isAssignableFromAnyInterfaceImplementedBy(TypeHierarchy u, TypeHierarchyUtil typeHierarchyReader)
+        {
+            for (Type ui : u.interfaces)
+            {
+                if (isAssignableFrom(ui, typeHierarchyReader))
+                {
                     return true;
                 }
             }
             return false;
         }
 
-        private boolean haveSameDimensionality(TypeHierarchy u) {
+        private boolean haveSameDimensionality(TypeHierarchy u)
+        {
             return arrayDimensionality() == u.arrayDimensionality();
         }
 
-        private boolean isObjectArrayWithSmallerDimensionalityThan(TypeHierarchy u) {
+        private boolean isObjectArrayWithSmallerDimensionalityThan(TypeHierarchy u)
+        {
             return JAVA_LANG_OBJECT.representsType(typeOfArray()) && arrayDimensionality() <= u.arrayDimensionality();
         }
 
-        private boolean arrayTypeIsAssignableFrom(TypeHierarchy u, TypeHierarchyUtil reader) {
+        private boolean arrayTypeIsAssignableFrom(TypeHierarchy u, TypeHierarchyUtil reader)
+        {
             TypeHierarchy thisArrayType = reader.hierarchyOf(typeOfArray());
             return thisArrayType.isAssignableFrom(reader.hierarchyOf(u.typeOfArray()), reader);
         }
 
-        private boolean bothAreArrayTypes(TypeHierarchy u) {
+        private boolean bothAreArrayTypes(TypeHierarchy u)
+        {
             return this.isArrayType() && u.isArrayType();
         }
 
-        private Type typeOfArray() {
+        private Type typeOfArray()
+        {
             return Type.getType(thisType.getInternalName().substring(thisType.getDimensions()));
         }
 
-        private int arrayDimensionality() {
+        private int arrayDimensionality()
+        {
             return thisType.getDimensions();
         }
 
-        private boolean isArrayType() {
+        private boolean isArrayType()
+        {
             return thisType.getSort() == Type.ARRAY;
         }
 
-        private boolean isInterfaceImplementedBy(TypeHierarchy u) {
+        private boolean isInterfaceImplementedBy(TypeHierarchy u)
+        {
             return u.interfaces.contains(type());
         }
 
-        private boolean isSuperTypeOf(TypeHierarchy u) {
+        private boolean isSuperTypeOf(TypeHierarchy u)
+        {
             return type().equals(u.getSuperType());
         }
 
-        private boolean hasSuperType() {
+        private boolean hasSuperType()
+        {
             return getSuperType() != null && !JAVA_LANG_OBJECT.representsType(getSuperType());
         }
 
-        private boolean implementsAnyInterfaces() {
+        private boolean implementsAnyInterfaces()
+        {
             return !interfaces.isEmpty();
         }
 
-        private boolean extendsObject() {
+        private boolean extendsObject()
+        {
             return getSuperType() != null && JAVA_LANG_OBJECT.representsType(getSuperType());
         }
 
-        private boolean isSameType(TypeHierarchy u) {
+        private boolean isSameType(TypeHierarchy u)
+        {
             return u.type().equals(type());
         }
 
-        private boolean assigningToObject() {
+        private boolean assigningToObject()
+        {
             return JAVA_LANG_OBJECT.representsType(type());
         }
 
         @Override
-        public int hashCode() {
+        public int hashCode()
+        {
             int result = 17;
             result = 31 * result + thisType.hashCode();
             result = 31 * result + superType.hashCode();
@@ -312,12 +374,18 @@ public class TypeHierarchyUtil {
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
                 return true;
-            } else if (obj == null) {
+            }
+            else if (obj == null)
+            {
                 return false;
-            } else if (getClass() != obj.getClass()) {
+            }
+            else if (getClass() != obj.getClass())
+            {
                 return false;
             }
 
@@ -326,7 +394,8 @@ public class TypeHierarchyUtil {
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return String.format("%s [type=%s]", getClass().getSimpleName(), thisType.toString());
         }
     }

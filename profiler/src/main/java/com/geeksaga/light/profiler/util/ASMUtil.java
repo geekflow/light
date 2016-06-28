@@ -15,8 +15,8 @@
  */
 package com.geeksaga.light.profiler.util;
 
-import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.asm.ClassWriterWrapper;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
@@ -27,182 +27,242 @@ import java.util.*;
 /**
  * @author geeksaga
  */
-public class ASMUtil {
-    private ASMUtil() {
-    }
+public class ASMUtil
+{
+    private ASMUtil() {}
 
-    public static boolean isStatic(ClassNodeWrapper clazz) {
+    public static boolean isStatic(ClassNodeWrapper clazz)
+    {
         return containsAccess(clazz, Opcodes.ACC_STATIC);
     }
 
-    public static boolean isStatic(MethodNode methodNode) {
+    public static boolean isStatic(MethodNode methodNode)
+    {
         return containsAccess(methodNode, Opcodes.ACC_STATIC);
     }
 
-    public static boolean isStatic(FieldNode field) {
+    public static boolean isStatic(FieldNode field)
+    {
         return containsAccess(field, Opcodes.ACC_STATIC);
     }
 
-    public static boolean isStatic(int access) {
+    public static boolean isStatic(int access)
+    {
         return containsAccess(access, Opcodes.ACC_STATIC);
     }
 
-    public static boolean containsAccess(InnerClassNode innerClass, int accessCode) {
+    public static boolean containsAccess(InnerClassNode innerClass, int accessCode)
+    {
         return (innerClass.access & accessCode) != 0;
     }
 
-    public static boolean containsAccess(MethodNode method, int accessCode) {
+    public static boolean containsAccess(MethodNode method, int accessCode)
+    {
         return (method.access & accessCode) != 0;
     }
 
-    public static boolean containsAccess(FieldNode field, int accessCode) {
+    public static boolean containsAccess(FieldNode field, int accessCode)
+    {
         return (field.access & accessCode) != 0;
     }
 
-    public static boolean containsAccess(int access, int opcode) {
+    public static boolean containsAccess(int access, int opcode)
+    {
         return (access & opcode) != 0;
     }
 
-    public static boolean containsAccess(ClassNodeWrapper classNode, int access) {
+    public static boolean containsAccess(ClassNodeWrapper classNode, int access)
+    {
         return (classNode.access & access) != 0;
     }
 
-    public static TypeInsnNode createNewNode(String className) {
+    public static TypeInsnNode createNewNode(String className)
+    {
         // TODO use to Type.getInternalName
         return new TypeInsnNode(Opcodes.NEW, getInternalName(className));
     }
 
-    public static AbstractInsnNode createPushNode(int value) {
-        if (value == -1) {
+    public static AbstractInsnNode createPushNode(int value)
+    {
+        if (value == -1)
+        {
             return new InsnNode(Opcodes.ICONST_M1);
-        } else if (value == 0) {
+        }
+        else if (value == 0)
+        {
             return new InsnNode(Opcodes.ICONST_0);
-        } else if (value == 1) {
+        }
+        else if (value == 1)
+        {
             return new InsnNode(Opcodes.ICONST_1);
-        } else if (value == 2) {
+        }
+        else if (value == 2)
+        {
             return new InsnNode(Opcodes.ICONST_2);
-        } else if (value == 3) {
+        }
+        else if (value == 3)
+        {
             return new InsnNode(Opcodes.ICONST_3);
-        } else if (value == 4) {
+        }
+        else if (value == 4)
+        {
             return new InsnNode(Opcodes.ICONST_4);
-        } else if (value == 5) {
+        }
+        else if (value == 5)
+        {
             return new InsnNode(Opcodes.ICONST_5);
-        } else if ((value >= -128) && (value <= 127)) {
+        }
+        else if ((value >= -128) && (value <= 127))
+        {
             return new IntInsnNode(Opcodes.BIPUSH, value);
-        } else if ((value >= -32768) && (value <= 32767)) {
+        }
+        else if ((value >= -32768) && (value <= 32767))
+        {
             return new IntInsnNode(Opcodes.SIPUSH, value);
-        } else {
+        }
+        else
+        {
             return new LdcInsnNode(value);
         }
     }
 
-    public static AbstractInsnNode createPushNode(Object value) {
+    public static AbstractInsnNode createPushNode(Object value)
+    {
         AbstractInsnNode insnNode;
 
-        if (value == null) {
+        if (value == null)
+        {
             insnNode = new InsnNode(Opcodes.ACONST_NULL);
-        } else {
+        }
+        else
+        {
             insnNode = new LdcInsnNode(value);
         }
 
         return insnNode;
     }
 
-    public static MethodInsnNode createMethodInsn(int opcode, String className, String methodName, String desc) {
+    public static MethodInsnNode createMethodInsn(int opcode, String className, String methodName, String desc)
+    {
         return new MethodInsnNode(opcode, getInternalName(className), methodName, desc, opcode == Opcodes.INVOKEINTERFACE);
     }
 
-    public static VarInsnNode createASTORE(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createASTORE(LocalVariableNode localVariableNode)
+    {
         return createASTORE(localVariableNode.index);
     }
 
-    public static VarInsnNode createASTORE(int index) {
+    public static VarInsnNode createASTORE(int index)
+    {
         return new VarInsnNode(Opcodes.ASTORE, index);
     }
 
-    public static VarInsnNode createALOAD(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createALOAD(LocalVariableNode localVariableNode)
+    {
         return createALOAD(localVariableNode.index);
     }
 
-    public static VarInsnNode createALOAD(int index) {
+    public static VarInsnNode createALOAD(int index)
+    {
         return new VarInsnNode(Opcodes.ALOAD, index);
     }
 
-    public static VarInsnNode createILOAD(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createILOAD(LocalVariableNode localVariableNode)
+    {
         return createILOAD(localVariableNode.index);
     }
 
-    public static VarInsnNode createILOAD(int index) {
+    public static VarInsnNode createILOAD(int index)
+    {
         return new VarInsnNode(Opcodes.ILOAD, index);
     }
 
-    public static VarInsnNode createFLOAD(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createFLOAD(LocalVariableNode localVariableNode)
+    {
         return createFLOAD(localVariableNode.index);
     }
 
-    public static VarInsnNode createFLOAD(int index) {
+    public static VarInsnNode createFLOAD(int index)
+    {
         return new VarInsnNode(Opcodes.FLOAD, index);
     }
 
-    public static VarInsnNode createDLOAD(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createDLOAD(LocalVariableNode localVariableNode)
+    {
         return createDLOAD(localVariableNode.index);
     }
 
-    public static VarInsnNode createDLOAD(int index) {
+    public static VarInsnNode createDLOAD(int index)
+    {
         return new VarInsnNode(Opcodes.DLOAD, index);
     }
 
-    public static VarInsnNode createLLOAD(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createLLOAD(LocalVariableNode localVariableNode)
+    {
         return createLLOAD(localVariableNode.index);
     }
 
-    public static VarInsnNode createLLOAD(int index) {
+    public static VarInsnNode createLLOAD(int index)
+    {
         return new VarInsnNode(Opcodes.LLOAD, index);
     }
 
-    public static VarInsnNode createISTORE(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createISTORE(LocalVariableNode localVariableNode)
+    {
         return new VarInsnNode(Opcodes.ISTORE, localVariableNode.index);
     }
 
-    public static VarInsnNode createFSTORE(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createFSTORE(LocalVariableNode localVariableNode)
+    {
         return new VarInsnNode(Opcodes.FSTORE, localVariableNode.index);
     }
 
-    public static VarInsnNode createDSTORE(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createDSTORE(LocalVariableNode localVariableNode)
+    {
         return new VarInsnNode(Opcodes.DSTORE, localVariableNode.index);
     }
 
-    public static VarInsnNode createLSTORE(LocalVariableNode localVariableNode) {
+    public static VarInsnNode createLSTORE(LocalVariableNode localVariableNode)
+    {
         return new VarInsnNode(Opcodes.LSTORE, localVariableNode.index);
     }
 
-    public static InsnNode createACONST_NULL() {
+    public static InsnNode createACONST_NULL()
+    {
         return new InsnNode(Opcodes.ACONST_NULL);
     }
 
-    public static int getArgumentIndex(MethodNode methodNode, int index) {
+    public static int getArgumentIndex(MethodNode methodNode, int index)
+    {
         return getFixedArgumentIndices(methodNode)[index];
     }
 
-    public static int[] getFixedArgumentIndices(MethodNode methodNode) {
+    public static int[] getFixedArgumentIndices(MethodNode methodNode)
+    {
         return getFixedArgumentIndices(methodNode.desc, isStatic(methodNode));
     }
 
-    public static int[] getFixedArgumentIndices(String desc, boolean isStatic) {
+    public static int[] getFixedArgumentIndices(String desc, boolean isStatic)
+    {
         Type[] args = Type.getArgumentTypes(desc);
         int[] r;
-        if (!isStatic) {
+        if (!isStatic)
+        {
             r = new int[args.length + 1];
             r[0] = 0;
             int size = 1;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 r[1 + i] = size;
                 size += args[i].getSize();
             }
-        } else {
+        }
+        else
+        {
             r = new int[args.length];
             int size = 0;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 r[i] = size;
                 size += args[i].getSize();
             }
@@ -211,7 +271,8 @@ public class ASMUtil {
         return r;
     }
 
-    public static LocalVariableNode addNewLocalVariable(MethodNode methodNode, String name, Type type, LabelNode start, LabelNode end) {
+    public static LocalVariableNode addNewLocalVariable(MethodNode methodNode, String name, Type type, LabelNode start, LabelNode end)
+    {
         LocalVariableNode localVariableNode = new LocalVariableNode(name, type.getDescriptor(), null, start, end, methodNode.maxLocals);
         methodNode.maxLocals += type.getSize();
         methodNode.localVariables.add(localVariableNode);
@@ -219,36 +280,45 @@ public class ASMUtil {
         return localVariableNode;
     }
 
-    public static String toInternalDescription(String className) {
+    public static String toInternalDescription(String className)
+    {
         return "L" + getInternalName(className) + ";";
     }
 
-    public static MethodInsnNode createINVOKESTATIC(String className, String methodName, String methodDesc) {
+    public static MethodInsnNode createINVOKESTATIC(String className, String methodName, String methodDesc)
+    {
         return createMethodInsn(Opcodes.INVOKESTATIC, className, methodName, methodDesc);
     }
 
-    public static MethodInsnNode createINVOKEVIRTUAL(String className, String methodName, String methodDesc) {
+    public static MethodInsnNode createINVOKEVIRTUAL(String className, String methodName, String methodDesc)
+    {
         return createMethodInsn(Opcodes.INVOKEVIRTUAL, className, methodName, methodDesc);
     }
 
-    private static ClassVisitor useJSRInlinerAdapter(ClassVisitor visitor) {
-        return new ClassVisitor(Opcodes.ASM5, visitor) {
+    private static ClassVisitor useJSRInlinerAdapter(ClassVisitor visitor)
+    {
+        return new ClassVisitor(Opcodes.ASM5, visitor)
+        {
             @Override
-            public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+            public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+            {
                 return new JSRInlinerAdapter(super.visitMethod(access, name, desc, signature, exceptions), access, name, desc, signature, exceptions);
             }
         };
     }
 
-    public static ClassNodeWrapper parse(byte[] classfileBuffer) {
-        if (classfileBuffer == null) {
+    public static ClassNodeWrapper parse(byte[] classfileBuffer)
+    {
+        if (classfileBuffer == null)
+        {
             return null;
         }
 
         return parse(classfileBuffer, 0);
     }
 
-    public static ClassNodeWrapper parse(byte[] classfileBuffer, int flags) {
+    public static ClassNodeWrapper parse(byte[] classfileBuffer, int flags)
+    {
         ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
         ClassReader reader = new ClassReaderWrapper(classfileBuffer);
 
@@ -257,7 +327,8 @@ public class ASMUtil {
         return classNodeWrapper;
     }
 
-    public static ClassNodeWrapper parse(Object obj) {
+    public static ClassNodeWrapper parse(Object obj)
+    {
         ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
 
         ClassReader reader = new ClassReaderWrapper(obj.getClass().getName());
@@ -267,7 +338,8 @@ public class ASMUtil {
         return classNodeWrapper;
     }
 
-    public static ClassNodeWrapper parse(Class clazz) {
+    public static ClassNodeWrapper parse(Class clazz)
+    {
         ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
 
         ClassReader reader = new ClassReaderWrapper(clazz);
@@ -276,18 +348,22 @@ public class ASMUtil {
         return classNodeWrapper;
     }
 
-    public static byte[] toBytes(Class clazz) {
+    public static byte[] toBytes(Class clazz)
+    {
         return toBytes(parse(clazz));
     }
 
-    public static byte[] toBytes(Object obj) {
+    public static byte[] toBytes(Object obj)
+    {
         return toBytes(parse(obj));
     }
 
-    public static byte[] toBytes(ClassNodeWrapper clazz) {
+    public static byte[] toBytes(ClassNodeWrapper clazz)
+    {
         int flags = ClassWriter.COMPUTE_MAXS;
 
-        if (clazz.version > Opcodes.V1_5) {
+        if (clazz.version > Opcodes.V1_5)
+        {
             flags |= ClassWriter.COMPUTE_FRAMES;
         }
 
@@ -298,16 +374,20 @@ public class ASMUtil {
         return classWriter.toByteArray();
     }
 
-    public static String convertForAgent(String fromAsm) {
-        if (fromAsm != null) {
+    public static String convertForAgent(String fromAsm)
+    {
+        if (fromAsm != null)
+        {
             return fromAsm.replace('/', '.');
         }
 
         return null;
     }
 
-    public static String getInternalName(String name) {
-        if (name != null) {
+    public static String getInternalName(String name)
+    {
+        if (name != null)
+        {
             return name.replace('.', '/');
         }
 
@@ -325,7 +405,7 @@ public class ASMUtil {
             ClassNodeWrapper classInQueue = queue.removeFirst();
             String superClassName = classInQueue.getSuperClassName();
 
-            if(superClassName == null)
+            if (superClassName == null)
             {
                 break;
             }
