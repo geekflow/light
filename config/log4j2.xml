@@ -21,7 +21,7 @@
         </Console>
 
         <RollingRandomAccessFile name="Light" fileName="logs/light.log"
-                                 filePattern="logs/light-%d{yyyy-MM-dd_HH}_%i.log" immediateFlush="false" append="true"
+                                 filePattern="logs/light-%d{yyyy-MM-dd_HH}_%i.log" immediateFlush="true" append="true"
                                  ignoreExceptions="false">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5level](%-36c{1.}:%-3L) %m%n"/>
 
