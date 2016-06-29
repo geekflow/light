@@ -47,7 +47,7 @@ public class MethodTransformer implements ClassFileTransformer
     public MethodTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
     {
         this.logger = CommonLogger.getLogger(this.getClass().getName());
-        this.filter = new LightFilter();
+        this.filter = new LightFilter(traceContext);
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;

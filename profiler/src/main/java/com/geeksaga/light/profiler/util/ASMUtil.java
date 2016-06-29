@@ -374,11 +374,11 @@ public class ASMUtil
         return classWriter.toByteArray();
     }
 
-    public static String convertForAgent(String fromAsm)
+    public static String convertForAgent(String name)
     {
-        if (fromAsm != null)
+        if (name != null)
         {
-            return fromAsm.replace('/', '.');
+            return name.replace('/', '.');
         }
 
         return null;

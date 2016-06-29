@@ -50,14 +50,14 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
 
     public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, Map<String, ClassFileTransformer> pointCuts)
     {
-        this.logger = CommonLogger.getLogger(this.getClass().getName());
+        this.logger = CommonLogger.getLogger(getClass().getName());
+        this.filter = new LightFilter(traceContext);
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
-        this.filter = new LightFilter();
         this.pointCuts = pointCuts;
 
-        logger.info("create transformer {}", this.getClass().getName());
+        logger.info("create transformer {}", getClass().getName());
     }
 
     @Override
@@ -69,8 +69,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             {
                 return classfileBuffer;
             }
-
-            logger.info(className);
 
             long now = System.currentTimeMillis();
             context.set(classLoader);
@@ -114,7 +112,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             sb.append((dur - now));
             sb.append(" ms");
 
-            logger.info(sb.toString());
+//            logger.info(sb.toString());
 
             if (bytes != null)
             {

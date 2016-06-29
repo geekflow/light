@@ -50,10 +50,20 @@ public class ProfilerModuleTest
 
         when(traceRegisterBinder.getTraceRegistryAdaptor()).thenReturn(new DefaultTraceRegistryAdaptor());
 
-//        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext));
-//        instrumentation.addTransformer(new PluginsTransformerDispatcher(traceRegisterBinder, traceContext));
+        //        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext));
+        //        instrumentation.addTransformer(new PluginsTransformerDispatcher(traceRegisterBinder, traceContext));
 
         Module module = new ProfilerModule(instrumentation);
+        module.start();
+        module.stop();
+    }
+
+    @Test
+    public void testRegistPointCut()
+    {
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        Module module = new ProfilerModule(instrumentation);
+
         module.start();
         module.stop();
     }

@@ -15,35 +15,35 @@
  */
 package com.geeksaga.light.profiler.filter;
 
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.config.ConfigDef;
+import com.geeksaga.light.profiler.util.ASMUtil;
+
+import java.util.List;
+
 /**
  * @author geeksaga
  */
 public class LightFilter implements Filter
 {
+    private TraceContext traceContext;
+
+    public LightFilter(TraceContext traceContext)
+    {
+        this.traceContext = traceContext;
+    }
+
     @Override
     public boolean allow(ClassLoader classLoader, String className)
     {
-        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun") || className.startsWith("com/sun"))
-        {
-            return false;
-        }
-
-        if (className.startsWith("com/geeksaga/light/demo/Main"))
+        if (className.startsWith("com/geeksaga/light/demo/Main") || //
+                className.startsWith("javax/servlet/http/HttpServlet"))// || //
+//                className.startsWith("org/apache/jasper/servlet/JspServlet"))
         {
             return true;
         }
 
-        if (className.startsWith("com/geeksaga/light"))
-        {
-            return false;
-        }
-
-        if (classLoader == null)
-        {
-            return true;
-        }
-
-        if (classLoader.getClass().getName().startsWith("com.geeksaga.light"))
+        if ((classLoader != null && classLoader.getClass().getName().startsWith("com.geeksaga.light")) || ignorePattern(className, true))
         {
             return false;
         }
@@ -53,11 +53,31 @@ public class LightFilter implements Filter
 
     public boolean allow(ClassLoader classLoader, String className, byte[] classfileBuffer)
     {
-        if(classfileBuffer == null) // || classfileBuffer.length) FIXME is max size
+        if (classfileBuffer == null) // || classfileBuffer.length) FIXME is max size
         {
             return false;
         }
 
         return allow(classLoader, className);
+    }
+
+    private boolean ignorePattern(final String className, boolean useConvertName)
+    {
+        return ignorePattern(useConvertName ? ASMUtil.convertForAgent(className) : className);
+    }
+
+    private boolean ignorePattern(String className)
+    {
+        List<String> values = traceContext.getConfig().read(ConfigDef.ignore_bci_pattern);
+
+        for (String value : values)
+        {
+            if (className.startsWith(value))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

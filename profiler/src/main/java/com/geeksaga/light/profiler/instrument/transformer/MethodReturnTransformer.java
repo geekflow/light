@@ -15,7 +15,12 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.agent.trace.DebugTrace;
+import com.geeksaga.light.agent.trace.MethodTrace;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
@@ -27,32 +32,50 @@ import org.objectweb.asm.commons.LocalVariablesSorter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.logging.Logger;
 
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
 
 /**
  * @author geeksaga
  */
-public class MethodReturnTransformer implements ClassFileTransformer {
-    private static final Logger logger = Logger.getLogger(MethodTransformer.class.getName());
+public class MethodReturnTransformer implements ClassFileTransformer
+{
+    private LightLogger logger;
+    private TraceRegisterBinder traceRegisterBinder;
+    private TraceContext traceContext;
+    private Filter filter;
+    private int traceId;
 
-    private Filter filter = new LightFilter();
+    public MethodReturnTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
+    {
+        this.logger = CommonLogger.getLogger(this.getClass().getName());
+        this.filter = new LightFilter(traceContext);
+
+        this.traceRegisterBinder = traceRegisterBinder;
+        this.traceContext = traceContext;
+        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new MethodTrace(traceContext));
+    }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (filter.allow(classLoader, className)) {
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    {
+        if (filter.allow(classLoader, className))
+        {
             logger.info("Transform => " + className);
 
-            try {
+            try
+            {
                 ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
                 ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-                reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper) {
+                reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
+                {
                     @Override
-                    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+                    {
                         MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
 
-                        if (name.contains("<")) {
+                        if (name.contains("<"))
+                        {
                             return methodVisitor;
                         }
 
@@ -60,12 +83,15 @@ public class MethodReturnTransformer implements ClassFileTransformer {
                     }
                 }, ClassReader.EXPAND_FRAMES);
 
-                if (classNodeWrapper.isInterface()) {
+                if (classNodeWrapper.isInterface())
+                {
                     return classfileBuffer;
                 }
 
                 return ASMUtil.toBytes(classNodeWrapper);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }
@@ -73,11 +99,13 @@ public class MethodReturnTransformer implements ClassFileTransformer {
         return classfileBuffer;
     }
 
-    class MethodReturnVisitor extends LocalVariablesSorter {
+    class MethodReturnVisitor extends LocalVariablesSorter
+    {
         private Type returnType;
         private boolean isStatic = false;
 
-        public MethodReturnVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic) {
+        public MethodReturnVisitor(int access, String desc, MethodVisitor methodVisitor, boolean isStatic)
+        {
             super(Opcodes.ASM5, access, desc, methodVisitor);
 
             this.returnType = Type.getReturnType(desc);
@@ -85,21 +113,29 @@ public class MethodReturnTransformer implements ClassFileTransformer {
         }
 
         @Override
-        public void visitInsn(int opcode) {
-            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)) {
+        public void visitInsn(int opcode)
+        {
+            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN))
+            {
                 captureReturn();
             }
             mv.visitInsn(opcode);
         }
 
-        public void captureReturn() {
-            if (returnType == null || returnType.equals(Type.VOID_TYPE)) {
+        public void captureReturn()
+        {
+            if (returnType == null || returnType.equals(Type.VOID_TYPE))
+            {
                 mv.visitInsn(Opcodes.ACONST_NULL);
-            } else {
+            }
+            else
+            {
                 int returnVariableIndex = newLocal(returnType);
 
-                switch (returnType.getSort()) {
-                    case Type.BOOLEAN: {
+                switch (returnType.getSort())
+                {
+                    case Type.BOOLEAN:
+                    {
                         mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
@@ -107,7 +143,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.CHAR: {
+                    case Type.CHAR:
+                    {
                         mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
@@ -115,7 +152,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.BYTE: {
+                    case Type.BYTE:
+                    {
                         mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
@@ -123,7 +161,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.SHORT: {
+                    case Type.SHORT:
+                    {
                         mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
@@ -131,7 +170,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.INT: {
+                    case Type.INT:
+                    {
                         mv.visitVarInsn(Opcodes.ISTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ILOAD, returnVariableIndex);
@@ -139,7 +179,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.FLOAT: {
+                    case Type.FLOAT:
+                    {
                         mv.visitVarInsn(Opcodes.FSTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.FLOAD, returnVariableIndex);
@@ -147,7 +188,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.LONG: {
+                    case Type.LONG:
+                    {
                         mv.visitVarInsn(Opcodes.LSTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.LLOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.LLOAD, returnVariableIndex);
@@ -155,7 +197,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
 
                         break;
                     }
-                    case Type.DOUBLE: {
+                    case Type.DOUBLE:
+                    {
                         mv.visitVarInsn(Opcodes.DSTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.DLOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.DLOAD, returnVariableIndex);
@@ -164,7 +207,8 @@ public class MethodReturnTransformer implements ClassFileTransformer {
                         break;
                     }
                     case Type.ARRAY:
-                    case Type.OBJECT: {
+                    case Type.OBJECT:
+                    {
                         mv.visitVarInsn(Opcodes.ASTORE, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ALOAD, returnVariableIndex);
                         mv.visitVarInsn(Opcodes.ALOAD, returnVariableIndex);

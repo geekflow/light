@@ -69,9 +69,9 @@ public class MethodParameterTransformer implements ClassFileTransformer
      */
     public MethodParameterTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
     {
-        this.logger = CommonLogger.getLogger(this.getClass().getName());
+        this.logger = CommonLogger.getLogger(getClass().getName());
+        this.filter = new LightFilter(traceContext);
 
-        this.filter = new LightFilter();
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
         this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));

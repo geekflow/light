@@ -18,7 +18,8 @@ package com.geeksaga.light.agent.core;
 /**
  * @author geeksaga
  */
-public interface TraceRegisterBinder {
+public interface TraceRegisterBinder
+{
     void bind();
 
     void unbind();

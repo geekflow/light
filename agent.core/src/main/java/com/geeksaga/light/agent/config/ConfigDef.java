@@ -20,8 +20,8 @@ import com.geeksaga.light.agent.util.FieldNameMap;
 /**
  * @author geeksaga
  */
-public class ConfigDef {
-
+public class ConfigDef
+{
     public static final String entry_point = "entry_point";
     public static final String class_max_size = "class_max_size";
     public static final String method_min_size = "method_min_size";

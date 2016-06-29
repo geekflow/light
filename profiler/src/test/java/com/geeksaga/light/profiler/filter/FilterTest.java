@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.profiler.filter;
 
+import com.geeksaga.light.agent.core.AgentTraceContext;
+import com.geeksaga.light.profiler.ProfilerConfig;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,21 +25,23 @@ import static org.hamcrest.core.Is.is;
 /**
  * @author geeksaga
  */
-public class FilterTest {
-
+public class FilterTest
+{
     @Test
-    public void testLightFilter() {
-        Filter filter = new LightFilter();
+    public void testLightFilter()
+    {
+        Filter filter = new LightFilter(new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
 
-//        assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(true));
-        assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(false));
-        assertThat(filter.allow(getClass().getClassLoader(), getClass().getName().replace('.', '/')), is(false));
+        //        assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(true));
+        assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(true));
+        assertThat(filter.allow(getClass().getClassLoader(), getClass().getName().replace('.', '/')), is(true));
 
         assertThat(filter.allow(new ClassLoader() {}, getClass().getName().replace('.', '/')), is(false));
     }
 
     @Test
-    public void testClassFilter() {
+    public void testClassFilter()
+    {
         Filter filter = new ClassFilter();
 
         assertThat(filter.allow(null, getClass().getName().replace('.', '/')), is(true));

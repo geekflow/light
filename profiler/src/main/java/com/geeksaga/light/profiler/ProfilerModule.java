@@ -23,10 +23,7 @@ import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.logger.LightLoggerBinder;
-import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
-import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
-import com.geeksaga.light.profiler.instrument.transformer.MethodTransformer;
-import com.geeksaga.light.profiler.instrument.transformer.PluginsTransformer;
+import com.geeksaga.light.profiler.instrument.transformer.*;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -79,11 +76,12 @@ public class ProfilerModule implements Module
 
     private void registPointCut()
     {
-        //        pointCuts.put(MethodParameterTransformer.class.getName(), new MethodParameterTransformer(traceRegisterBinder, traceContext));
-        //        pointCuts.put(MethodReturnTransformer.class.getName(), new MethodReturnTransformer());
-        pointCuts.put(MethodTransformer.class.getName(), new MethodTransformer(traceRegisterBinder, traceContext));
-        pointCuts.put(PluginsTransformer.class.getName(), new PluginsTransformer(traceRegisterBinder, traceContext));
-        pointCuts.put(EntryPointTransformer.class.getName(), new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
+        // FIXME need to order
+        //        pointCuts.put("", new MethodParameterTransformer(traceRegisterBinder, traceContext));
+        //        pointCuts.put("", new MethodReturnTransformer(traceRegisterBinder, traceContext));
+        //        pointCuts.put("", new MethodTransformer(traceRegisterBinder, traceContext));
+        //        pointCuts.put(PluginsTransformer.class.getName(), new PluginsTransformer(traceRegisterBinder, traceContext));
+        pointCuts.put("", new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
     }
 
     private void addTransformer(boolean canRetransform)

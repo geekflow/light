@@ -95,7 +95,7 @@ public class ClassReaderWrapper extends ClassReader
         }
         catch (Exception exception)
         {
-            logger.debug(exception);
+            logger.debug(exception.getMessage());
         }
 
         return new byte[0];

@@ -15,6 +15,9 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
+import com.geeksaga.light.agent.core.AgentTraceContext;
+import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
+import com.geeksaga.light.profiler.ProfilerConfig;
 import com.geeksaga.light.profiler.TestUtil;
 import org.junit.Test;
 import target.TestMethods;
@@ -30,12 +33,14 @@ import static org.junit.Assert.assertThat;
 /**
  * @author geeksaga
  */
-public class MethodReturnTransformerTest {
+public class MethodReturnTransformerTest
+{
     @Test
-    public void testTransform() throws Exception {
+    public void testTransform() throws Exception
+    {
         String className = TestMethods.class.getName();
 
-        ClassFileTransformer transformer = new MethodReturnTransformer();
+        ClassFileTransformer transformer = new MethodReturnTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
 
         byte[] original = TestUtil.load(className);
         byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
@@ -60,12 +65,15 @@ public class MethodReturnTransformerTest {
         assertThat((Integer) method.invoke(instance, 13), is(13));
     }
 
-    protected class TestClassLoader extends ClassLoader {
-        public TestClassLoader(ClassLoader parent) {
+    private class TestClassLoader extends ClassLoader
+    {
+        private TestClassLoader(ClassLoader parent)
+        {
             super(parent);
         }
 
-        public Class<?> findClass(String name, byte[] bytes) {
+        private Class<?> findClass(String name, byte[] bytes)
+        {
             return defineClass(name, bytes, 0, bytes.length);
         }
     }

@@ -69,12 +69,14 @@ public class EntryPointTransformer implements ClassFileTransformer
 
     private EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
     {
-        this.logger = CommonLogger.getLogger(this.getClass().getName());
-        this.filter = new LightFilter();
+        this.logger = CommonLogger.getLogger(getClass().getName());
+        this.filter = new LightFilter(traceContext);
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
-        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));
+
+        this.traceId = traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));
+
         this.ownerClassName = ownerClassName;
         this.begin = begin;
         this.beginDescriptor = beginDescriptor;
@@ -83,7 +85,7 @@ public class EntryPointTransformer implements ClassFileTransformer
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    public byte[] transform(ClassLoader classLoader, final String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
     {
         try
         {
@@ -99,8 +101,11 @@ public class EntryPointTransformer implements ClassFileTransformer
                     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
                     {
                         MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main") || name.equals("print"))
+//                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main") || name.equals("print") || name.equals("service"))
+                        if (name.equals("service"))
                         {
+                            logger.debug("Transform => {}.{}", className, name);
+
                             return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
                         }
 
