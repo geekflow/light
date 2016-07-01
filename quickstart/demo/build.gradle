@@ -15,14 +15,14 @@ dependencies {
 
 task install(dependsOn: [copyToLibrary]) {
     doLast {
-        File build = mkdir("${rootProject.rootDir}/install/")
+        File build = mkdir("${rootProject.rootDir}/install/demos")
 
         copy {
             from "${buildDir}/libs/${jar.baseName}-${jar.version}.jar"
             into build
         }
 
-        build = mkdir("${rootProject.rootDir}/install/bin")
+        build = mkdir("${rootProject.rootDir}/install/demos/bin")
 
         copy {
             from "${rootProject.rootDir}/quickstart/bin"

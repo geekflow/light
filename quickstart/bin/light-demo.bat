@@ -5,8 +5,8 @@ rem ----- Customizable Variables -----------------------------------------
 rem ----------------------------------------------------------------------
 rem set JAVA_HOME=
 set LIGHT_HOME=%~dp0\..
-set LIGHT_CONFIG=%LIGHT_HOME%\config\light.conf
-set LIGHT_LOG_CONFIG=%LIGHT_HOME%\config\log4j2.xml
+set LIGHT_CONFIG=%LIGHT_HOME%\..\config\light.conf
+set LIGHT_LOG_CONFIG=%LIGHT_HOME%\..\config\log4j2.xml
 rem ----------------------------------------------------------------------
 
 rem ----------------------------------------------------------------------
