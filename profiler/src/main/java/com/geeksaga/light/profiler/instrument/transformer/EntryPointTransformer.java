@@ -28,6 +28,7 @@ import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
 import com.geeksaga.light.profiler.filter.LightFilter;
 import com.geeksaga.light.profiler.util.ASMUtil;
+import com.geeksaga.light.profiler.util.ClassFileDumper;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AdviceAdapter;
 
@@ -101,8 +102,8 @@ public class EntryPointTransformer implements ClassFileTransformer
                     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
                     {
                         MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-//                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main") || name.equals("print") || name.equals("service"))
-                        if (name.equals("service"))
+                        //                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main") || name.equals("print") || name.equals("service"))
+                        if (name.equals("service")) // && ASMUtil.isHttp(desc))
                         {
                             logger.debug("Transform => {}.{}", className, name);
 
@@ -113,7 +114,11 @@ public class EntryPointTransformer implements ClassFileTransformer
                     }
                 }, ClassReader.EXPAND_FRAMES);
 
-                return ASMUtil.toBytes(classNodeWrapper);
+                byte[] hookedClassFileBuffer = ASMUtil.toBytes(classNodeWrapper);
+
+                ClassFileDumper.dump(classNodeWrapper.getClassName(), classfileBuffer, hookedClassFileBuffer);
+
+                return hookedClassFileBuffer;
             }
         }
         catch (Throwable throwable)
@@ -305,6 +310,7 @@ public class EntryPointTransformer implements ClassFileTransformer
             mv.visitVarInsn(ALOAD, throwableIndex);
             mv.visitMethodInsn(INVOKESTATIC, ownerClassName, end, endDescriptor, false);
             mv.visitInsn(ATHROW);
+            //            mv.visitMaxs(maxStack + 8, maxLocals + 2);
             mv.visitMaxs(maxStack, maxLocals);
         }
 

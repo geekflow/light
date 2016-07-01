@@ -29,6 +29,8 @@ import java.util.*;
  */
 public class ASMUtil
 {
+    private static final String START_HTTP_SIGNATURE = "(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;";
+
     private ASMUtil() {}
 
     public static boolean isStatic(ClassNodeWrapper clazz)
@@ -516,5 +518,10 @@ public class ASMUtil
         }
 
         return interfaces;
+    }
+
+    public static boolean isHttp(String signature)
+    {
+        return signature.startsWith(START_HTTP_SIGNATURE);
     }
 }

@@ -37,8 +37,8 @@ public class LightFilter implements Filter
     public boolean allow(ClassLoader classLoader, String className)
     {
         if (className.startsWith("com/geeksaga/light/demo/Main") || //
-                className.startsWith("javax/servlet/http/HttpServlet"))// || //
-//                className.startsWith("org/apache/jasper/servlet/JspServlet"))
+                className.startsWith("javax/servlet/http/HttpServlet") || //
+                className.startsWith("org/apache/jasper/servlet/JspServlet"))
         {
             return true;
         }

@@ -27,8 +27,9 @@ import com.geeksaga.light.profiler.util.ASMUtil;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author geeksaga
@@ -41,21 +42,21 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
     private Filter filter;
-    private Map<String, ClassFileTransformer> pointCuts;
+    private List<ClassFileTransformer> classFileTransformerList;
 
     public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
     {
-        this(traceRegisterBinder, traceContext, new Hashtable<String, ClassFileTransformer>());
+        this(traceRegisterBinder, traceContext, Collections.synchronizedList(new ArrayList<ClassFileTransformer>()));
     }
 
-    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, Map<String, ClassFileTransformer> pointCuts)
+    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, List<ClassFileTransformer> classFileTransformerList)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.filter = new LightFilter(traceContext);
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
-        this.pointCuts = pointCuts;
+        this.classFileTransformerList = classFileTransformerList;
 
         logger.info("create transformer {}", getClass().getName());
     }
@@ -81,7 +82,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             }
 
             byte[] bytes = null;
-            for (ClassFileTransformer classFileTransformer : pointCuts.values())
+            for (ClassFileTransformer classFileTransformer : classFileTransformerList)
             {
                 bytes = classFileTransformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classfileBuffer);
             }
@@ -112,7 +113,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             sb.append((dur - now));
             sb.append(" ms");
 
-//            logger.info(sb.toString());
+            //            logger.info(sb.toString());
 
             if (bytes != null)
             {

@@ -28,8 +28,9 @@ import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author geeksaga
@@ -42,7 +43,7 @@ public class ProfilerModule implements Module
     private LightLogger logger;
     private LightLoggerBinder loggerBinder;
 
-    private Map<String, ClassFileTransformer> pointCuts;
+    private List<ClassFileTransformer> classFileTransformerList;
 
     public ProfilerModule(Instrumentation instrumentation)
     {
@@ -56,13 +57,13 @@ public class ProfilerModule implements Module
         this.traceRegisterBinder.bind();
         this.traceContext = new AgentTraceContext(ProfilerConfig.load());
 
-        this.pointCuts = new Hashtable<String, ClassFileTransformer>();
+        this.classFileTransformerList = Collections.synchronizedList(new ArrayList<ClassFileTransformer>());
     }
 
     @Override
     public void start()
     {
-        logger.info("profiler module start");
+        logger.info("profiler module start.");
 
         registPointCut();
 
@@ -77,21 +78,21 @@ public class ProfilerModule implements Module
     private void registPointCut()
     {
         // FIXME need to order
-        //        pointCuts.put("", new MethodParameterTransformer(traceRegisterBinder, traceContext));
-        //        pointCuts.put("", new MethodReturnTransformer(traceRegisterBinder, traceContext));
-        //        pointCuts.put("", new MethodTransformer(traceRegisterBinder, traceContext));
-        //        pointCuts.put(PluginsTransformer.class.getName(), new PluginsTransformer(traceRegisterBinder, traceContext));
-        pointCuts.put("", new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
+//        classFileTransformerList.add(new MethodParameterTransformer(traceRegisterBinder, traceContext));
+//        classFileTransformerList.add(new MethodReturnTransformer(traceRegisterBinder, traceContext));
+//        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext));
+        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
+        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
     }
 
     private void addTransformer(boolean canRetransform)
     {
-        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext, pointCuts), canRetransform);
+        instrumentation.addTransformer(new ClassFileTransformerDispatcher(traceRegisterBinder, traceContext, classFileTransformerList), canRetransform);
     }
 
     @Override
     public void stop()
     {
-        logger.info("profiler module end");
+        logger.info("profiler module stop.");
     }
 }
