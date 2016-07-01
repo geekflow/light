@@ -41,11 +41,13 @@ public class AgentClassPathResolver
 
     private static final Pattern LIGHT_AGENT_PATTERN = Pattern.compile("light\\.agent(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
     private static final Pattern LIGHT_AGENT_CORE_PATTERN = Pattern.compile("light\\.agent.core(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
+    private static final Pattern LIGHT_AGENT_COMMON_PATTERN = Pattern.compile("light\\.common(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
 
     private String classPath;
     private String agentJarName;
     private String agentJarPath;
     private String agentCoreJarName;
+    private String agentCommonJarName;
 
     private boolean initialize = false;
 
@@ -71,6 +73,7 @@ public class AgentClassPathResolver
             agentJarPath = parseAgentJarPathOrNull();
 
             agentCoreJarName = findAgentCoreJarNameOrNull();
+            agentCommonJarName = findAgentCommonJarNameOrNull();
 
             initialize = true;
         }
@@ -130,9 +133,19 @@ public class AgentClassPathResolver
         return agentCoreJarName;
     }
 
+    public String getAgentCommonJarName()
+    {
+        return agentCommonJarName;
+    }
+
     public String getAgentCoreJarAbsoluteName()
     {
-        return getAgentJarPath() + File.separator + getAgentCoreJarName();
+        return String.format("%s%s%s%s%s", getAgentJarPath(), File.separator, "boot", File.separator, getAgentCoreJarName());
+    }
+
+    public String getAgentCommonJarAbsoluteName()
+    {
+        return String.format("%s%s%s%s%s", getAgentJarPath(), File.separator, "boot", File.separator, getAgentCommonJarName());
     }
 
     public String getAgentLibraryPath()
@@ -174,12 +187,22 @@ public class AgentClassPathResolver
 
     private String findAgentCoreJarNameOrNull()
     {
-        String[] files = new File(agentJarPath).list(new FilenameFilter()
+        return findJarNameOrNull(LIGHT_AGENT_CORE_PATTERN);
+    }
+
+    private String findAgentCommonJarNameOrNull()
+    {
+        return findJarNameOrNull(LIGHT_AGENT_COMMON_PATTERN);
+    }
+
+    private String findJarNameOrNull(final Pattern pattern)
+    {
+        String[] files = new File(getAgentBootJarPath()).list(new FilenameFilter()
         {
             @Override
             public boolean accept(File dir, String name)
             {
-                return LIGHT_AGENT_CORE_PATTERN.matcher(name).matches();
+                return pattern.matcher(name).matches();
             }
         });
 
@@ -190,6 +213,11 @@ public class AgentClassPathResolver
         }
 
         return null;
+    }
+
+    private String getAgentBootJarPath()
+    {
+        return String.format("%s%s%s", agentJarPath, File.separator, "boot");
     }
 
     JarFile getJarFileOrNull(String name)

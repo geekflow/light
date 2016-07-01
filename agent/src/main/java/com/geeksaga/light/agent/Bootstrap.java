@@ -80,9 +80,19 @@ public class Bootstrap
             return;
         }
 
+        //
+        final String agentCommonJarName = classPathResolver.getAgentCommonJarName();
+        if (agentCommonJarName == null)
+        {
+            logger.info("light.common-x.x.x(-SNAPSHOT).jar not found.");
+
+            failInitialize();
+
+            return;
+        }
+
         appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCoreJarAbsoluteName()));
-        // FIXME common library append bootstrap Class Loader
-        //        appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull("/home/albert/geeksaga/light/install/libs/light.common-0.0.1.jar"));
+        appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCommonJarAbsoluteName()));
 
         List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
