@@ -46,12 +46,11 @@ public class MethodTrace implements Trace
 
     public void end(MethodInfo methodInfo, Throwable throwable)
     {
-        logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
-
         ActiveObject activeObject = traceContext.current();
 
         if (activeObject != null)
         {
+            logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
             logger.info("start time = {}, end time = {}, elapsed time = ", activeObject.getStartTime(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTime()));
         }
     }

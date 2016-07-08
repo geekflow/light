@@ -86,7 +86,7 @@ public class EntryPointTransformer implements ClassFileTransformer
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, final String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    public byte[] transform(final ClassLoader classLoader, final String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
     {
         try
         {
@@ -103,7 +103,7 @@ public class EntryPointTransformer implements ClassFileTransformer
                     {
                         MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
                         //                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main") || name.equals("print") || name.equals("service"))
-                        if (name.equals("service")) // && ASMUtil.isHttp(desc))
+                        if (name.equals("service")) // && ASMUtil.isHttp(desc)) // for Servlet
                         {
                             logger.debug("Transform => {}.{}", className, name);
 
@@ -297,21 +297,22 @@ public class EntryPointTransformer implements ClassFileTransformer
         public void visitMaxs(int maxStack, int maxLocals)
         {
             Label endFinally = new Label();
-            int throwableIndex = newLocal(Type.getType(Throwable.class));
 
             mv.visitTryCatchBlock(startFinally, endFinally, endFinally, null);
             mv.visitLabel(endFinally);
             mv.visitInsn(DUP);
+
+            int throwableIndex = newLocal(Type.getType(Throwable.class));
             mv.visitVarInsn(ASTORE, throwableIndex);
-            mv.visitVarInsn(ALOAD, throwableIndex);
+            //            mv.visitVarInsn(ALOAD, throwableIndex);
 
             mv.visitIntInsn(BIPUSH, traceId);
             mv.visitVarInsn(ALOAD, methodInfoIndex);
             mv.visitVarInsn(ALOAD, throwableIndex);
             mv.visitMethodInsn(INVOKESTATIC, ownerClassName, end, endDescriptor, false);
             mv.visitInsn(ATHROW);
-            //            mv.visitMaxs(maxStack + 8, maxLocals + 2);
             mv.visitMaxs(maxStack, maxLocals);
+            //            mv.visitMaxs(maxStack + 9, maxLocals + 2);
         }
 
         @Override
@@ -337,7 +338,7 @@ public class EntryPointTransformer implements ClassFileTransformer
         /**
          * Capture return.
          */
-        public void captureReturn()
+        void captureReturn()
         {
             if (returnType != null && !returnType.equals(Type.VOID_TYPE))
             {

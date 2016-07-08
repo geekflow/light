@@ -43,7 +43,7 @@ public class LightFilter implements Filter
             return true;
         }
 
-        if ((classLoader != null && classLoader.getClass().getName().startsWith("com.geeksaga.light")) || ignorePattern(className, true))
+        if (ignorePattern(className, true) || (classLoader != null && classLoader.getClass().getName().startsWith("com.geeksaga.light")))
         {
             return false;
         }

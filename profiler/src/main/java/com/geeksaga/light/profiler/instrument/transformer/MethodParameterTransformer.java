@@ -18,7 +18,7 @@ package com.geeksaga.light.profiler.instrument.transformer;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.agent.trace.DebugTrace;
-import com.geeksaga.light.agent.trace.EntryTrace;
+import com.geeksaga.light.agent.trace.MethodTrace;
 import com.geeksaga.light.agent.trace.Parameter;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
@@ -74,7 +74,7 @@ public class MethodParameterTransformer implements ClassFileTransformer
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
-        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext));
+        this.traceId = this.traceRegisterBinder.getTraceRegistryAdaptor().add(new MethodTrace(traceContext));
     }
 
     private static String getSystemProperty(String key, String def)
