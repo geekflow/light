@@ -15,7 +15,6 @@
  */
 package com.geeksaga.light.profiler.asm;
 
-import com.geeksaga.light.profiler.util.ASMUtil;
 import com.geeksaga.light.profiler.util.ConstantPoolWrapper;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.CodeSizeEvaluator;

@@ -198,7 +198,6 @@ public class EntryPointTransformer implements ClassFileTransformer
             if (!isStatic)
             {
                 mv.visitVarInsn(ALOAD, parameterVariableIndex);
-                mv.visitInsn(DUP);
                 mv.visitIntInsn(BIPUSH, parameterIndex);
                 mv.visitVarInsn(ALOAD, parameterIndices[parameterIndex]);
                 mv.visitMethodInsn(INVOKEVIRTUAL, PARAMETER_CLASS_INTERNAL_NAME, "set", "(ILjava/lang/Object;)V", false);
@@ -312,7 +311,6 @@ public class EntryPointTransformer implements ClassFileTransformer
             mv.visitMethodInsn(INVOKESTATIC, ownerClassName, end, endDescriptor, false);
             mv.visitInsn(ATHROW);
             mv.visitMaxs(maxStack, maxLocals);
-            //            mv.visitMaxs(maxStack + 9, maxLocals + 2);
         }
 
         @Override
