@@ -19,9 +19,13 @@ import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
 import com.geeksaga.light.profiler.ProfilerConfig;
 import com.geeksaga.light.profiler.TestUtil;
+import com.geeksaga.light.util.SystemProperty;
+import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import target.TestMethods;
 
+import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Method;
 
@@ -34,6 +38,24 @@ import static org.junit.Assert.assertThat;
  */
 public class EntryPointTransformerTest
 {
+    private static final String LOGFILE_PATH = "/src/test/resources/log4j2.xml";
+
+    @BeforeClass
+    public static void init()
+    {
+        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, System.getProperty("user.dir") + replaceWindowsSeparator(LOGFILE_PATH));
+    }
+
+    private static String replaceWindowsSeparator(String path)
+    {
+        if (SystemProperty.WINDOWS_OS && path != null)
+        {
+            return path.replace("\\", File.separator);
+        }
+
+        return path;
+    }
+
     @Test
     public void testTransform() throws Exception
     {

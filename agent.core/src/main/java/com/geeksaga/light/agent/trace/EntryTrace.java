@@ -64,8 +64,14 @@ public class EntryTrace implements Trace
             {
                 logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
 
-                logger.info("start time = {}, end time = {}, elapsed time = ", activeObject.getStartTime(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTime()));
+                String name = getRequestURI(methodInfo.getParameter());
+
+                logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", name, activeObject.getStartTime(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTime()));
             }
+        }
+        catch (Throwable innerThrowable)
+        {
+            logger.info(innerThrowable);
         }
         finally
         {
@@ -76,5 +82,37 @@ public class EntryTrace implements Trace
     private ActiveObject create(MethodInfo methodInfo)
     {
         return traceContext.create(methodInfo);
+    }
+
+    private String getRequestURI(Parameter parameter)
+    {
+        if (parameter.size() <= 1)
+        {
+            return "Unknown";
+        }
+
+        Object obj = parameter.get(1);
+
+        if (obj == null)
+        {
+            return "Unknown";
+        }
+
+        try
+        {
+            java.lang.reflect.Method method = obj.getClass().getDeclaredMethod("getRequestURI");
+
+            return (String) method.invoke(obj);
+        }
+        catch (NoSuchMethodException noSuchMethodException)
+        {
+            //
+        }
+        catch (Exception exception)
+        {
+            logger.info(exception);
+        }
+
+        return obj.getClass().getName();
     }
 }

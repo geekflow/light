@@ -17,6 +17,7 @@ package com.geeksaga.light.profiler.filter;
 
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.config.ConfigDef;
+import com.geeksaga.light.agent.config.ConfigValueDef;
 import com.geeksaga.light.profiler.util.ASMUtil;
 
 import java.util.List;
@@ -24,11 +25,11 @@ import java.util.List;
 /**
  * @author geeksaga
  */
-public class LightFilter implements Filter
+public class EntryFilter implements Filter
 {
     private TraceContext traceContext;
 
-    public LightFilter(TraceContext traceContext)
+    public EntryFilter(TraceContext traceContext)
     {
         this.traceContext = traceContext;
     }
@@ -36,12 +37,17 @@ public class LightFilter implements Filter
     @Override
     public boolean allow(ClassLoader classLoader, String className)
     {
-        if (ignorePattern(className, true) || (classLoader != null && classLoader.getClass().getName().startsWith("com.geeksaga.light")))
+        List<String> entryPointList = traceContext.getConfig().read(ConfigDef.entry_point);
+
+        for(String entryPoint : entryPointList)
         {
-            return false;
+            if(className.startsWith(entryPoint))
+            {
+                return true;
+            }
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -53,25 +59,5 @@ public class LightFilter implements Filter
         }
 
         return allow(classLoader, className);
-    }
-
-    private boolean ignorePattern(final String className, boolean useConvertName)
-    {
-        return ignorePattern(useConvertName ? ASMUtil.convertForAgent(className) : className);
-    }
-
-    private boolean ignorePattern(String className)
-    {
-        List<String> values = traceContext.getConfig().read(ConfigDef.ignore_bci_pattern);
-
-        for (String value : values)
-        {
-            if (className.startsWith(value))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

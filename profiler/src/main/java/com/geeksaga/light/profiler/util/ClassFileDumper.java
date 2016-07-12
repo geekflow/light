@@ -64,7 +64,6 @@ public class ClassFileDumper
             }
 
             ensureDirectoryExist(dir.toString() + "original" + File.separator + _path);
-
             save(dir.toString() + "original" + File.separator + _path + File.separator + _className + ".class", classfileBuffer);
 
             if (hookedClassFileBuffer != null)

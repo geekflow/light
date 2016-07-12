@@ -25,8 +25,10 @@ import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.asm.ClassReaderWrapper;
+import com.geeksaga.light.profiler.filter.EntryFilter;
 import com.geeksaga.light.profiler.filter.Filter;
-import com.geeksaga.light.profiler.filter.LightFilter;
+import com.geeksaga.light.profiler.selector.ClassSelector;
+import com.geeksaga.light.profiler.selector.MethodSelector;
 import com.geeksaga.light.profiler.util.ASMUtil;
 import com.geeksaga.light.profiler.util.ClassFileDumper;
 import org.objectweb.asm.*;
@@ -36,6 +38,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
+import static com.geeksaga.light.agent.config.ConfigDef.entry_point;
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
 
 /**
@@ -57,6 +60,8 @@ public class EntryPointTransformer implements ClassFileTransformer
     private String end;
     private String endDescriptor;
 
+    private ClassSelector classSelector;
+
     /**
      * Instantiates a new Entry point transformer.
      *
@@ -71,7 +76,7 @@ public class EntryPointTransformer implements ClassFileTransformer
     private EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
-        this.filter = new LightFilter(traceContext);
+        this.filter = new EntryFilter(traceContext);
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
@@ -83,6 +88,8 @@ public class EntryPointTransformer implements ClassFileTransformer
         this.beginDescriptor = beginDescriptor;
         this.end = end;
         this.endDescriptor = endDescriptor;
+
+        refresh();
     }
 
     @Override
@@ -92,38 +99,62 @@ public class EntryPointTransformer implements ClassFileTransformer
         {
             if (filter.allow(classLoader, className))
             {
-                logger.trace("Transform => {}", className);
-
-                ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
-                ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-                reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
-                {
-                    @Override
-                    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
-                    {
-                        MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-                        //                        if (name.equals("doWithObject") || name.equals("doWithNothing") || name.equals("main") || name.equals("print") || name.equals("service"))
-                        if (name.equals("service")) // && ASMUtil.isHttp(desc)) // for Servlet
-                        {
-                            logger.debug("Transform => {}.{}", className, name);
-
-                            return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
-                        }
-
-                        return mv;
-                    }
-                }, ClassReader.EXPAND_FRAMES);
-
-                byte[] hookedClassFileBuffer = ASMUtil.toBytes(classNodeWrapper);
-
-                ClassFileDumper.dump(classNodeWrapper.getClassName(), classfileBuffer, hookedClassFileBuffer);
-
-                return hookedClassFileBuffer;
+                return transform(classLoader, className, classfileBuffer);
             }
         }
         catch (Throwable throwable)
         {
             logger.info(throwable);
+        }
+
+        return null;
+    }
+
+    private byte[] transform(final ClassLoader classLoader, final String className, byte[] classfileBuffer) throws IllegalClassFormatException
+    {
+        final MethodSelector methodSelector = getMethodSelectorOrNull(className);
+
+        if (methodSelector != null)
+        {
+            ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
+            ClassReader reader = new ClassReaderWrapper(classfileBuffer);
+            reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
+            {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+                {
+                    MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+                    if (!name.startsWith("<") && methodSelector.isSelected(name, desc))
+                    {
+                        logger.debug("Transform => {}.{}.{}", className, name, desc);
+
+                        return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
+                    }
+
+                    return mv;
+                }
+            }, ClassReader.EXPAND_FRAMES);
+
+            byte[] hookedClassFileBuffer = ASMUtil.toBytes(classNodeWrapper);
+
+            //            ClassFileDumper.dump(classNodeWrapper.getClassName(), classfileBuffer, hookedClassFileBuffer);
+
+            return hookedClassFileBuffer;
+        }
+
+        return null;
+    }
+
+    public void refresh()
+    {
+        classSelector = ClassSelector.create(traceContext.getConfig().read(entry_point));
+    }
+
+    private MethodSelector getMethodSelectorOrNull(String className)
+    {
+        if (classSelector != null && !classSelector.isEmpty())
+        {
+            return classSelector.selectByClass(className);
         }
 
         return null;
@@ -303,7 +334,7 @@ public class EntryPointTransformer implements ClassFileTransformer
 
             int throwableIndex = newLocal(Type.getType(Throwable.class));
             mv.visitVarInsn(ASTORE, throwableIndex);
-            //            mv.visitVarInsn(ALOAD, throwableIndex);
+            //            mv.visitVarInsn(ALOAD, returnObjectIndex);
 
             mv.visitIntInsn(BIPUSH, traceId);
             mv.visitVarInsn(ALOAD, methodInfoIndex);
@@ -334,93 +365,112 @@ public class EntryPointTransformer implements ClassFileTransformer
         }
 
         /**
+         * mv.visitVarInsn(LSTORE, returnTypeIndex);
+         * mv.visitVarInsn(ALOAD, methodInfoIndex);
+         * mv.visitVarInsn(LLOAD, returnTypeIndex);
+         * mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+         * mv.visitMethodInsn(INVOKEVIRTUAL, METHOD_INFO_CLASS_INTERNAL_NAME, "setReturnValue", "(Ljava/lang/Object;)V", false);
+         * mv.visitVarInsn(LLOAD, returnTypeIndex);
+         * <p>
          * Capture return.
          */
         void captureReturn()
         {
             if (returnType != null && !returnType.equals(Type.VOID_TYPE))
             {
-                int returnVariableIndex = newLocal(returnType);
+                int returnTypeIndex = newLocal(returnType);
+                int returnObjectIndex = newLocal(Type.getType(Object.class));
 
                 switch (returnType.getSort())
                 {
                     case Type.BOOLEAN:
                     {
-                        mv.visitVarInsn(ISTORE, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(ISTORE, returnTypeIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.CHAR:
                     {
-                        mv.visitVarInsn(ISTORE, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(ISTORE, returnTypeIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.BYTE:
                     {
-                        mv.visitVarInsn(ISTORE, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(ISTORE, returnTypeIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.SHORT:
                     {
-                        mv.visitVarInsn(ISTORE, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(ISTORE, returnTypeIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.INT:
                     {
-                        mv.visitVarInsn(ISTORE, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
-                        mv.visitVarInsn(ILOAD, returnVariableIndex);
+                        mv.visitVarInsn(ISTORE, returnTypeIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(ILOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.FLOAT:
                     {
-                        mv.visitVarInsn(FSTORE, returnVariableIndex);
-                        mv.visitVarInsn(FLOAD, returnVariableIndex);
-                        mv.visitVarInsn(FLOAD, returnVariableIndex);
+                        mv.visitVarInsn(FSTORE, returnTypeIndex);
+                        mv.visitVarInsn(FLOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(FLOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.LONG:
                     {
-                        mv.visitVarInsn(LSTORE, returnVariableIndex);
-                        mv.visitVarInsn(LLOAD, returnVariableIndex);
-                        mv.visitVarInsn(LLOAD, returnVariableIndex);
+                        mv.visitVarInsn(LSTORE, returnTypeIndex);
+                        mv.visitVarInsn(LLOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(LLOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.DOUBLE:
                     {
-                        mv.visitVarInsn(DSTORE, returnVariableIndex);
-                        mv.visitVarInsn(DLOAD, returnVariableIndex);
-                        mv.visitVarInsn(DLOAD, returnVariableIndex);
+                        mv.visitVarInsn(DSTORE, returnTypeIndex);
+                        mv.visitVarInsn(DLOAD, returnTypeIndex);
                         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(DLOAD, returnTypeIndex);
 
                         break;
                     }
                     case Type.ARRAY:
                     case Type.OBJECT:
                     {
-                        mv.visitVarInsn(ASTORE, returnVariableIndex);
-                        mv.visitVarInsn(ALOAD, returnVariableIndex);
+                        mv.visitVarInsn(ASTORE, returnTypeIndex);
+                        mv.visitVarInsn(ALOAD, returnTypeIndex);
+
+                        mv.visitVarInsn(ASTORE, returnObjectIndex);
+                        mv.visitVarInsn(ALOAD, returnTypeIndex);
 
                         break;
                     }
@@ -429,7 +479,7 @@ public class EntryPointTransformer implements ClassFileTransformer
                 }
 
                 mv.visitVarInsn(ALOAD, methodInfoIndex);
-                mv.visitVarInsn(ALOAD, returnVariableIndex);
+                mv.visitVarInsn(ALOAD, returnObjectIndex);
                 mv.visitMethodInsn(INVOKEVIRTUAL, METHOD_INFO_CLASS_INTERNAL_NAME, "setReturnValue", "(Ljava/lang/Object;)V", false);
             }
 
