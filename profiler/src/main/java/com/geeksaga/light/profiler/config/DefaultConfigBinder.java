@@ -13,16 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.profiler.config;
 
-import com.geeksaga.light.profiler.config.ProfilerConfigTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import com.geeksaga.light.config.Config;
+import com.geeksaga.light.config.ConfigBinder;
 
 /**
  * @author geeksaga
  */
-@RunWith(value = Suite.class)
-@Suite.SuiteClasses(value = { ProfilerModuleTest.class, ProfilerConfigTest.class })
-public class ProfilerTestSuite
-{}
+public class DefaultConfigBinder implements ConfigBinder
+{
+    private Config config;
+
+    public DefaultConfigBinder()
+    {
+        this(new ProfilerConfig());
+    }
+
+    public DefaultConfigBinder(Config config)
+    {
+        this.config = config;
+    }
+
+    @Override
+    public Config getConfig()
+    {
+        return config;
+    }
+}

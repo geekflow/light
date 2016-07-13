@@ -20,13 +20,16 @@ import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.config.ConfigBinder;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.logger.LightLoggerBinder;
+import com.geeksaga.light.profiler.config.DefaultConfigBinder;
+import com.geeksaga.light.profiler.config.ProfilerConfig;
+import com.geeksaga.light.profiler.config.ProfilerConfiguration;
 import com.geeksaga.light.profiler.instrument.transformer.*;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,8 +45,9 @@ public class ProfilerModule implements Module
     private TraceContext traceContext;
     private LightLogger logger;
     private LightLoggerBinder loggerBinder;
+    private ConfigBinder configBinder;
 
-    private List<ClassFileTransformer> classFileTransformerList;
+    private List<LightClassFileTransformer> classFileTransformerList;
 
     public ProfilerModule(Instrumentation instrumentation)
     {
@@ -55,9 +59,12 @@ public class ProfilerModule implements Module
         this.instrumentation = instrumentation;
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
-        this.traceContext = new AgentTraceContext(ProfilerConfig.load());
 
-        this.classFileTransformerList = Collections.synchronizedList(new ArrayList<ClassFileTransformer>());
+        this.configBinder = new DefaultConfigBinder(new ProfilerConfiguration());
+
+        this.traceContext = new AgentTraceContext(configBinder.getConfig());
+
+        this.classFileTransformerList = Collections.synchronizedList(new ArrayList<LightClassFileTransformer>());
     }
 
     @Override
@@ -81,7 +88,7 @@ public class ProfilerModule implements Module
 //        classFileTransformerList.add(new MethodParameterTransformer(traceRegisterBinder, traceContext));
 //        classFileTransformerList.add(new MethodReturnTransformer(traceRegisterBinder, traceContext));
 //        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext));
-        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
+//        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
         classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
     }
 

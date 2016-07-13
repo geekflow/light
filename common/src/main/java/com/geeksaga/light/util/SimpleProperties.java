@@ -15,6 +15,9 @@
  */
 package com.geeksaga.light.util;
 
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
+
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarFile;
@@ -25,6 +28,8 @@ import java.util.zip.ZipEntry;
  */
 public class SimpleProperties
 {
+    private static final LightLogger logger = CommonLogger.getLogger(SimpleProperties.class.getName());
+
     private static final String WHITE_SPACE = " \t\r\n\f";
 
     private Map<String, Object> properties = new Hashtable<String, Object>();
@@ -39,7 +44,7 @@ public class SimpleProperties
         loadFormFile(file, name);
     }
 
-    public String getProperty(String key)
+    public String getValueOrNull(String key)
     {
         Object value = properties.get(key);
         if (value instanceof String)
@@ -56,10 +61,16 @@ public class SimpleProperties
             }
         }
 
-        return "";
+        return null;
     }
 
-    public String[] getPropertyList(String key)
+    public String getValueOrNull(String key, String defaultValue)
+    {
+        String val = getValueOrNull(key);
+        return (val == null) ? defaultValue : val;
+    }
+
+    public String[] getValues(String key)
     {
         Object value = properties.get(key);
         if (value instanceof String)
@@ -73,6 +84,12 @@ public class SimpleProperties
         }
 
         return new String[] {};
+    }
+
+    public String[] getValues(String key, String[] defaultValue)
+    {
+        String[] value = getValues(key);
+        return value != null ? value : defaultValue;
     }
 
     private void loadSystemResource(String conf)
@@ -90,7 +107,7 @@ public class SimpleProperties
         }
         catch (Exception exception)
         {
-            exception.printStackTrace();
+            logger.info(exception);
         }
         finally
         {
@@ -117,7 +134,7 @@ public class SimpleProperties
             }
             catch (Exception exception)
             {
-                exception.printStackTrace();
+                logger.info(exception);
             }
             finally
             {
@@ -132,7 +149,7 @@ public class SimpleProperties
                 }
                 catch (IOException ioException)
                 {
-                    ioException.printStackTrace();
+                    logger.info(ioException);
                 }
             }
         }
@@ -149,7 +166,7 @@ public class SimpleProperties
         }
         catch (IOException ioException)
         {
-            ioException.printStackTrace();
+            logger.info(ioException);
         }
     }
 

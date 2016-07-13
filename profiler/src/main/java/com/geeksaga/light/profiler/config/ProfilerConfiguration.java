@@ -13,37 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.profiler.config;
 
-import com.geeksaga.light.agent.config.Config;
-import com.geeksaga.light.agent.config.Configure;
+import com.geeksaga.light.config.Config;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.util.SimpleProperties;
 import com.geeksaga.light.util.SystemProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author geeksaga
  */
-public class ProfilerConfig implements Config
+public class ProfilerConfiguration implements Config
 {
-    private static final LightLogger logger = CommonLogger.getLogger(ProfilerConfig.class.getName());
+    private static final LightLogger logger = CommonLogger.getLogger(ProfilerConfiguration.class.getName());
 
-    private Properties properties;
+    private SimpleProperties properties;
 
-    public ProfilerConfig()
+    public ProfilerConfiguration()
     {
-        this(new Properties());
+        this(new SimpleProperties(SystemProperty.LIGHT_CONFIG));
+
+        load();
     }
 
-    public ProfilerConfig(Properties properties)
+    public ProfilerConfiguration(SimpleProperties properties)
     {
         this.properties = properties;
     }
@@ -53,67 +52,49 @@ public class ProfilerConfig implements Config
         return load(SystemProperty.LIGHT_CONFIG);
     }
 
-    public static Config load(String file)
+    public static Config load(String fileName)
     {
-        try
-        {
-            return new ProfilerConfig(new Configure().load(file));
-        }
-        catch (IOException e)
-        {
-            logger.info(e);
-        }
-
-        return new ProfilerConfig();
+        return new ProfilerConfiguration(new SimpleProperties(fileName));
     }
 
-    public static Config load(ClassLoader classLoader, String file)
+    public static Config load(File file, String name)
     {
-        try
-        {
-            return new ProfilerConfig(new Configure().load(classLoader, file));
-        }
-        catch (IOException e)
-        {
-            logger.info(e);
-        }
-
-        return new ProfilerConfig();
+        return new ProfilerConfiguration(new SimpleProperties(file, name));
     }
 
     public String read(String propertyKey, String defaultValue)
     {
-        return properties.getProperty(propertyKey, defaultValue);
+        return properties.getValueOrNull(propertyKey, defaultValue);
     }
 
     public int read(String propertyKey, int defaultValue)
     {
-        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
+        String value = properties.getValueOrNull(propertyKey, String.valueOf(defaultValue));
 
         return Integer.valueOf(value);
     }
 
     public long read(String propertyKey, long defaultValue)
     {
-        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
+        String value = properties.getValueOrNull(propertyKey, String.valueOf(defaultValue));
 
         return Long.valueOf(value);
     }
 
     public List<String> read(String propertyKey)
     {
-        String value = properties.getProperty(propertyKey);
-        if (value == null)
+        String[] values = properties.getValues(propertyKey);
+        if (values == null || values.length == 0)
         {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(value.trim().split("\\s+"));
+        return Arrays.asList(values);
     }
 
     public boolean read(String propertyKey, boolean defaultValue)
     {
-        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
+        String value = properties.getValueOrNull(propertyKey, String.valueOf(defaultValue));
 
         return Boolean.valueOf(value);
     }

@@ -16,7 +16,7 @@
 package com.geeksaga.light.profiler.filter;
 
 import com.geeksaga.light.agent.core.AgentTraceContext;
-import com.geeksaga.light.profiler.ProfilerConfig;
+import com.geeksaga.light.profiler.config.ProfilerConfig;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

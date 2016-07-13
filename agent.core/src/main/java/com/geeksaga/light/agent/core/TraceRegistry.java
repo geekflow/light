@@ -23,36 +23,47 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author geeksaga
  */
-public class TraceRegistry {
+public class TraceRegistry
+{
     private static TraceRegistryAdaptor registry = TraceRegistryAdaptor.NULL;
 
     private static final Lock LOCK = new ReentrantLock();
 
-    public static TraceRegistryAdaptor getTraceRegistryAdaptor() {
+    public static TraceRegistryAdaptor getTraceRegistryAdaptor()
+    {
         return registry;
     }
 
-    public static void bind(TraceRegistryAdaptor registry) {
+    public static void bind(TraceRegistryAdaptor registry)
+    {
         LOCK.lock();
 
-        try {
+        try
+        {
             TraceRegistry.registry = (registry != null) ? registry : TraceRegistryAdaptor.NULL;
-        } finally {
+        }
+        finally
+        {
             LOCK.unlock();
         }
     }
 
-    public static void unbind() {
+    public static void unbind()
+    {
         LOCK.lock();
 
-        try {
+        try
+        {
             registry = TraceRegistryAdaptor.NULL;
-        } finally {
+        }
+        finally
+        {
             LOCK.unlock();
         }
     }
 
-    public static Trace get(int id) {
+    public static Trace get(int id)
+    {
         return registry.get(id);
     }
 }

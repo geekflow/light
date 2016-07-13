@@ -16,7 +16,7 @@
 package com.geeksaga.light.agent.core;
 
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.config.Config;
+import com.geeksaga.light.config.Config;
 import com.geeksaga.light.agent.trace.MethodInfo;
 
 /**

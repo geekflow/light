@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
-
-import com.geeksaga.light.profiler.config.ProfilerConfigTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package com.geeksaga.light.config;
 
 /**
  * @author geeksaga
  */
-@RunWith(value = Suite.class)
-@Suite.SuiteClasses(value = { ProfilerModuleTest.class, ProfilerConfigTest.class })
-public class ProfilerTestSuite
-{}
+public interface ConfigBinder
+{
+    Config getConfig();
+}

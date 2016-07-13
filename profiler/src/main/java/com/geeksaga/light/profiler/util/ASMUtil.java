@@ -316,14 +316,15 @@ public class ASMUtil
             return null;
         }
 
-        return parse(classfileBuffer, 0);
+//        return parse(classfileBuffer, 0);
+        return parse(classfileBuffer, ClassReader.EXPAND_FRAMES);
     }
 
     public static ClassNodeWrapper parse(byte[] classfileBuffer, int flags)
     {
         ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
-        ClassReader reader = new ClassReaderWrapper(classfileBuffer);
 
+        ClassReader reader = new ClassReaderWrapper(classfileBuffer);
         reader.accept(useJSRInlinerAdapter(classNodeWrapper), new Attribute[0], flags);
 
         return classNodeWrapper;
@@ -334,7 +335,6 @@ public class ASMUtil
         ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
 
         ClassReader reader = new ClassReaderWrapper(obj.getClass().getName());
-
         reader.accept(useJSRInlinerAdapter(classNodeWrapper), new Attribute[0], 0);
 
         return classNodeWrapper;

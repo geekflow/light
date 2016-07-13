@@ -42,14 +42,14 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
     private Filter filter;
-    private List<ClassFileTransformer> classFileTransformerList;
+    private List<LightClassFileTransformer> classFileTransformerList;
 
     public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
     {
-        this(traceRegisterBinder, traceContext, Collections.synchronizedList(new ArrayList<ClassFileTransformer>()));
+        this(traceRegisterBinder, traceContext, Collections.synchronizedList(new ArrayList<LightClassFileTransformer>()));
     }
 
-    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, List<ClassFileTransformer> classFileTransformerList)
+    public ClassFileTransformerDispatcher(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, List<LightClassFileTransformer> classFileTransformerList)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.filter = new LightFilter(traceContext);
@@ -74,17 +74,24 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             long now = System.currentTimeMillis();
             context.set(classLoader);
 
-            ClassNodeWrapper clazz = ASMUtil.parse(classfileBuffer);
+            ClassNodeWrapper classNodeWrapper = ASMUtil.parse(classfileBuffer);
 
-            if (clazz.isInterface())
+            if (classNodeWrapper.isInterface())
             {
                 return classfileBuffer;
             }
 
-            byte[] bytes = null;
-            for (ClassFileTransformer classFileTransformer : classFileTransformerList)
+            //            byte[] bytes = null;
+            //            for (ClassFileTransformer classFileTransformer : classFileTransformerList)
+            //            {
+            //                bytes = classFileTransformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+            //            }
+
+            ClassNodeWrapper patchedClassNodeWrapper = classNodeWrapper;
+
+            for (LightClassFileTransformer classFileTransformer : classFileTransformerList)
             {
-                bytes = classFileTransformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+                patchedClassNodeWrapper = classFileTransformer.transform(classLoader, classBeingRedefined, classfileBuffer, patchedClassNodeWrapper);
             }
 
             long dur = System.currentTimeMillis();
@@ -106,7 +113,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
                 sb.append("] ");
             }
 
-            sb.append(clazz.getClassName());
+            sb.append(classNodeWrapper.getClassName());
             sb.append(" ");
             sb.append(classfileBuffer.length);
             sb.append(" bytes ");
@@ -115,10 +122,12 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
 
             //            logger.info(sb.toString());
 
-            if (bytes != null)
-            {
-                return bytes;
-            }
+            //            if (bytes != null)
+            //            {
+            //                return bytes;
+            //            }
+
+            return ASMUtil.toBytes(patchedClassNodeWrapper);
         }
         catch (Throwable throwable)
         {

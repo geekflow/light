@@ -17,8 +17,10 @@ package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
-import com.geeksaga.light.profiler.ProfilerConfig;
+import com.geeksaga.light.profiler.config.ProfilerConfig;
 import com.geeksaga.light.profiler.TestUtil;
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+import com.geeksaga.light.profiler.util.ASMUtil;
 import com.geeksaga.light.util.SystemProperty;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;
@@ -26,7 +28,6 @@ import org.junit.Test;
 import target.TestMethods;
 
 import java.io.File;
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Method;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -61,10 +62,18 @@ public class EntryPointTransformerTest
     {
         String className = TestMethods.class.getName();
 
-        ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
+//        ClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
+        LightClassFileTransformer transformer = new EntryPointTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
 
         byte[] original = TestUtil.load(className);
-        byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
+//        byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
+//        byte[] transform = transformer.transform(getClass().getClassLoader(), null, original, ASMUtil.parse(original));
+
+        ClassNodeWrapper classNodeWrapper = ASMUtil.parse(original);
+
+        transformer.transform(getClass().getClassLoader(), null, original, classNodeWrapper);
+
+        byte[] transform = ASMUtil.toBytes(classNodeWrapper);
 
         assertThat(original, not(transform));
 

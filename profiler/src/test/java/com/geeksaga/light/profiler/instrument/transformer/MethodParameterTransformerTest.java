@@ -17,7 +17,7 @@ package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
-import com.geeksaga.light.profiler.ProfilerConfig;
+import com.geeksaga.light.profiler.config.ProfilerConfig;
 import com.geeksaga.light.profiler.TestUtil;
 import org.junit.Test;
 import target.TestMethods;

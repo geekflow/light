@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.profiler.config.ProfilerConfigTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+
+import java.lang.instrument.ClassFileTransformer;
 
 /**
  * @author geeksaga
  */
-@RunWith(value = Suite.class)
-@Suite.SuiteClasses(value = { ProfilerModuleTest.class, ProfilerConfigTest.class })
-public class ProfilerTestSuite
-{}
+public interface LightClassFileTransformer extends ClassFileTransformer
+{
+    ClassNodeWrapper transform(ClassLoader classLoader, Class<?> classBeingRedefined, byte[] classfileBuffer, ClassNodeWrapper classNodeWrapper);
+}
