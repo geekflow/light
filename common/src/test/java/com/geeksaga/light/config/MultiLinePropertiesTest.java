@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.util;
+package com.geeksaga.light.config;
 
 import org.junit.Test;
 
@@ -25,12 +25,12 @@ import static org.hamcrest.Matchers.*;
 /**
  * @author geeksaga
  */
-public class SimplePropertiesTest
+public class MultiLinePropertiesTest
 {
     @Test
     public void testLoad()
     {
-        SimpleProperties properties = new SimpleProperties("ignore.ini");
+        MultiLineConfigure properties = new MultiLineConfigure("ignore.ini");
 
         assertThat(properties.getValueOrNull("empty"), nullValue());
 

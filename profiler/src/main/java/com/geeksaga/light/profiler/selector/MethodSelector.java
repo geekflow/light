@@ -25,7 +25,19 @@ public class MethodSelector
 {
     private Set<Item> methodMatch = null;
 
+    private boolean isPattern = false;
+
     public MethodSelector() {}
+
+    public MethodSelector(boolean isPattern)
+    {
+        this.isPattern = isPattern;
+    }
+
+    public boolean isPattern()
+    {
+        return isPattern;
+    }
 
     public int size()
     {

@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent.config;
+package com.geeksaga.light.config;
+
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
 
 import java.io.*;
 import java.util.Properties;
@@ -21,23 +24,25 @@ import java.util.Properties;
 /**
  * @author geeksaga
  */
-public class Configure
+public class PropertiesLoader
 {
+    private static final LightLogger logger = CommonLogger.getLogger(PropertiesLoader.class.getName());
+
     private static final String DEFAULT_ENCODING = "UTF-8";
 
-    public Properties load(String path) throws IOException
+    public Properties load(String name) throws IOException
     {
-        return load(null, path);
+        return load(null, name);
     }
 
-    public Properties load(ClassLoader classLoader, String path) throws IOException
+    public Properties load(ClassLoader classLoader, String name) throws IOException
     {
         if (classLoader != null)
         {
-            return load(new Properties(), classLoader.getResourceAsStream(path), DEFAULT_ENCODING);
+            return load(new Properties(), classLoader.getResourceAsStream(name), DEFAULT_ENCODING);
         }
 
-        return load(new Properties(), path, DEFAULT_ENCODING);
+        return load(new Properties(), name, DEFAULT_ENCODING);
     }
 
     public Properties load(Properties properties, String path, String encoding) throws IOException
@@ -77,7 +82,7 @@ public class Configure
             }
             catch (IOException ioException)
             {
-                ioException.printStackTrace();
+                logger.info(ioException);
             }
         }
     }

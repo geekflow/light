@@ -64,13 +64,13 @@ public class ProfilerConfigurationTest
     @Test
     public void testLoad()
     {
-        ProfilerConfig profilerConfig = new ProfilerConfig();
+        Config config = ProfilerConfiguration.load();
 
-        assertThat(profilerConfig.read(entry_point, "default"), is("default"));
+        assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
 
-        Config config = ProfilerConfig.load(ProfilerConfigurationTest.class.getClassLoader(), "light.conf");
+        config = ProfilerConfiguration.load(ProfilerConfigurationTest.class.getClassLoader(), "light.conf");
 
-        assertThat(config, instanceOf(ProfilerConfig.class));
+        assertThat(config, instanceOf(ProfilerConfiguration.class));
 
         assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
     }
@@ -78,7 +78,7 @@ public class ProfilerConfigurationTest
     @Test
     public void testReadValue() throws IOException
     {
-        Config config = ProfilerConfig.load(ProfilerConfigurationTest.class.getClassLoader(), "light.conf");
+        Config config = ProfilerConfiguration.load("light.conf");
 
         assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
         assertThat(config.read(class_max_size, 1024 * 1024), is(1048576));

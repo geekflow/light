@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.util;
+package com.geeksaga.light.config;
 
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.util.SystemProperty;
 
 import java.io.*;
 import java.util.*;
@@ -26,20 +27,31 @@ import java.util.zip.ZipEntry;
 /**
  * @author geeksaga
  */
-public class SimpleProperties
+public class MultiLineConfigure
 {
-    private static final LightLogger logger = CommonLogger.getLogger(SimpleProperties.class.getName());
+    private static final LightLogger logger = CommonLogger.getLogger(MultiLineConfigure.class.getName());
 
+    private static final String DEFAULT_ENCODING = "UTF-8";
     private static final String WHITE_SPACE = " \t\r\n\f";
 
     private Map<String, Object> properties = new Hashtable<String, Object>();
 
-    public SimpleProperties(String name)
+    public MultiLineConfigure()
+    {
+        loadSystemResource(null, SystemProperty.LIGHT_CONFIG);
+    }
+
+    public MultiLineConfigure(String name)
     {
         loadSystemResource(name);
     }
 
-    public SimpleProperties(File file, String name)
+    public MultiLineConfigure(ClassLoader classLoader, String name)
+    {
+        loadSystemResource(classLoader, name);
+    }
+
+    public MultiLineConfigure(File file, String name)
     {
         loadFormFile(file, name);
     }
@@ -92,26 +104,20 @@ public class SimpleProperties
         return value != null ? value : defaultValue;
     }
 
-    private void loadSystemResource(String conf)
+    private void loadSystemResource(String name)
     {
-        InputStream inputStream = null;
+        loadSystemResource(Thread.currentThread().getContextClassLoader(), name);
+    }
 
+    private void loadSystemResource(ClassLoader classLoader, String name)
+    {
         try
         {
-            inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(conf);
-
-            if (inputStream != null)
-            {
-                load(inputStream);
-            }
+            load(classLoader, name);
         }
         catch (Exception exception)
         {
             logger.info(exception);
-        }
-        finally
-        {
-            close(inputStream);
         }
     }
 
@@ -139,61 +145,94 @@ public class SimpleProperties
             finally
             {
                 close(inputStream);
-
-                try
-                {
-                    if (jarFile != null)
-                    {
-                        jarFile.close();
-                    }
-                }
-                catch (IOException ioException)
-                {
-                    logger.info(ioException);
-                }
+                close(jarFile);
             }
         }
     }
 
-    private void close(InputStream inputStream)
+    private void close(Closeable closeable)
     {
-        try
+        if (closeable != null)
         {
+            try
+            {
+                closeable.close();
+            }
+            catch (IOException ioException)
+            {
+                logger.info(ioException);
+            }
+        }
+    }
+
+    public void load(String name) throws IOException
+    {
+        load(name, DEFAULT_ENCODING);
+    }
+
+    public void load(String name, String encoding) throws IOException
+    {
+        load(new FileInputStream(name), encoding);
+    }
+
+    public void load(ClassLoader classLoader, String name) throws IOException
+    {
+        if (classLoader != null)
+        {
+            InputStream inputStream = classLoader.getResourceAsStream(name);
+
             if (inputStream != null)
             {
-                inputStream.close();
+                load(inputStream, DEFAULT_ENCODING);
             }
+
+            return;
         }
-        catch (IOException ioException)
-        {
-            logger.info(ioException);
-        }
+
+        load(name, DEFAULT_ENCODING);
     }
 
-    private synchronized void load(InputStream inStream) throws IOException
+    private void load(InputStream inputStream) throws IOException
     {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
-        Set<String> keys = new HashSet<String>();
-        String line;
+        load(inputStream, DEFAULT_ENCODING);
+    }
 
-        while ((line = reader.readLine()) != null)
+    private void load(InputStream inputStream, String encoding)
+    {
+        BufferedReader reader = null;
+        try
         {
-            line = line.trim();
-            if (line.length() == 0)
+            reader = new BufferedReader(new InputStreamReader(inputStream, encoding));
+            Set<String> keys = new HashSet<String>();
+            String line;
+
+            while ((line = reader.readLine()) != null)
             {
-                continue;
+                line = line.trim();
+                if (line.length() == 0)
+                {
+                    continue;
+                }
+
+                int startLine = indexOf(line);
+                if (startLine == line.length())
+                {
+                    continue;
+                }
+
+                parse(line, startLine, keys);
             }
 
-            int startLine = indexOf(line);
-            if (startLine == line.length())
-            {
-                continue;
-            }
-
-            parse(line, startLine, keys);
+            listToArray(keys);
         }
-
-        listToArray(keys);
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+        }
+        finally
+        {
+            close(reader);
+        }
     }
 
     private void parse(String line, int startLine, Set<String> keys)

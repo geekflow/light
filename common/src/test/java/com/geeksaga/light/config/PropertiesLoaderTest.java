@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.agent.config;
+package com.geeksaga.light.config;
 
 import org.junit.Test;
 
@@ -27,21 +27,25 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author geeksaga
  */
-public class ConfigureTest {
+public class PropertiesLoaderTest
+{
     @Test
-    public void testLoad() throws IOException {
-        Configure configure = new Configure();
-        Properties properties = configure.load(System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
+    public void testLoad() throws IOException
+    {
+        PropertiesLoader propertiesLoader = new PropertiesLoader();
+        Properties properties = propertiesLoader.load(System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
 
         assertThat(properties.getProperty("entry_point"), is("main"));
     }
 
     @Test
-    public void testLoadFromClassPath() throws IOException {
-        Configure configure = new Configure();
-        Properties properties = configure.load(ConfigureTest.class.getClassLoader(), File.separator + "light.conf");
+    public void testLoadFromClassPath() throws IOException
+    {
+        PropertiesLoader propertiesLoader = new PropertiesLoader();
+        Properties properties = propertiesLoader.load(PropertiesLoaderTest.class.getClassLoader(), File.separator + "light.conf");
 
-        if (properties.containsKey("entry_point")) {
+        if (properties.containsKey("entry_point"))
+        {
             assertThat(properties.getProperty("entry_point"), is("main"));
         }
     }

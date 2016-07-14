@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.profiler.config;
 
-import com.geeksaga.light.agent.config.Configure;
+import com.geeksaga.light.config.PropertiesLoader;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
@@ -55,7 +55,7 @@ public class ProfilerConfig implements Config
     {
         try
         {
-            return new ProfilerConfig(new Configure().load(file));
+            return new ProfilerConfig(new PropertiesLoader().load(file));
         }
         catch (IOException e)
         {
@@ -69,7 +69,7 @@ public class ProfilerConfig implements Config
     {
         try
         {
-            return new ProfilerConfig(new Configure().load(classLoader, file));
+            return new ProfilerConfig(new PropertiesLoader().load(classLoader, file));
         }
         catch (IOException e)
         {

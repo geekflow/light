@@ -24,9 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ClassSelector
 {
-    private Map<String, MethodSelector> selectors = new ConcurrentHashMap<String, MethodSelector>();
-
-    private ClassSelector() {}
+    Map<String, MethodSelector> selectors = new ConcurrentHashMap<String, MethodSelector>();
 
     public void add(String fullDescription)
     {
@@ -153,8 +151,10 @@ public class ClassSelector
 
         for (String value : list)
         {
-//            classSelector.add(value.replace(".", "/"));
+            //            classSelector.add(value.replace(".", "/"));
             classSelector.add(value);
+
+            System.out.println(value);
         }
 
         return classSelector;

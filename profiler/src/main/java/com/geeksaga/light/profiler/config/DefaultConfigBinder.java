@@ -25,11 +25,6 @@ public class DefaultConfigBinder implements ConfigBinder
 {
     private Config config;
 
-    public DefaultConfigBinder()
-    {
-        this(new ProfilerConfig());
-    }
-
     public DefaultConfigBinder(Config config)
     {
         this.config = config;

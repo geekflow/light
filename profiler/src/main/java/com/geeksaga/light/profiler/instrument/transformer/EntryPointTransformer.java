@@ -74,7 +74,6 @@ public class EntryPointTransformer implements LightClassFileTransformer
     private EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
-        this.filter = new EntryFilter(traceContext);
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
@@ -88,6 +87,8 @@ public class EntryPointTransformer implements LightClassFileTransformer
         this.endDescriptor = endDescriptor;
 
         refresh();
+
+        this.filter = new EntryFilter(traceContext, classSelector);
     }
 
     @Override
@@ -100,9 +101,9 @@ public class EntryPointTransformer implements LightClassFileTransformer
                 return transform(classLoader, className, classfileBuffer);
             }
         }
-        catch (Throwable throwable)
+        catch (Exception exception)
         {
-            logger.info(throwable);
+            logger.info(exception);
         }
 
         return null;
@@ -118,9 +119,9 @@ public class EntryPointTransformer implements LightClassFileTransformer
                 return transform(classLoader, classfileBuffer, classNodeWrapper);
             }
         }
-        catch (Throwable throwable)
+        catch (Exception exception)
         {
-            logger.info(throwable);
+            logger.info(exception);
         }
 
         return classNodeWrapper;

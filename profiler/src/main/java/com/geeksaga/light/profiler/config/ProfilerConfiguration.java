@@ -18,7 +18,7 @@ package com.geeksaga.light.profiler.config;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.util.SimpleProperties;
+import com.geeksaga.light.config.MultiLineConfigure;
 import com.geeksaga.light.util.SystemProperty;
 
 import java.io.File;
@@ -33,33 +33,31 @@ public class ProfilerConfiguration implements Config
 {
     private static final LightLogger logger = CommonLogger.getLogger(ProfilerConfiguration.class.getName());
 
-    private SimpleProperties properties;
+    private MultiLineConfigure properties;
 
-    public ProfilerConfiguration()
-    {
-        this(new SimpleProperties(SystemProperty.LIGHT_CONFIG));
-
-        load();
-    }
-
-    public ProfilerConfiguration(SimpleProperties properties)
+    public ProfilerConfiguration(MultiLineConfigure properties)
     {
         this.properties = properties;
     }
 
     public static Config load()
     {
-        return load(SystemProperty.LIGHT_CONFIG);
+        return new ProfilerConfiguration(new MultiLineConfigure());
     }
 
-    public static Config load(String fileName)
+    public static Config load(String name)
     {
-        return new ProfilerConfiguration(new SimpleProperties(fileName));
+        return new ProfilerConfiguration(new MultiLineConfigure(name));
     }
 
     public static Config load(File file, String name)
     {
-        return new ProfilerConfiguration(new SimpleProperties(file, name));
+        return new ProfilerConfiguration(new MultiLineConfigure(file, name));
+    }
+
+    public static Config load(ClassLoader classLoader, String name)
+    {
+        return new ProfilerConfiguration(new MultiLineConfigure(classLoader, name));
     }
 
     public String read(String propertyKey, String defaultValue)

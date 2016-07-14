@@ -18,36 +18,55 @@ package com.geeksaga.light.profiler.filter;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.config.ConfigDef;
 import com.geeksaga.light.agent.config.ConfigValueDef;
+import com.geeksaga.light.profiler.selector.ClassSelector;
+import com.geeksaga.light.profiler.selector.MethodSelector;
 import com.geeksaga.light.profiler.util.ASMUtil;
 
 import java.util.List;
 
+import static com.geeksaga.light.agent.config.ConfigDef.entry_point;
+
 /**
  * @author geeksaga
  */
-public class EntryFilter implements Filter
+public class EntryFilter extends AbstractFilter implements Filter
 {
-    private TraceContext traceContext;
+    private ClassSelector classSelector;
 
     public EntryFilter(TraceContext traceContext)
     {
-        this.traceContext = traceContext;
+        this(traceContext, ClassSelector.create(traceContext.getConfig().read(entry_point)));
+    }
+
+    public EntryFilter(TraceContext traceContext, ClassSelector classSelector)
+    {
+        super(traceContext);
+
+        this.classSelector = classSelector;
+
+        refresh();
+    }
+
+    public boolean refresh()
+    {
+        createIgnore("", "", "", "");
+
+        return true;
     }
 
     @Override
     public boolean allow(ClassLoader classLoader, String className)
     {
-        List<String> entryPointList = traceContext.getConfig().read(ConfigDef.entry_point);
+        //        MethodSelector selector = getSelector(null);
 
-        for(String entryPoint : entryPointList)
+        MethodSelector methodSelector = classSelector.selectByClass(className);
+
+        if (methodSelector != null)
         {
-            if(className.startsWith(entryPoint))
-            {
-                return true;
-            }
+            return true;
         }
 
-        return false;
+        return true;
     }
 
     @Override

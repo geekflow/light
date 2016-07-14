@@ -24,10 +24,10 @@ import com.geeksaga.light.config.ConfigBinder;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.logger.LightLoggerBinder;
-import com.geeksaga.light.profiler.config.DefaultConfigBinder;
-import com.geeksaga.light.profiler.config.ProfilerConfig;
 import com.geeksaga.light.profiler.config.ProfilerConfiguration;
-import com.geeksaga.light.profiler.instrument.transformer.*;
+import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
+import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
+import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 
 import java.lang.instrument.Instrumentation;
@@ -60,9 +60,10 @@ public class ProfilerModule implements Module
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
         this.traceRegisterBinder.bind();
 
-        this.configBinder = new DefaultConfigBinder(new ProfilerConfiguration());
+        //        this.configBinder = new DefaultConfigBinder(new ProfilerConfiguration());
 
-        this.traceContext = new AgentTraceContext(configBinder.getConfig());
+        //        this.traceContext = new AgentTraceContext(configBinder.getConfig());
+        this.traceContext = new AgentTraceContext(ProfilerConfiguration.load());
 
         this.classFileTransformerList = Collections.synchronizedList(new ArrayList<LightClassFileTransformer>());
     }
@@ -85,10 +86,10 @@ public class ProfilerModule implements Module
     private void registPointCut()
     {
         // FIXME need to order
-//        classFileTransformerList.add(new MethodParameterTransformer(traceRegisterBinder, traceContext));
-//        classFileTransformerList.add(new MethodReturnTransformer(traceRegisterBinder, traceContext));
-//        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext));
-//        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
+        //        classFileTransformerList.add(new MethodParameterTransformer(traceRegisterBinder, traceContext));
+        //        classFileTransformerList.add(new MethodReturnTransformer(traceRegisterBinder, traceContext));
+        //        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext));
+        //        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
         classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
     }
 
