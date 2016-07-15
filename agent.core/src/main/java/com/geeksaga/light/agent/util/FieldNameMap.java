@@ -25,60 +25,76 @@ import java.util.Set;
 /**
  * @author geeksaga
  */
-public class FieldNameMap {
+public class FieldNameMap
+{
     private final Map<String, String> table = new Hashtable<String, String>();
 
-    public boolean hasName(String key) {
+    public boolean hasName(String key)
+    {
         return table.containsKey(key);
     }
 
-    public String get(Object index) {
+    public String get(Object index)
+    {
         return table.get(index);
     }
 
-    public String put(String value) {
+    public String put(String value)
+    {
         return table.put(value, value);
     }
 
-    public int size() {
+    public int size()
+    {
         return table.size();
     }
 
-    public Set<String> keySet() {
+    public Set<String> keySet()
+    {
         return table.keySet();
     }
 
-    public Collection<String> values() {
+    public Collection<String> values()
+    {
         return table.values();
     }
 
-    public static FieldNameMap toMap(Class<?> clazz) {
+    public static FieldNameMap toMap(Class<?> clazz)
+    {
         return toMap(clazz, false, false);
     }
 
-    public static FieldNameMap toMap(Class<?> clazz, boolean toLower, boolean includeFirstSuperClass) {
+    public static FieldNameMap toMap(Class<?> clazz, boolean toLower, boolean includeFirstSuperClass)
+    {
         FieldNameMap fieldNameMap = new FieldNameMap();
 
-        if (clazz != null) {
+        if (clazz != null)
+        {
             put(clazz.getDeclaredFields(), fieldNameMap, toLower);
         }
 
-        if (clazz != null && includeFirstSuperClass) {
+        if (clazz != null && includeFirstSuperClass)
+        {
             toMapWithFirstSuperClass(clazz.getSuperclass(), toLower, fieldNameMap);
         }
 
         return fieldNameMap;
     }
 
-    private static void toMapWithFirstSuperClass(Class<?> clazz, boolean toLower, FieldNameMap fieldNameMap) {
-        if (clazz != null && !"java.lang.Object".equals(clazz.getName())) {
+    private static void toMapWithFirstSuperClass(Class<?> clazz, boolean toLower, FieldNameMap fieldNameMap)
+    {
+        if (clazz != null && !"java.lang.Object".equals(clazz.getName()))
+        {
             put(clazz.getDeclaredFields(), fieldNameMap, toLower);
         }
     }
 
-    private static void put(Field[] fields, FieldNameMap fieldNameMap, boolean toLower) {
-        if (fields != null) {
-            for (Field field : fields) {
+    private static void put(Field[] fields, FieldNameMap fieldNameMap, boolean toLower)
+    {
+        if (fields != null)
+        {
+            for (Field field : fields)
+            {
                 int access_flags = field.getModifiers();
 
                 if ((access_flags & Modifier.PUBLIC) == 0 || (access_flags & Modifier.STATIC) == 0 || (access_flags & Modifier.FINAL) == 0)
@@ -86,18 +102,25 @@ public class FieldNameMap {
                     continue;
                 }
 
-                try {
+                try
+                {
                     Object value = field.get(null);
                     String name = field.getName();
 
-                    if (value instanceof String) {
-                        if (toLower) {
+                    if (value instanceof String)
+                    {
+                        if (toLower)
+                        {
                             fieldNameMap.put(name.toLowerCase());
-                        } else {
+                        }
+                        else
+                        {
                             fieldNameMap.put(name);
                         }
                     }
-                } catch (Exception exception) {
+                }
+                catch (Exception exception)
+                {
                     exception.printStackTrace();
                 }
             }
