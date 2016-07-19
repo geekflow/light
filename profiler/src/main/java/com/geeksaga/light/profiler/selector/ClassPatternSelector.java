@@ -48,7 +48,7 @@ public class ClassPatternSelector extends ClassSelector
         }
         catch (Exception exception)
         {
-            exception.printStackTrace();
+            logger.info(exception);
         }
     }
 

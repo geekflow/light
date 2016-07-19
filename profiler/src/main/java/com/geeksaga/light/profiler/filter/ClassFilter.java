@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.profiler.filter;
 
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+
 /**
  * @author geeksaga
  */
@@ -39,11 +41,23 @@ public class ClassFilter implements Filter
     @Override
     public boolean allow(ClassLoader classLoader, String className, byte[] classfileBuffer)
     {
-        if(classfileBuffer == null) // || classfileBuffer.length) FIXME is max size
+        if (classfileBuffer == null) // || classfileBuffer.length) FIXME is max size
         {
             return false;
         }
 
         return allow(classLoader, className);
+    }
+
+    @Override
+    public boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper)
+    {
+        return allow(classLoader, classNodeWrapper.getClassName());
+    }
+
+    @Override
+    public boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper, byte[] classfileBuffer)
+    {
+        return allow(classLoader, classNodeWrapper.getClassName(), classfileBuffer);
     }
 }

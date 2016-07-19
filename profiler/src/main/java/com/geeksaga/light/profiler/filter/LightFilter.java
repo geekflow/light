@@ -17,6 +17,7 @@ package com.geeksaga.light.profiler.filter;
 
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.config.ConfigDef;
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.util.ASMUtil;
 
 import java.util.List;
@@ -53,6 +54,18 @@ public class LightFilter implements Filter
         }
 
         return allow(classLoader, className);
+    }
+
+    @Override
+    public boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper)
+    {
+        return allow(classLoader, classNodeWrapper.getClassName());
+    }
+
+    @Override
+    public boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper, byte[] classfileBuffer)
+    {
+        return allow(classLoader, classNodeWrapper.getClassName(), classfileBuffer);
     }
 
     private boolean ignorePattern(final String className, boolean useConvertName)

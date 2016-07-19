@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.profiler.filter;
 
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+
 /**
  * @author geeksaga
  */
@@ -24,4 +26,8 @@ public interface Filter
     boolean allow(ClassLoader classLoader, String className);
 
     boolean allow(ClassLoader classLoader, String className, byte[] classfileBuffer);
+
+    boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper);
+
+    boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper, byte[] classfileBuffer);
 }

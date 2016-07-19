@@ -15,6 +15,9 @@
  */
 package com.geeksaga.light.profiler.selector;
 
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +27,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ClassSelector
 {
+    LightLogger logger;
+
     Map<String, MethodSelector> selectors = new ConcurrentHashMap<String, MethodSelector>();
+
+    public ClassSelector()
+    {
+        this.logger = CommonLogger.getLogger(getClass().getName());
+    }
 
     public void add(String fullDescription)
     {
