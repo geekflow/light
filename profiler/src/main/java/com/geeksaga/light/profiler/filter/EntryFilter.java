@@ -58,8 +58,6 @@ public class EntryFilter extends AbstractFilter implements Filter
     @Override
     public boolean allow(ClassLoader classLoader, String className)
     {
-        //        MethodSelector selector = getSelector(null);
-
         MethodSelector methodSelector = classSelector.selectByClass(className);
 
         if (methodSelector != null)
@@ -67,7 +65,7 @@ public class EntryFilter extends AbstractFilter implements Filter
             return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -84,7 +82,14 @@ public class EntryFilter extends AbstractFilter implements Filter
     @Override
     public boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper)
     {
-        return allow(classLoader, classNodeWrapper.getClassName());
+        MethodSelector methodSelector = getSelector(classNodeWrapper);
+
+        if (methodSelector != null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
