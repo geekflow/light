@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.agent.trace;
 
+import com.geeksaga.light.agent.RepositoryContext;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
@@ -29,6 +30,7 @@ public class EntryTrace implements Trace
 {
     private LightLogger logger;
     private TraceContext traceContext;
+    private RepositoryContext repositoryContext;
 
     public EntryTrace(TraceContext traceContext)
     {

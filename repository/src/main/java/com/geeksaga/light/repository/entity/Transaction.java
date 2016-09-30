@@ -25,11 +25,11 @@ import java.io.Serializable;
 //@Entity
 public class Transaction implements Serializable
 {
-        @Id
+    @Id
     //    @Column(nullable = false, updatable = false)
     private Object id;
 
-//    @Id
+    //    @Id
     @Column(nullable = false, updatable = false)
     private long tid;
 

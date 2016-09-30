@@ -117,6 +117,7 @@ project(':agent') {
 project(':agent.core') {
     dependencies {
         compile project(':common')
+        compile project(':repository')
     }
 }
 

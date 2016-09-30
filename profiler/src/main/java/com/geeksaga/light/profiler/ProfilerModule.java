@@ -16,7 +16,9 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
+import com.geeksaga.light.agent.RepositoryContext;
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.core.AgentRepositoryContext;
 import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
@@ -43,6 +45,7 @@ public class ProfilerModule implements Module
     private Instrumentation instrumentation;
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
+    private RepositoryContext repositoryContext;
     private LightLogger logger;
     private LightLoggerBinder loggerBinder;
     private ConfigBinder configBinder;
@@ -64,6 +67,7 @@ public class ProfilerModule implements Module
 
         //        this.traceContext = new AgentTraceContext(configBinder.getConfig());
         this.traceContext = new AgentTraceContext(ProfilerConfiguration.load());
+        this.repositoryContext = new AgentRepositoryContext(ProfilerConfiguration.load());
 
         this.classFileTransformerList = Collections.synchronizedList(new ArrayList<LightClassFileTransformer>());
     }
