@@ -21,8 +21,10 @@ import java.net.URLClassLoader;
 /**
  * @author geeksaga
  */
-public class AgentClassLoader extends URLClassLoader {
-    public AgentClassLoader(URL[] urls, ClassLoader parent) {
+public class AgentClassLoader extends URLClassLoader
+{
+    public AgentClassLoader(URL[] urls, ClassLoader parent)
+    {
         super(urls, parent);
     }
 }

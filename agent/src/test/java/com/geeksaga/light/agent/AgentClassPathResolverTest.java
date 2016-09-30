@@ -32,11 +32,13 @@ import static org.junit.Assert.assertThat;
 public class AgentClassPathResolverTest
 {
     private String LIGHT_AGENT_JAR = "light.agent-0.0.1-SNAPSHOT.jar";
+    private String LIGHT_AGENT_CORE_JAR = "light.agent.core-0.0.1.jar";
     private String LIGHT_AGENT_JAR_PATH = System.getProperty("user.dir");
     private String CLASS_PATH = System.getProperty("java.class.path") + File.pathSeparator + LIGHT_AGENT_JAR_PATH + File.separator + LIGHT_AGENT_JAR;
+    private String TEST_CLASS_PATH = LIGHT_AGENT_JAR_PATH + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "AGENT_HOME" + File.separator + LIGHT_AGENT_JAR + File.pathSeparator + "AGENT_HOME" + File.separator + LIGHT_AGENT_CORE_JAR;
 
     @Test
-    public void testFindAgentJar()
+    public void testInitialize()
     {
         AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
         assertThat(true, is(resolver.isInitialize()));
@@ -55,11 +57,17 @@ public class AgentClassPathResolverTest
     @Test
     public void testFindAllAgentLibrary()
     {
-        String CLASS_PATH = LIGHT_AGENT_JAR_PATH + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "AGENT_HOME" + File.separator + LIGHT_AGENT_JAR;
-
-        AgentClassPathResolver resolver = new AgentClassPathResolver(CLASS_PATH);
+        AgentClassPathResolver resolver = new AgentClassPathResolver(TEST_CLASS_PATH);
         assertThat(true, is(resolver.isInitialize()));
 
         assertThat(3, is(resolver.findAllAgentLibrary().size()));
+    }
+
+    @Test
+    public void testAgentCoreJarAbsoluteName()
+    {
+        AgentClassPathResolver resolver = new AgentClassPathResolver(TEST_CLASS_PATH);
+        assertThat(true, is(resolver.isInitialize()));
+        assertThat(true, is(resolver.getAgentCoreJarAbsoluteName().contains(LIGHT_AGENT_CORE_JAR)));
     }
 }
