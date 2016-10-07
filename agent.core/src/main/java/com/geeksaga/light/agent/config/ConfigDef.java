@@ -22,6 +22,8 @@ import com.geeksaga.light.agent.util.FieldNameMap;
  */
 public class ConfigDef
 {
+    public static final String domain_id = "domain_id";
+    public static final String instance_id = "instance_id";
     public static final String entry_point = "entry_point";
     public static final String class_max_size = "class_max_size";
     public static final String method_min_size = "method_min_size";
