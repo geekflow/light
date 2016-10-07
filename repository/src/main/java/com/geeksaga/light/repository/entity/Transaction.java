@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.repository.entity;
 
+import com.geeksaga.light.util.ToString;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
 import java.io.Serializable;
@@ -40,7 +42,7 @@ public class Transaction implements Serializable
     private byte[] guid;
 
     @Column
-    private long endTime;
+    private long endTimeMillis;
 
     @Column
     private int elapsedTime;
@@ -62,6 +64,9 @@ public class Transaction implements Serializable
 
     @Column
     private byte[] ipAddress;
+
+    @Column
+    private String transactionName;
 
     @Column
     private int transactionHash;
@@ -114,14 +119,14 @@ public class Transaction implements Serializable
         this.guid = guid;
     }
 
-    public long getEndTime()
+    public long getEndTimeMillis()
     {
-        return endTime;
+        return endTimeMillis;
     }
 
-    public void setEndTime(long endTime)
+    public void setEndTimeMillis(long endTimeMillis)
     {
-        this.endTime = endTime;
+        this.endTimeMillis = endTimeMillis;
     }
 
     public int getElapsedTime()
@@ -194,6 +199,16 @@ public class Transaction implements Serializable
         this.ipAddress = ipAddress;
     }
 
+    public void setTransactionName(String transactionName)
+    {
+        this.transactionName = transactionName;
+    }
+
+    public String getTransactionName()
+    {
+        return transactionName;
+    }
+
     public int getTransactionHash()
     {
         return transactionHash;
@@ -222,5 +237,11 @@ public class Transaction implements Serializable
     public void setUserHash(int userHash)
     {
         this.userHash = userHash;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToString.toString(getTid(), getTransactionName(), getElapsedTime());
     }
 }

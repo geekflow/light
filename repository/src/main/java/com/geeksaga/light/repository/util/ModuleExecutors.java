@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.profiler;
+package com.geeksaga.light.repository.util;
 
-import com.geeksaga.light.Product;
+import com.geeksaga.light.repository.Product;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static com.geeksaga.light.repository.util.ModuleThreadFactory.createFactory;
 
 /**
  * @author geeksaga
  */
-public class Main
+public class ModuleExecutors
 {
-    public static void main(String[] args)
+    public static final ExecutorService REPOSITORY_WORKER = Executors.newSingleThreadExecutor(ModuleThreadFactory.createFactory(Product.NAME + "-RepositoryWorker", Thread.MAX_PRIORITY));
+
+    public static void shutdownNowAll()
     {
-        System.out.println(Product.NAME + " is simple APM (Application Performance Management).");
-        System.out.println("Usage : execute java with -javaagent option");
-        System.out.println("ex) java -javaagent:light.agent-x.x.x.jar -jar light.demo.jar");
+        REPOSITORY_WORKER.shutdownNow();
     }
 }

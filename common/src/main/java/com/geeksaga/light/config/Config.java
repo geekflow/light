@@ -24,11 +24,13 @@ public interface Config
 {
     String read(String propertyKey, String defaultValue);
 
+    boolean read(String propertyKey, boolean defaultValue);
+
+    short read(String propertyKey, short defaultValue);
+
     int read(String propertyKey, int defaultValue);
 
     long read(String propertyKey, long defaultValue);
 
     List<String> read(String propertyKey);
-
-    boolean read(String propertyKey, boolean defaultValue);
 }

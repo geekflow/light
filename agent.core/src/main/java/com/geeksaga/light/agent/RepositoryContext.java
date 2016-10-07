@@ -16,6 +16,7 @@
 package com.geeksaga.light.agent;
 
 import com.geeksaga.light.agent.core.ActiveObject;
+import com.geeksaga.light.config.Config;
 
 /**
  * @author geeksaga
@@ -23,4 +24,6 @@ import com.geeksaga.light.agent.core.ActiveObject;
 public interface RepositoryContext
 {
     void save(ActiveObject activeObject);
+
+    Config getConfig();
 }

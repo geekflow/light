@@ -84,18 +84,24 @@ public class ProfilerConfig implements Config
         return properties.getProperty(propertyKey, defaultValue);
     }
 
+    public boolean read(String propertyKey, boolean defaultValue)
+    {
+        return Boolean.valueOf(read(propertyKey, String.valueOf(defaultValue)));
+    }
+
+    public short read(String propertyKey, short defaultValue)
+    {
+        return Short.valueOf(read(propertyKey, String.valueOf(defaultValue)));
+    }
+
     public int read(String propertyKey, int defaultValue)
     {
-        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
-
-        return Integer.valueOf(value);
+        return Integer.valueOf(read(propertyKey, String.valueOf(defaultValue)));
     }
 
     public long read(String propertyKey, long defaultValue)
     {
-        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
-
-        return Long.valueOf(value);
+        return Long.valueOf(read(propertyKey, String.valueOf(defaultValue)));
     }
 
     public List<String> read(String propertyKey)
@@ -107,12 +113,5 @@ public class ProfilerConfig implements Config
         }
 
         return Arrays.asList(value.trim().split("\\s+"));
-    }
-
-    public boolean read(String propertyKey, boolean defaultValue)
-    {
-        String value = properties.getProperty(propertyKey, String.valueOf(defaultValue));
-
-        return Boolean.valueOf(value);
     }
 }

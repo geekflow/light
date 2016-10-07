@@ -45,7 +45,7 @@ public class TransactionDaoTest
     @Test
     public void testSave()
     {
-        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 1L);
+        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 1L);
 
         transactionDao.save(transaction);
     }
@@ -60,7 +60,7 @@ public class TransactionDaoTest
     @Test
     public void testFind()
     {
-        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 2L);
+        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 2L);
 
         transactionDao.save(transaction);
 
@@ -70,7 +70,7 @@ public class TransactionDaoTest
     @Test
     public void testFindList()
     {
-        Transaction transaction = factory.getDatabase().newInstance(Transaction.class, 3L);
+        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 3L);
 
         transactionDao.save(transaction);
 

@@ -41,7 +41,7 @@ public class MethodTrace implements Trace
         logger.info(methodInfo.getName() + methodInfo.getDesc());
 
         ActiveObject activeObject = create(methodInfo);
-        activeObject.setStartTime(System.currentTimeMillis());
+        activeObject.setStartTimeMillis(System.currentTimeMillis());
     }
 
     public void end(MethodInfo methodInfo, Throwable throwable)
@@ -51,7 +51,7 @@ public class MethodTrace implements Trace
         if (activeObject != null)
         {
             logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
-            logger.info("start time = {}, end time = {}, elapsed time = ", activeObject.getStartTime(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTime()));
+            logger.info("start time = {}, end time = {}, elapsed time = ", activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
         }
     }
 

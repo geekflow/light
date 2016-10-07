@@ -62,8 +62,6 @@ public class Bootstrap
         }
 
         final AgentClassPathResolver classPathResolver = createResolver(attach, classPath);
-
-        //
         if (!classPathResolver.isInitialize())
         {
             failInitialize();

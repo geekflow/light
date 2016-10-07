@@ -70,7 +70,7 @@ public class StoreFactoryTest
     public void testGetInstance()
     {
         assertThat(factory, is(StoreFactory.getInstance(Product.NAME)));
-        assertThat(factory.getDatabase(), is(StoreFactory.getInstance(Product.NAME).getDatabase()));
+        assertThat(factory.getObjectDatabaseTx(), is(StoreFactory.getInstance(Product.NAME).getObjectDatabaseTx()));
     }
 
     @Test

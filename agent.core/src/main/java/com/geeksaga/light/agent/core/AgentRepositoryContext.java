@@ -19,11 +19,9 @@ import com.geeksaga.light.agent.RepositoryContext;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.repository.Product;
-import com.geeksaga.light.repository.dao.TransactionDao;
-import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
-import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.StoreFactory;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author geeksaga
@@ -32,27 +30,29 @@ public class AgentRepositoryContext implements RepositoryContext
 {
     private LightLogger logger;
     private Config config;
+    private BlockingQueue<ActiveObject> queue;
 
     public AgentRepositoryContext(Config config)
     {
+        this(config, new ArrayBlockingQueue<ActiveObject>(1000));
+    }
+
+    public AgentRepositoryContext(Config config, BlockingQueue<ActiveObject> queue)
+    {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.config = config;
+        this.queue = queue;
     }
 
     public void save(ActiveObject activeObject)
     {
-        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
-
-        Transaction transaction = new Transaction(activeObject.hashCode());
-        transaction.setEndTime(System.currentTimeMillis());
-        transaction.setElapsedTime((int) (transaction.getEndTime() - activeObject.getStartTime()));
-
-        TransactionDao transactionDao = new TransactionDaoImpl(StoreFactory.getInstance(Product.NAME));
-        transactionDao.save(transaction);
-
-        for (Transaction t : transactionDao.findList())
+        try
         {
-            logger.info("application = {}, end time = {}, elapsed time = {}", "TestURL", transaction.getEndTime(), transaction.getElapsedTime());
+            queue.put(activeObject);
+        }
+        catch (InterruptedException e)
+        {
+            logger.info(e);
         }
     }
 

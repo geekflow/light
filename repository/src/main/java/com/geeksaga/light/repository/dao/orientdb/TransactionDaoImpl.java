@@ -39,8 +39,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public boolean save(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = factory.getDatabase();
-
+        OObjectDatabaseTx documentTx = factory.getObjectDatabaseTx();
         documentTx.save(transaction);
 
         return true;
@@ -49,7 +48,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction modify(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = factory.getDatabase();
+        OObjectDatabaseTx documentTx = factory.getObjectDatabaseTx();
 
         try
         {
@@ -98,7 +97,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction find(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = factory.getDatabase();
+        OObjectDatabaseTx documentTx = factory.getObjectDatabaseTx();
 
         List<Transaction> result = documentTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
 
@@ -113,15 +112,8 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public List<Transaction> findList()
     {
-        OObjectDatabaseTx documentTx = factory.getDatabase();
+        OObjectDatabaseTx documentTx = factory.getObjectDatabaseTx();
 
-        List<Transaction> result = documentTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
-
-        for (Transaction document : result)
-        {
-            System.out.println(document);
-        }
-
-        return result;
+        return documentTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
     }
 }

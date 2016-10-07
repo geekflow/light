@@ -18,10 +18,7 @@ package com.geeksaga.light.profiler;
 import com.geeksaga.light.agent.Module;
 import com.geeksaga.light.agent.RepositoryContext;
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.core.AgentRepositoryContext;
-import com.geeksaga.light.agent.core.AgentTraceContext;
-import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
-import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.agent.core.*;
 import com.geeksaga.light.config.ConfigBinder;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
@@ -31,11 +28,14 @@ import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDi
 import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
+import com.geeksaga.light.repository.RepositoryModule;
 
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author geeksaga
@@ -50,6 +50,9 @@ public class ProfilerModule implements Module
     private LightLoggerBinder loggerBinder;
     private ConfigBinder configBinder;
 
+    // TEST
+    private BlockingQueue<ActiveObject> queue = new ArrayBlockingQueue<ActiveObject>(1000);
+
     private List<LightClassFileTransformer> classFileTransformerList;
 
     public ProfilerModule(Instrumentation instrumentation)
@@ -57,7 +60,7 @@ public class ProfilerModule implements Module
         this.loggerBinder = new Slf4jLoggerBinder();
         loggerBinder();
 
-        this.logger = CommonLogger.getLogger(this.getClass().getName());
+        this.logger = CommonLogger.getLogger(getClass().getName());
 
         this.instrumentation = instrumentation;
         this.traceRegisterBinder = new DefaultTraceRegisterBinder();
@@ -66,8 +69,9 @@ public class ProfilerModule implements Module
         //        this.configBinder = new DefaultConfigBinder(new ProfilerConfiguration());
 
         //        this.traceContext = new AgentTraceContext(configBinder.getConfig());
+
         this.traceContext = new AgentTraceContext(ProfilerConfiguration.load());
-        this.repositoryContext = new AgentRepositoryContext(ProfilerConfiguration.load());
+        this.repositoryContext = new AgentRepositoryContext(traceContext.getConfig(), queue);
 
         this.classFileTransformerList = Collections.synchronizedList(new ArrayList<LightClassFileTransformer>());
     }
@@ -78,6 +82,9 @@ public class ProfilerModule implements Module
         logger.info("profiler module start.");
 
         registPointCut();
+
+        Module module = new RepositoryModule(repositoryContext, queue);
+        module.start();
 
         addTransformer(instrumentation.isRetransformClassesSupported());
     }
@@ -94,7 +101,8 @@ public class ProfilerModule implements Module
         //        classFileTransformerList.add(new MethodReturnTransformer(traceRegisterBinder, traceContext));
         //        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext));
         //        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
-        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
+        //        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
+        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext, repositoryContext)); // must be last put for EntryPointTransformer
     }
 
     private void addTransformer(boolean canRetransform)

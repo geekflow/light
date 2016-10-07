@@ -16,8 +16,8 @@
 package com.geeksaga.light.agent.core;
 
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.config.Config;
 import com.geeksaga.light.agent.trace.MethodInfo;
+import com.geeksaga.light.config.Config;
 
 /**
  * @author geeksaga

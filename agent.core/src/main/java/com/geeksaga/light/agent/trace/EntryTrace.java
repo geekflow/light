@@ -38,6 +38,13 @@ public class EntryTrace implements Trace
         this.traceContext = traceContext;
     }
 
+    public EntryTrace(TraceContext traceContext, RepositoryContext repositoryContext)
+    {
+        this.logger = CommonLogger.getLogger(getClass().getName());
+        this.traceContext = traceContext;
+        this.repositoryContext = repositoryContext;
+    }
+
     public void begin(MethodInfo methodInfo)
     {
         try
@@ -47,7 +54,9 @@ public class EntryTrace implements Trace
                 logger.info(methodInfo.getName() + methodInfo.getDesc());
 
                 ActiveObject activeObject = create(methodInfo);
-                activeObject.setStartTime(System.currentTimeMillis());
+                activeObject.setStartTimeMillis(System.currentTimeMillis());
+                activeObject.setStartNanoTime(System.nanoTime());
+                activeObject.setTransactionName(getRequestURI(methodInfo.getParameter()));
             }
         }
         catch (Throwable throwable)
@@ -66,9 +75,9 @@ public class EntryTrace implements Trace
             {
                 logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
 
-                String name = getRequestURI(methodInfo.getParameter());
+                repositoryContext.save(activeObject);
 
-                logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", name, activeObject.getStartTime(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTime()));
+                logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
             }
         }
         catch (Throwable innerThrowable)

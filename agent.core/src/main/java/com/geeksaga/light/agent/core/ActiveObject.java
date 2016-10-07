@@ -20,25 +20,69 @@ import com.geeksaga.light.agent.trace.MethodInfo;
 /**
  * @author geeksaga
  */
-public class ActiveObject {
+public class ActiveObject
+{
     private Thread currentThread;
     private MethodInfo methodInfo;
-    private long startTime;
+    private long startTimeMillis;
+    private long startNanoTime;
+    private String transactionName;
 
-    public ActiveObject(Thread currentThread) {
+    public ActiveObject(Thread currentThread)
+    {
         this(currentThread, null);
     }
 
-    public ActiveObject(Thread currentThread, MethodInfo methodInfo) {
+    public ActiveObject(Thread currentThread, MethodInfo methodInfo)
+    {
         this.currentThread = currentThread;
         this.methodInfo = methodInfo;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    public ActiveObject(Thread currentThread, MethodInfo methodInfo, String transactionName)
+    {
+        this.currentThread = currentThread;
+        this.methodInfo = methodInfo;
+        this.transactionName = transactionName;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public Thread getCurrentThread()
+    {
+        return currentThread;
+    }
+
+    public MethodInfo getMethodInfo()
+    {
+        return methodInfo;
+    }
+
+    public void setStartTimeMillis(long startTimeMillis)
+    {
+        this.startTimeMillis = startTimeMillis;
+    }
+
+    public long getStartTimeMillis()
+    {
+        return startTimeMillis;
+    }
+
+    public void setStartNanoTime(long startNanoTime)
+    {
+        this.startNanoTime = startNanoTime;
+    }
+
+    public long getStartNanoTime()
+    {
+        return startNanoTime;
+    }
+
+    public void setTransactionName(String transactionName)
+    {
+        this.transactionName = transactionName;
+    }
+
+    public String getTransactionName()
+    {
+        return transactionName;
     }
 }
