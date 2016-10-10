@@ -15,13 +15,21 @@
  */
 package com.geeksaga.light.repository.dao;
 
+import com.geeksaga.light.agent.config.ConfigValueDef;
+import com.geeksaga.light.config.Config;
+import com.geeksaga.light.profiler.config.ProfilerConfiguration;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
 import com.geeksaga.light.repository.store.StoreFactory;
+import com.geeksaga.light.repository.util.IdentifierUtils;
+import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
+
+import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -30,22 +38,29 @@ import static org.hamcrest.Matchers.*;
  */
 public class TransactionDaoTest
 {
+    private static final String DEFAULT_PATH = "/../databases/";
     private static StoreFactory factory;
     private static TransactionDao transactionDao;
 
     @BeforeClass
     public static void init()
     {
-        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
+        System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
+        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
 
-        factory = StoreFactory.getInstance(Product.NAME);
+        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
+//        System.setProperty("light.db.path", String.format("plocal:.%s", DEFAULT_PATH));
+
+        Config config = ProfilerConfiguration.load();
+
+        factory = StoreFactory.getInstance(Product.NAME + "/" + config.read(instance_id, ConfigValueDef.instance_id));
         transactionDao = new TransactionDaoImpl(factory);
     }
 
     @Test
     public void testSave()
     {
-        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 1L);
+        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
     }
@@ -53,14 +68,19 @@ public class TransactionDaoTest
     @Test(expected = com.orientechnologies.orient.core.storage.ORecordDuplicatedException.class)
     public void testUniqueIndex()
     {
-        testSave();
-        testSave();
+        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 1L);
+
+        transactionDao.save(transaction);
+
+        transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 1L);
+
+        transactionDao.save(transaction);
     }
 
     @Test
     public void testFind()
     {
-        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 2L);
+        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
 
@@ -70,7 +90,7 @@ public class TransactionDaoTest
     @Test
     public void testFindList()
     {
-        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 3L);
+        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
 

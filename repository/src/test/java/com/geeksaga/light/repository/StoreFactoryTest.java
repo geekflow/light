@@ -39,6 +39,7 @@ public class StoreFactoryTest
     public static void init()
     {
         System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
+//        System.setProperty("light.db.path", String.format("plocal:.%s", DEFAULT_PATH));
 
         factory = StoreFactory.getInstance(Product.NAME);
     }
@@ -67,7 +68,7 @@ public class StoreFactoryTest
     }
 
     @Test
-    public void testGetInstance()
+    public void testGetSameInstance()
     {
         assertThat(factory, is(StoreFactory.getInstance(Product.NAME)));
         assertThat(factory.getObjectDatabaseTx(), is(StoreFactory.getInstance(Product.NAME).getObjectDatabaseTx()));

@@ -139,6 +139,8 @@ project(':repository') {
     dependencies {
         compile project(':agent.core')
         compile project(':common')
+
+        testCompile project(':profiler')
     }
 }
 
