@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static com.geeksaga.light.agent.config.ConfigDef.db_url;
 import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -38,7 +39,6 @@ import static org.hamcrest.Matchers.*;
  */
 public class TransactionDaoTest
 {
-    private static final String DEFAULT_PATH = "/../databases/";
     private static StoreFactory factory;
     private static TransactionDao transactionDao;
 
@@ -48,10 +48,11 @@ public class TransactionDaoTest
         System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
         System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
 
-        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
-//        System.setProperty("light.db.path", String.format("plocal:.%s", DEFAULT_PATH));
+        System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
 
         Config config = ProfilerConfiguration.load();
+
+        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", config.read(db_url, ConfigValueDef.db_url))));
 
         factory = StoreFactory.getInstance(Product.NAME + "/" + config.read(instance_id, ConfigValueDef.instance_id));
         transactionDao = new TransactionDaoImpl(factory);

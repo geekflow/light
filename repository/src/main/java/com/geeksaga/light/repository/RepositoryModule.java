@@ -52,7 +52,7 @@ public class RepositoryModule implements Module
 
         IdentifierUtils.seed(System.nanoTime() ^ repositoryContext.getConfig().read(instance_id, ConfigValueDef.instance_id));
 
-        REPOSITORY_WORKER.execute(new RepositoryWorker(queue));
+        REPOSITORY_WORKER.execute(new RepositoryWorker(queue, repositoryContext));
     }
 
     @Override

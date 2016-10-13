@@ -38,8 +38,8 @@ public class StoreFactoryTest
     @BeforeClass
     public static void init()
     {
-        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
-//        System.setProperty("light.db.path", String.format("plocal:.%s", DEFAULT_PATH));
+        System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
+//        System.setProperty("light.db.url", String.format("plocal:.%s", DEFAULT_PATH));
 
         factory = StoreFactory.getInstance(Product.NAME);
     }
@@ -83,7 +83,6 @@ public class StoreFactoryTest
 
         assertThat(oClass.existsProperty("tid"), is(true));
     }
-
 
     @Test
     public void testStore()

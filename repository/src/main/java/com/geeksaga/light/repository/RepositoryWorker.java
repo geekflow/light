@@ -15,6 +15,8 @@
  */
 package com.geeksaga.light.repository;
 
+import com.geeksaga.light.agent.RepositoryContext;
+import com.geeksaga.light.agent.config.ConfigValueDef;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
@@ -27,28 +29,34 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 import java.util.concurrent.BlockingQueue;
 
+import static com.geeksaga.light.agent.config.ConfigDef.db_url;
+
 /**
  * @author geeksaga
  */
 public class RepositoryWorker implements Runnable
 {
     private final BlockingQueue<ActiveObject> queue;
+    private final RepositoryContext repositoryContext;
+
     private final LightLogger logger;
     private final StoreFactory factory;
 
-    public RepositoryWorker(BlockingQueue<ActiveObject> queue)
+    public RepositoryWorker(BlockingQueue<ActiveObject> queue, RepositoryContext repositoryContext)
     {
         this.queue = queue;
+        this.repositoryContext = repositoryContext;
+
         this.logger = CommonLogger.getLogger(getClass().getName());
 
         init();
 
-        this.factory = StoreFactory.getInstance(Product.NAME);
+        this.factory = StoreFactory.getInstance();
     }
 
     private void init()
     {
-        System.setProperty("light.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
+        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", repositoryContext.getConfig().read(db_url, ConfigValueDef.db_url))));
     }
 
     @Override

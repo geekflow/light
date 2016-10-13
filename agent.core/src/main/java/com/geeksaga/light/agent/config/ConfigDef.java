@@ -24,6 +24,13 @@ public class ConfigDef
 {
     public static final String domain_id = "domain_id";
     public static final String instance_id = "instance_id";
+
+    public static final String db_path = "db_path";
+    public static final String db_url = "db_url";
+    public static final String db_user = "db_user";
+    public static final String db_password = "db_password";
+    public static final String enable_db_in_memory = "enable_db_in_memory";
+
     public static final String entry_point = "entry_point";
     public static final String class_max_size = "class_max_size";
     public static final String method_min_size = "method_min_size";

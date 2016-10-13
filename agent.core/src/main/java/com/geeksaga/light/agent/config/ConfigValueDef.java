@@ -20,10 +20,17 @@ import com.geeksaga.light.agent.util.FieldNameMap;
 /**
  * @author geeksaga
  */
-public class ConfigValueDef {
-
+public class ConfigValueDef
+{
     public static final short domain_id = -1;
     public static final short instance_id = -1;
+
+    public static final String db_path = "./databases";
+    public static final String db_url = "plocal:./databases/";
+    public static final String db_user = "admin";
+    public static final String db_password = "admin";
+    public static final boolean enable_db_in_memory = false;
+
     public static final String[] entry_point = null;
     public static final int class_max_size = 1024 * 1024;
     public static final int method_min_size = 0;

@@ -15,15 +15,21 @@
  */
 package com.geeksaga.light.repository;
 
+import com.geeksaga.light.agent.RepositoryContext;
+import com.geeksaga.light.agent.config.ConfigValueDef;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.agent.trace.MethodInfo;
+import com.geeksaga.light.config.Config;
 import org.junit.Test;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 
+import static com.geeksaga.light.agent.config.ConfigDef.db_url;
 import static com.geeksaga.light.repository.util.ModuleThreadFactory.createFactory;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author geeksaga
@@ -35,7 +41,12 @@ public class RepositoryWorkerTest
     @Test
     public void testExecute() throws InterruptedException
     {
-        Executors.newSingleThreadExecutor(createFactory(Product.NAME + getClass().getName(), Thread.NORM_PRIORITY)).execute(new RepositoryWorker(queue));
+        Config config = mock(Config.class);
+        RepositoryContext repositoryContext = mock(RepositoryContext.class);
+        when(repositoryContext.getConfig()).thenReturn(config);
+        when(config.read(db_url, ConfigValueDef.db_url)).thenReturn(String.format("memory:/%s/", Product.NAME.toLowerCase()));
+
+        Executors.newSingleThreadExecutor(createFactory(Product.NAME + getClass().getName(), Thread.NORM_PRIORITY)).execute(new RepositoryWorker(queue, repositoryContext));
 
         ActiveObject activeObject = new ActiveObject(Thread.currentThread(), new MethodInfo(getClass().getName(), getClass().getSimpleName()));
         activeObject.setStartTimeMillis(System.currentTimeMillis());
