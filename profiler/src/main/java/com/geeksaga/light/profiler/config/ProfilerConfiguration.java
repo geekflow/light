@@ -16,14 +16,13 @@
 package com.geeksaga.light.profiler.config;
 
 import com.geeksaga.light.config.Config;
+import com.geeksaga.light.config.MultiLineConfigure;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.config.MultiLineConfigure;
 import com.geeksaga.light.util.SystemProperty;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,11 +32,17 @@ public class ProfilerConfiguration implements Config
 {
     private static final LightLogger logger = CommonLogger.getLogger(ProfilerConfiguration.class.getName());
 
-    private MultiLineConfigure properties;
+    private MultiLineConfigure configure;
 
-    private ProfilerConfiguration(MultiLineConfigure properties)
+    private ProfilerConfiguration(MultiLineConfigure configure)
     {
-        this.properties = properties;
+        this(configure, new MultiLineConfigure(SystemProperty.EMBEDDED_LIGHT_CONFIG));
+    }
+
+    private ProfilerConfiguration(MultiLineConfigure configure, MultiLineConfigure embeddedConfig)
+    {
+        this.configure = configure;
+        this.configure.addAll(embeddedConfig);
     }
 
     public static Config load()
@@ -62,7 +67,7 @@ public class ProfilerConfiguration implements Config
 
     public String read(String propertyKey, String defaultValue)
     {
-        return properties.getValueOrNull(propertyKey, defaultValue);
+        return configure.getValueOrNull(propertyKey, defaultValue);
     }
 
     public boolean read(String propertyKey, boolean defaultValue)
@@ -87,12 +92,11 @@ public class ProfilerConfiguration implements Config
 
     public List<String> read(String propertyKey)
     {
-        String[] values = properties.getValues(propertyKey);
-        if (values == null || values.length == 0)
-        {
-            return Collections.emptyList();
-        }
+        return read(propertyKey, new String[] {});
+    }
 
-        return Arrays.asList(values);
+    public List<String> read(String propertyKey, String[] defaultValues)
+    {
+        return Arrays.asList(configure.getValues(propertyKey, defaultValues));
     }
 }

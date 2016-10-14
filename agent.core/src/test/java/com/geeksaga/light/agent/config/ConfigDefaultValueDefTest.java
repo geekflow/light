@@ -13,31 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.config;
+package com.geeksaga.light.agent.config;
 
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collection;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author geeksaga
  */
-public class MultiLinePropertiesTest
+public class ConfigDefaultValueDefTest
 {
     @Test
-    public void testLoad()
+    public void testHasNameInConfigDef()
     {
-        MultiLineConfigure properties = new MultiLineConfigure("ignore.ini");
+        Collection<String> values = ConfigDefaultValueDef.names.keys();
 
-        assertThat(properties.getValueOrNull("empty"), nullValue());
+        assertThat(ConfigDefaultValueDef.names.size(), is(values.size()));
 
-        assertThat(properties.getValueOrNull("ignore_pattern"), is("com.geeksaga.light."));
+        for (String key : ConfigDefaultValueDef.names.keys())
+        {
+            String removedPrefixKey = key.replace("default_", "");
 
-        assertThat(Arrays.asList(properties.getValues("ignore_pattern")), containsInAnyOrder("com.geeksaga.light.", "java.lang.", "java.lang.String.toString()V"));
-
-        assertThat(Arrays.asList(properties.getValues("ignore_pattern")).size(), is(3));
+            assertThat(ConfigDef.names.hasName(removedPrefixKey), is(true));
+        }
     }
 }

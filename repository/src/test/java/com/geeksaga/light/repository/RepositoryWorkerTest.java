@@ -16,7 +16,7 @@
 package com.geeksaga.light.repository;
 
 import com.geeksaga.light.agent.RepositoryContext;
-import com.geeksaga.light.agent.config.ConfigValueDef;
+import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.config.Config;
@@ -44,7 +44,7 @@ public class RepositoryWorkerTest
         Config config = mock(Config.class);
         RepositoryContext repositoryContext = mock(RepositoryContext.class);
         when(repositoryContext.getConfig()).thenReturn(config);
-        when(config.read(db_url, ConfigValueDef.db_url)).thenReturn(String.format("memory:/%s/", Product.NAME.toLowerCase()));
+        when(config.read(db_url, ConfigDefaultValueDef.default_db_url)).thenReturn(String.format("memory:/%s/", Product.NAME.toLowerCase()));
 
         Executors.newSingleThreadExecutor(createFactory(Product.NAME + getClass().getName(), Thread.NORM_PRIORITY)).execute(new RepositoryWorker(queue, repositoryContext));
 

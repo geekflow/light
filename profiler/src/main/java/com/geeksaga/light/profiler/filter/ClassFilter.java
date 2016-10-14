@@ -60,4 +60,9 @@ public class ClassFilter implements Filter
     {
         return allow(classLoader, classNodeWrapper.getClassName(), classfileBuffer);
     }
+
+    public boolean refresh()
+    {
+        return true;
+    }
 }

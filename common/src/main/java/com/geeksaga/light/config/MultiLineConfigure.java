@@ -56,7 +56,17 @@ public class MultiLineConfigure
         loadFormFile(file, name);
     }
 
-    public String getValueOrNull(String key)
+    public int size()
+    {
+        return properties.size();
+    }
+
+    public Set<String> keys()
+    {
+        return properties.keySet();
+    }
+
+    String getValueOrNull(String key)
     {
         Object value = properties.get(key);
         if (value instanceof String)
@@ -74,6 +84,11 @@ public class MultiLineConfigure
         }
 
         return null;
+    }
+
+    public Object get(String key)
+    {
+        return properties.get(key);
     }
 
     public String getValueOrNull(String key, String defaultValue)
@@ -100,8 +115,9 @@ public class MultiLineConfigure
 
     public String[] getValues(String key, String[] defaultValue)
     {
-        String[] value = getValues(key);
-        return value != null ? value : defaultValue;
+        String[] values = getValues(key);
+
+        return values.length > 0 ? values : defaultValue;
     }
 
     private void loadSystemResource(String name)
@@ -123,45 +139,49 @@ public class MultiLineConfigure
 
     private void loadFormFile(File file, String name)
     {
-        if (file != null && file.exists())
+        if (file == null || file.exists())
         {
-            JarFile jarFile = null;
-            InputStream inputStream = null;
-            try
-            {
-                jarFile = new JarFile(file);
-                ZipEntry entry = jarFile.getEntry(name);
-                if (entry != null)
-                {
-                    inputStream = jarFile.getInputStream(entry);
+            return;
+        }
 
-                    load(inputStream);
-                }
-            }
-            catch (Exception exception)
+        JarFile jarFile = null;
+        InputStream inputStream = null;
+        try
+        {
+            jarFile = new JarFile(file);
+            ZipEntry entry = jarFile.getEntry(name);
+            if (entry != null)
             {
-                logger.info(exception);
+                inputStream = jarFile.getInputStream(entry);
+
+                load(inputStream);
             }
-            finally
-            {
-                close(inputStream);
-                close(jarFile);
-            }
+        }
+        catch (Exception exception)
+        {
+            logger.info(exception);
+        }
+        finally
+        {
+            close(inputStream);
+            close(jarFile);
         }
     }
 
     private void close(Closeable closeable)
     {
-        if (closeable != null)
+        if (closeable == null)
         {
-            try
-            {
-                closeable.close();
-            }
-            catch (IOException ioException)
-            {
-                logger.info(ioException);
-            }
+            return;
+        }
+
+        try
+        {
+            closeable.close();
+        }
+        catch (IOException ioException)
+        {
+            logger.info(ioException);
         }
     }
 
@@ -177,19 +197,19 @@ public class MultiLineConfigure
 
     public void load(ClassLoader classLoader, String name) throws IOException
     {
-        if (classLoader != null)
+        if (classLoader == null)
         {
-            InputStream inputStream = classLoader.getResourceAsStream(name);
-
-            if (inputStream != null)
-            {
-                load(inputStream, DEFAULT_ENCODING);
-            }
+            load(name, DEFAULT_ENCODING);
 
             return;
         }
 
-        load(name, DEFAULT_ENCODING);
+        InputStream inputStream = classLoader.getResourceAsStream(name);
+
+        if (inputStream != null)
+        {
+            load(inputStream, DEFAULT_ENCODING);
+        }
     }
 
     private void load(InputStream inputStream) throws IOException
@@ -225,9 +245,9 @@ public class MultiLineConfigure
 
             listToArray(keys);
         }
-        catch (Exception exception)
+        catch (Exception e)
         {
-            exception.printStackTrace();
+            logger.warn(e);
         }
         finally
         {
@@ -235,71 +255,163 @@ public class MultiLineConfigure
         }
     }
 
+    public void addAll(MultiLineConfigure multiLineConfigure)
+    {
+        if (multiLineConfigure == null || multiLineConfigure.size() == 0)
+        {
+            return;
+        }
+
+        for (String key : multiLineConfigure.keys())
+        {
+            Object newValue = multiLineConfigure.get(key);
+            Object oldValue = this.get(key);
+            if (oldValue instanceof String)
+            {
+                if (newValue instanceof String)
+                {
+                    newValue = merge((String) oldValue, (String) newValue);
+                }
+                else if (newValue instanceof String[])
+                {
+                    newValue = merge((String) oldValue, (String[]) newValue);
+                }
+            }
+            else if (oldValue instanceof String[])
+            {
+                if (newValue instanceof String)
+                {
+                    newValue = merge((String[]) oldValue, (String) newValue);
+                }
+                else if (newValue instanceof String[])
+                {
+                    newValue = merge((String[]) oldValue, (String[]) newValue);
+                }
+            }
+
+            properties.put(key, newValue);
+        }
+    }
+
+    private Object merge(String a, String b)
+    {
+        return uniqueArrayValues(new String[] { a, b });
+    }
+
+    private Object merge(String a, String[] b)
+    {
+        return uniqueArrayValues(merge0(new String[] { a }, (b != null ? b : new String[] {})));
+    }
+
+    private Object merge(String[] a, String b)
+    {
+        return uniqueArrayValues(merge0((a != null ? a : new String[] {}), new String[] { b }));
+    }
+
+    private Object merge(String[] a, String[] b)
+    {
+        return merge0((a != null ? a : new String[] {}), (b != null ? b : new String[] {}));
+    }
+
+    private String[] merge0(String[] a, String[] b)
+    {
+        String[] result = new String[a.length + b.length];
+
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+
+        return result;
+    }
+
+    private Object uniqueArrayValues(String[] values)
+    {
+        return removeNullValue(new HashSet<String>(Arrays.asList(values)).toArray(new String[0]));
+    }
+
+    private Object removeNullValue(String[] values)
+    {
+        List<String> list = new ArrayList<String>();
+
+        for (String value : values)
+        {
+            if (value != null && value.length() > 0)
+            {
+                list.add(value);
+            }
+        }
+
+        return list.toArray(new String[list.size()]);
+    }
+
     private void parse(String line, int startLine, Set<String> keys)
     {
-        if (!isComment(line, startLine))
+        if (isComment(line, startLine))
         {
-            int length = line.length();
-
-            int indexOfKey;
-            for (indexOfKey = startLine; indexOfKey < length; indexOfKey++)
-            {
-                if (WHITE_SPACE.indexOf(line.charAt(indexOfKey)) != -1)
-                {
-                    break;
-                }
-            }
-
-            int indexOfValue;
-            for (indexOfValue = indexOfKey; indexOfValue < length; indexOfValue++)
-            {
-                if (WHITE_SPACE.indexOf(line.charAt(indexOfValue)) == -1)
-                {
-                    break;
-                }
-            }
-
-            if (indexOfValue < length && "=".indexOf(line.charAt(indexOfValue)) != -1)
-            {
-                indexOfValue++;
-            }
-
-            while (indexOfValue < length)
-            {
-                if (WHITE_SPACE.indexOf(line.charAt(indexOfValue)) == -1)
-                {
-                    break;
-                }
-
-                indexOfValue++;
-            }
-
-            put(indexOfKey, indexOfValue, startLine, line, keys);
+            return;
         }
+
+        int length = line.length();
+
+        int indexOfKey;
+        for (indexOfKey = startLine; indexOfKey < length; indexOfKey++)
+        {
+            if (WHITE_SPACE.indexOf(line.charAt(indexOfKey)) != -1)
+            {
+                break;
+            }
+        }
+
+        int indexOfValue;
+        for (indexOfValue = indexOfKey; indexOfValue < length; indexOfValue++)
+        {
+            if (WHITE_SPACE.indexOf(line.charAt(indexOfValue)) == -1)
+            {
+                break;
+            }
+        }
+
+        if (indexOfValue < length && "=".indexOf(line.charAt(indexOfValue)) != -1)
+        {
+            indexOfValue++;
+        }
+
+        while (indexOfValue < length)
+        {
+            if (WHITE_SPACE.indexOf(line.charAt(indexOfValue)) == -1)
+            {
+                break;
+            }
+
+            indexOfValue++;
+        }
+
+        put(indexOfKey, indexOfValue, startLine, line, keys);
     }
 
     private void put(int indexOfKey, int indexOfValue, int startLine, String line, Set<String> keys)
     {
         String value = (indexOfKey < line.length()) ? line.substring(indexOfValue, line.length()).trim() : "";
-        if (value.length() > 0)
+        if (value.length() == 0)
         {
-            String key = line.substring(startLine, indexOfKey);
-            Object beforeValue = properties.get(key);
-            if (beforeValue instanceof String)
-            {
-                properties.put(key, createList(beforeValue, value));
+            return;
+        }
 
-                keys.add(key);
-            }
-            else if (beforeValue instanceof List)
-            {
-                List list = (List) beforeValue;
-                list.add(value);
-            }
-            else
-            {
-                properties.put(key, value);
-            }
+        String key = line.substring(startLine, indexOfKey);
+        Object beforeValue = properties.get(key);
+        if (beforeValue instanceof String)
+        {
+            properties.put(key, createList(beforeValue, value));
+
+            keys.add(key);
+        }
+        else if (beforeValue instanceof List)
+        {
+            List list = (List) beforeValue;
+            list.add(value);
+        }
+        else
+        {
+            properties.put(key, value);
         }
     }
 

@@ -39,6 +39,7 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import java.security.ProtectionDomain;
 
 import static com.geeksaga.light.agent.config.ConfigDef.entry_point;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_entry_point;
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
 
 /**
@@ -97,8 +98,7 @@ public class EntryPointTransformer implements LightClassFileTransformer
         this.end = end;
         this.endDescriptor = endDescriptor;
 
-        refresh();
-
+        this.classSelector = ClassSelector.create(traceContext.getConfig().read(entry_point, default_entry_point));
         this.filter = new EntryFilter(traceContext, classSelector);
     }
 
@@ -118,8 +118,7 @@ public class EntryPointTransformer implements LightClassFileTransformer
         this.end = end;
         this.endDescriptor = endDescriptor;
 
-        refresh();
-
+        this.classSelector = ClassSelector.create(traceContext.getConfig().read(entry_point, default_entry_point));
         this.filter = new EntryFilter(traceContext, classSelector);
     }
 
@@ -233,7 +232,9 @@ public class EntryPointTransformer implements LightClassFileTransformer
 
     public void refresh()
     {
-        classSelector = ClassSelector.create(traceContext.getConfig().read(entry_point));
+        classSelector = ClassSelector.create(traceContext.getConfig().read(entry_point, default_entry_point));
+
+        filter.refresh();
     }
 
     private MethodSelector getMethodSelectorOrNull(String className)

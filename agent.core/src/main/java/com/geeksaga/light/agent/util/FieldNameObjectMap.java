@@ -20,33 +20,39 @@ import com.geeksaga.light.logger.LightLogger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @author geeksaga
  */
-public class FieldNameMap
+public class FieldNameObjectMap
 {
-    private static final LightLogger logger = CommonLogger.getLogger(FieldNameMap.class.getName());
+    private static final LightLogger logger = CommonLogger.getLogger(FieldNameObjectMap.class.getName());
 
-    private final Map<String, String> table = new Hashtable<String, String>();
+    private final Map<String, Object> table = new HashMap<String, Object>();
 
-    public boolean hasName(String key)
+    public Object get(Object key)
     {
-        return table.containsKey(key);
+        return table.get(key);
     }
 
-    public String get(Object index)
+    public Set<String> keys()
     {
-        return table.get(index);
+        return table.keySet();
     }
 
-    public String put(String value)
+    public Object put(String key, Object value)
     {
-        return table.put(value, value);
+        table.put(key, value);
+
+        return value;
+    }
+
+    public Object remove(Object key)
+    {
+        return table.remove(key);
     }
 
     public int size()
@@ -54,47 +60,42 @@ public class FieldNameMap
         return table.size();
     }
 
-    public Set<String> keySet()
+    public Object getName(Object key)
     {
-        return table.keySet();
+        return table.get(key);
     }
 
-    public Collection<String> values()
-    {
-        return table.values();
-    }
-
-    public static FieldNameMap toMap(Class<?> clazz)
+    public static FieldNameObjectMap toMap(Class<?> clazz)
     {
         return toMap(clazz, false, false);
     }
 
-    public static FieldNameMap toMap(Class<?> clazz, boolean toLower, boolean includeFirstSuperClass)
+    public static FieldNameObjectMap toMap(Class<?> clazz, boolean toLower, boolean includeFirstSuperClass)
     {
-        FieldNameMap fieldNameMap = new FieldNameMap();
-
-        if (clazz != null)
-        {
-            put(clazz.getDeclaredFields(), fieldNameMap, toLower);
-        }
+        FieldNameObjectMap fieldNameObjectMap = new FieldNameObjectMap();
 
         if (clazz != null && includeFirstSuperClass)
         {
-            toMapWithFirstSuperClass(clazz.getSuperclass(), toLower, fieldNameMap);
+            toMapWithFirstSuperClass(clazz.getSuperclass(), toLower, fieldNameObjectMap);
         }
 
-        return fieldNameMap;
+        if (clazz != null)
+        {
+            put(clazz.getDeclaredFields(), fieldNameObjectMap, toLower);
+        }
+
+        return fieldNameObjectMap;
     }
 
-    private static void toMapWithFirstSuperClass(Class<?> clazz, boolean toLower, FieldNameMap fieldNameMap)
+    private static void toMapWithFirstSuperClass(Class<?> clazz, boolean toLower, FieldNameObjectMap fieldNameObjectMap)
     {
         if (clazz != null && !"java.lang.Object".equals(clazz.getName()))
         {
-            put(clazz.getDeclaredFields(), fieldNameMap, toLower);
+            put(clazz.getDeclaredFields(), fieldNameObjectMap, toLower);
         }
     }
 
-    private static void put(Field[] fields, FieldNameMap fieldNameMap, boolean toLower)
+    private static void put(Field[] fields, FieldNameObjectMap fieldNameObjectMap, boolean toLower)
     {
         if (fields == null)
         {
@@ -115,16 +116,13 @@ public class FieldNameMap
                 Object value = field.get(null);
                 String name = field.getName();
 
-                if (value instanceof String)
+                if (toLower)
                 {
-                    if (toLower)
-                    {
-                        fieldNameMap.put(name.toLowerCase());
-                    }
-                    else
-                    {
-                        fieldNameMap.put(name);
-                    }
+                    fieldNameObjectMap.put(name.toLowerCase(), value);
+                }
+                else
+                {
+                    fieldNameObjectMap.put(name, value);
                 }
             }
             catch (Exception exception)

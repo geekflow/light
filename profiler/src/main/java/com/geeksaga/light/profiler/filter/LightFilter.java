@@ -16,11 +16,13 @@
 package com.geeksaga.light.profiler.filter;
 
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.config.ConfigDef;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.util.ASMUtil;
 
 import java.util.List;
+
+import static com.geeksaga.light.agent.config.ConfigDef.ignore_bci_pattern;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_ignore_bci_pattern;
 
 /**
  * @author geeksaga
@@ -75,7 +77,7 @@ public class LightFilter implements Filter
 
     private boolean ignorePattern(String className)
     {
-        List<String> values = traceContext.getConfig().read(ConfigDef.ignore_bci_pattern);
+        List<String> values = traceContext.getConfig().read(ignore_bci_pattern, default_ignore_bci_pattern);
 
         for (String value : values)
         {
@@ -86,5 +88,10 @@ public class LightFilter implements Filter
         }
 
         return false;
+    }
+
+    public boolean refresh()
+    {
+        return true;
     }
 }

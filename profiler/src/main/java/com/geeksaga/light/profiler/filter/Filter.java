@@ -30,4 +30,6 @@ public interface Filter
     boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper);
 
     boolean allow(ClassLoader classLoader, ClassNodeWrapper classNodeWrapper, byte[] classfileBuffer);
+
+    boolean refresh();
 }

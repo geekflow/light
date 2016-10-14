@@ -24,10 +24,10 @@ import com.geeksaga.light.profiler.selector.MethodSelector;
 /**
  * @author geeksaga
  */
-public class AbstractFilter
+class AbstractFilter
 {
     private ClassSelector selectIgnoreClass = null;
-    private ClassSelector selectIgnoreSuper = null;
+    private ClassSelector selectIgnoreSuperClass = null;
     private ClassSelector selectIgnoreInterface = null;
     private ClassPatternSelector selectIgnoreClassPattern = null;
 
@@ -38,15 +38,15 @@ public class AbstractFilter
         this.traceContext = traceContext;
     }
 
-    void createIgnore(String ignoreClass, String ignoreSuper, String ignoreInterface, String ignoreClassPattern)
+    void createIgnore(String ignoreClassKey, String ignoreSuperClassKey, String ignoreInterfaceKey, String ignoreClassPatternKey)
     {
-        selectIgnoreClass = ClassSelector.create(traceContext.getConfig().read(ignoreClass));
-        selectIgnoreSuper = ClassSelector.create(traceContext.getConfig().read(ignoreSuper));
-        selectIgnoreInterface = ClassSelector.create(traceContext.getConfig().read(ignoreInterface));
-        selectIgnoreClassPattern = ClassPatternSelector.create(traceContext.getConfig().read(ignoreClassPattern));
+        selectIgnoreClass = ClassSelector.create(traceContext.getConfig().read(ignoreClassKey));
+        selectIgnoreSuperClass = ClassSelector.create(traceContext.getConfig().read(ignoreSuperClassKey));
+        selectIgnoreInterface = ClassSelector.create(traceContext.getConfig().read(ignoreInterfaceKey));
+        selectIgnoreClassPattern = ClassPatternSelector.create(traceContext.getConfig().read(ignoreClassPatternKey));
     }
 
-    public MethodSelector getSelector(ClassNodeWrapper clazz)
+    MethodSelector getSelector(ClassNodeWrapper clazz)
     {
         MethodSelector methodSelector;
 
@@ -68,9 +68,9 @@ public class AbstractFilter
             }
         }
 
-        if (selectIgnoreSuper != null && !selectIgnoreSuper.isEmpty())
+        if (selectIgnoreSuperClass != null && !selectIgnoreSuperClass.isEmpty())
         {
-            methodSelector = selectIgnoreSuper.selectByInterface(clazz.getAllInterfaceNames());
+            methodSelector = selectIgnoreSuperClass.selectByInterface(clazz.getAllInterfaceNames());
             if (methodSelector != null)
             {
                 return methodSelector;

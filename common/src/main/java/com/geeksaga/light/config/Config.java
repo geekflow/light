@@ -33,4 +33,6 @@ public interface Config
     long read(String propertyKey, long defaultValue);
 
     List<String> read(String propertyKey);
+
+    List<String> read(String propertyKey, String[] defaultValue);
 }

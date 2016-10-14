@@ -16,7 +16,7 @@
 package com.geeksaga.light.repository;
 
 import com.geeksaga.light.agent.RepositoryContext;
-import com.geeksaga.light.agent.config.ConfigValueDef;
+import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
@@ -56,7 +56,7 @@ public class RepositoryWorker implements Runnable
 
     private void init()
     {
-        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", repositoryContext.getConfig().read(db_url, ConfigValueDef.db_url))));
+        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", repositoryContext.getConfig().read(db_url, ConfigDefaultValueDef.default_db_url))));
     }
 
     @Override

@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.repository.dao;
 
-import com.geeksaga.light.agent.config.ConfigValueDef;
+import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.profiler.config.ProfilerConfiguration;
 import com.geeksaga.light.repository.Product;
@@ -52,9 +52,9 @@ public class TransactionDaoTest
 
         Config config = ProfilerConfiguration.load();
 
-        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", config.read(db_url, ConfigValueDef.db_url))));
+        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", config.read(db_url, ConfigDefaultValueDef.default_db_url))));
 
-        factory = StoreFactory.getInstance(Product.NAME + "/" + config.read(instance_id, ConfigValueDef.instance_id));
+        factory = StoreFactory.getInstance(Product.NAME + "/" + config.read(instance_id, ConfigDefaultValueDef.default_instance_id));
         transactionDao = new TransactionDaoImpl(factory);
     }
 

@@ -74,16 +74,18 @@ public class PropertiesLoader
 
     private void close(Closeable closeable)
     {
-        if (closeable != null)
+        if (closeable == null)
         {
-            try
-            {
-                closeable.close();
-            }
-            catch (IOException ioException)
-            {
-                logger.info(ioException);
-            }
+            return;
+        }
+
+        try
+        {
+            closeable.close();
+        }
+        catch (IOException ioException)
+        {
+            logger.info(ioException);
         }
     }
 }

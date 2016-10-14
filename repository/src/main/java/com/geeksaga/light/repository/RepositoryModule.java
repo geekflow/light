@@ -17,7 +17,7 @@ package com.geeksaga.light.repository;
 
 import com.geeksaga.light.agent.Module;
 import com.geeksaga.light.agent.RepositoryContext;
-import com.geeksaga.light.agent.config.ConfigValueDef;
+import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
@@ -50,7 +50,7 @@ public class RepositoryModule implements Module
     {
         logger.info("repository module start");
 
-        IdentifierUtils.seed(System.nanoTime() ^ repositoryContext.getConfig().read(instance_id, ConfigValueDef.instance_id));
+        IdentifierUtils.seed(System.nanoTime() ^ repositoryContext.getConfig().read(instance_id, ConfigDefaultValueDef.default_instance_id));
 
         REPOSITORY_WORKER.execute(new RepositoryWorker(queue, repositoryContext));
     }

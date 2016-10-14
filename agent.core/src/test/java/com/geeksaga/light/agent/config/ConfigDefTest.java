@@ -25,14 +25,17 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author geeksaga
  */
-public class ConfigDefTest {
+public class ConfigDefTest
+{
     @Test
-    public void testConfigField() {
+    public void testConfigField()
+    {
         Collection<String> values = ConfigDef.names.values();
 
         assertThat(ConfigDef.names.size(), is(values.size()));
 
-        for (String key : ConfigDef.names.keySet()) {
+        for (String key : ConfigDef.names.keySet())
+        {
             assertThat(ConfigDef.names.hasName(key), is(true));
         }
     }

@@ -16,20 +16,26 @@
 package com.geeksaga.light.profiler.config;
 
 import com.geeksaga.light.config.Config;
+import com.geeksaga.light.util.SystemProperty;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import target.TestMethods;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
 import static com.geeksaga.light.agent.config.ConfigDef.*;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_entry_point;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.isIn;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -55,6 +61,12 @@ public class ProfilerConfigurationTest
         this.valueTwo = valueTwo;
     }
 
+    @BeforeClass
+    public static void init()
+    {
+        System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
+    }
+
     @Test
     public void testValidationValue()
     {
@@ -68,9 +80,17 @@ public class ProfilerConfigurationTest
 
         assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
 
+        assertThat(TestMethods.class.getName(), isIn(config.read(entry_point, default_entry_point)));
+
         config = ProfilerConfiguration.load(ProfilerConfigurationTest.class.getClassLoader(), "light.conf");
 
         assertThat(config, instanceOf(ProfilerConfiguration.class));
+
+        assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
+
+        config = ProfilerConfiguration.load("light.conf");
+
+        assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
 
         assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
     }
@@ -95,6 +115,6 @@ public class ProfilerConfigurationTest
 
         assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
 
-        assertThat(config.read(entry_point).size(), is(5));
+        assertThat(config.read(entry_point, default_entry_point).size(), is(5));
     }
 }

@@ -25,6 +25,7 @@ public class ConfigDef
     public static final String domain_id = "domain_id";
     public static final String instance_id = "instance_id";
 
+    public static final String db_type = "db_type";
     public static final String db_path = "db_path";
     public static final String db_url = "db_url";
     public static final String db_user = "db_user";
@@ -36,7 +37,18 @@ public class ConfigDef
     public static final String method_min_size = "method_min_size";
     public static final String method_max_size = "method_max_size";
 
+    public static final String entry_point_class = "entry_point_class";
+    public static final String entry_point_super_class = "entry_point_super_class";
+    public static final String entry_point_interface = "entry_point_interface";
+    public static final String entry_point_class_pattern = "entry_point_class_pattern";
+
+    public static final String entry_point_ignore_class = "entry_point_ignore_class";
+    public static final String entry_point_ignore_super_class = "entry_point_ignore_super_class";
+    public static final String entry_point_ignore_interface = "entry_point_ignore_interface";
+    public static final String entry_point_ignore_class_pattern = "entry_point_ignore_class_pattern";
+
     public static final String ignore_bci_pattern = "ignore_bci_pattern";
+    public static final String allow_bci_pattern = "allow_bci_pattern";
 
     public static FieldNameMap names = FieldNameMap.toMap(ConfigDef.class);
 }

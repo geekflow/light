@@ -15,8 +15,8 @@
  */
 package com.geeksaga.light.profiler.config;
 
-import com.geeksaga.light.config.PropertiesLoader;
 import com.geeksaga.light.config.Config;
+import com.geeksaga.light.config.PropertiesLoader;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.util.SystemProperty;
@@ -30,6 +30,7 @@ import java.util.Properties;
 /**
  * @author geeksaga
  */
+@Deprecated
 public class ProfilerConfig implements Config
 {
     private static final LightLogger logger = CommonLogger.getLogger(ProfilerConfig.class.getName());
@@ -106,12 +107,27 @@ public class ProfilerConfig implements Config
 
     public List<String> read(String propertyKey)
     {
+        return read(propertyKey, new String[] {});
+    }
+
+    public List<String> read(String propertyKey, String[] defaultValue)
+    {
         String value = properties.getProperty(propertyKey);
         if (value == null)
+        {
+            return read0(defaultValue);
+        }
+
+        return Arrays.asList(value.trim().split("\\s+"));
+    }
+
+    private List<String> read0(String[] values)
+    {
+        if (values == null || values.length == 0)
         {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(value.trim().split("\\s+"));
+        return Arrays.asList(values);
     }
 }

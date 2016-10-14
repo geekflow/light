@@ -16,16 +16,14 @@
 package com.geeksaga.light.profiler.filter;
 
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.config.ConfigDef;
-import com.geeksaga.light.agent.config.ConfigValueDef;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
+import com.geeksaga.light.profiler.selector.ClassPatternSelector;
 import com.geeksaga.light.profiler.selector.ClassSelector;
 import com.geeksaga.light.profiler.selector.MethodSelector;
-import com.geeksaga.light.profiler.util.ASMUtil;
 
-import java.util.List;
-
-import static com.geeksaga.light.agent.config.ConfigDef.entry_point;
+import static com.geeksaga.light.agent.config.ConfigDef.*;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_entry_point;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_ignore_bci_pattern;
 
 /**
  * @author geeksaga
@@ -36,7 +34,7 @@ public class EntryFilter extends AbstractFilter implements Filter
 
     public EntryFilter(TraceContext traceContext)
     {
-        this(traceContext, ClassSelector.create(traceContext.getConfig().read(entry_point)));
+        this(traceContext, ClassSelector.create(traceContext.getConfig().read(entry_point, default_entry_point)));
     }
 
     public EntryFilter(TraceContext traceContext, ClassSelector classSelector)
@@ -50,7 +48,7 @@ public class EntryFilter extends AbstractFilter implements Filter
 
     public boolean refresh()
     {
-        createIgnore("", "", "", "");
+        createIgnore(entry_point_ignore_class, entry_point_ignore_super_class, entry_point_ignore_interface, entry_point_ignore_super_class);
 
         return true;
     }
