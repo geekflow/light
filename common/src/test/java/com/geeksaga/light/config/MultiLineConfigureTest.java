@@ -22,8 +22,8 @@ import java.io.File;
 import java.util.Arrays;
 
 import static com.geeksaga.light.util.SystemProperty.EMBEDDED_LIGHT_CONFIG;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author geeksaga

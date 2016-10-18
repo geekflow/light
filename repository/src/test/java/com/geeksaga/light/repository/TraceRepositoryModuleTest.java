@@ -21,13 +21,15 @@ import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.repository.store.RepositoryFactory;
 import com.geeksaga.light.repository.util.ModuleExecutors;
+import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +38,13 @@ import static org.mockito.Mockito.when;
  */
 public class TraceRepositoryModuleTest
 {
+    @BeforeClass
+    public static void init()
+    {
+        System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
+        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
+    }
+
     @Test
     public void testLifeCycle() throws InterruptedException
     {
@@ -44,7 +53,7 @@ public class TraceRepositoryModuleTest
         RepositoryFactory repositoryFactory = mock(RepositoryFactory.class);
         when(traceRepository.getConfig()).thenReturn(config);
 
-//        when(config.read(any(String.class), any(String.class))).thenReturn("memory:/%s/");
+        //        when(config.read(any(String.class), any(String.class))).thenReturn("memory:/%s/");
 
         Module module = new TraceRepositoryModule(traceRepository, repositoryFactory, new ArrayBlockingQueue<ActiveObject>(10));
         module.start();

@@ -20,6 +20,7 @@ import com.geeksaga.light.config.MultiLineConfigure;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.util.SystemProperty;
+import com.geeksaga.light.version.RunningFromJar;
 
 import java.io.File;
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class ProfilerConfiguration implements Config
 
     private ProfilerConfiguration(MultiLineConfigure configure)
     {
-        this(configure, new MultiLineConfigure(SystemProperty.EMBEDDED_LIGHT_CONFIG));
+        this(configure, new MultiLineConfigure(RunningFromJar.getJarFilePathOrNull(ProfilerConfiguration.class), SystemProperty.EMBEDDED_LIGHT_CONFIG));
     }
 
     private ProfilerConfiguration(MultiLineConfigure configure, MultiLineConfigure embeddedConfig)

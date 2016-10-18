@@ -51,6 +51,11 @@ public class MultiLineConfigure
         loadSystemResource(classLoader, name);
     }
 
+    public MultiLineConfigure(String path, String name)
+    {
+        loadFormFile(path, name);
+    }
+
     public MultiLineConfigure(File file, String name)
     {
         loadFormFile(file, name);
@@ -137,9 +142,19 @@ public class MultiLineConfigure
         }
     }
 
+    private void loadFormFile(String path, String name)
+    {
+        if(path == null)
+        {
+            return;
+        }
+
+        loadFormFile(new File(path), name);
+    }
+
     private void loadFormFile(File file, String name)
     {
-        if (file == null || file.exists())
+        if (file == null || !file.exists())
         {
             return;
         }
@@ -150,12 +165,14 @@ public class MultiLineConfigure
         {
             jarFile = new JarFile(file);
             ZipEntry entry = jarFile.getEntry(name);
-            if (entry != null)
+            if (entry == null)
             {
-                inputStream = jarFile.getInputStream(entry);
-
-                load(inputStream);
+                return;
             }
+
+            inputStream = jarFile.getInputStream(entry);
+
+            load(inputStream);
         }
         catch (Exception exception)
         {
