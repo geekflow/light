@@ -15,48 +15,42 @@
  */
 package com.geeksaga.light.repository;
 
-import com.geeksaga.light.agent.RepositoryContext;
-import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.StoreFactory;
+import com.geeksaga.light.repository.store.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 import java.util.concurrent.BlockingQueue;
 
-import static com.geeksaga.light.agent.config.ConfigDef.db_url;
-
 /**
  * @author geeksaga
  */
-public class RepositoryWorker implements Runnable
+public class TraceRepositoryWorker implements Runnable
 {
-    private final BlockingQueue<ActiveObject> queue;
-    private final RepositoryContext repositoryContext;
-
     private final LightLogger logger;
-    private final StoreFactory factory;
+    private final TraceRepository traceRepository;
+    private final RepositoryFactory repositoryFactory;
+    private final BlockingQueue<ActiveObject> queue;
 
-    public RepositoryWorker(BlockingQueue<ActiveObject> queue, RepositoryContext repositoryContext)
+    public TraceRepositoryWorker(TraceRepository traceRepository, BlockingQueue<ActiveObject> queue)
     {
-        this.queue = queue;
-        this.repositoryContext = repositoryContext;
-
-        this.logger = CommonLogger.getLogger(getClass().getName());
-
-        init();
-
-        this.factory = StoreFactory.getInstance();
+        this(traceRepository, RepositoryFactory.getInstance(), queue);
     }
 
-    private void init()
+    public TraceRepositoryWorker(TraceRepository traceRepository, RepositoryFactory repositoryFactory, BlockingQueue<ActiveObject> queue)
     {
-        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", repositoryContext.getConfig().read(db_url, ConfigDefaultValueDef.default_db_url))));
+        this.logger = CommonLogger.getLogger(getClass().getName());
+
+        this.traceRepository = traceRepository;
+        this.repositoryFactory = repositoryFactory;
+
+        this.queue = queue;
     }
 
     @Override
@@ -83,14 +77,14 @@ public class RepositoryWorker implements Runnable
     {
         try
         {
-            OObjectDatabaseTx objectDatabaseTx = factory.getObjectDatabaseTx();
+            OObjectDatabaseTx objectDatabaseTx = repositoryFactory.getObjectDatabaseTx();
 
             Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
             transaction.setTransactionName(activeObject.getTransactionName());
             transaction.setEndTimeMillis(System.currentTimeMillis());
             transaction.setElapsedTime((int) (transaction.getEndTimeMillis() - activeObject.getStartTimeMillis()));
 
-            TransactionDao transactionDao = new TransactionDaoImpl(factory);
+            TransactionDao transactionDao = new TransactionDaoImpl(repositoryFactory);
             transactionDao.save(transaction);
 
             logger.info("application = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), transaction.getEndTimeMillis(), transaction.getElapsedTime());

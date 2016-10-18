@@ -17,7 +17,7 @@ package com.geeksaga.light.repository.dao.orientdb;
 
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.StoreFactory;
+import com.geeksaga.light.repository.store.RepositoryFactory;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
@@ -29,9 +29,9 @@ import java.util.List;
  */
 public class TransactionDaoImpl implements TransactionDao
 {
-    private StoreFactory factory;
+    private RepositoryFactory factory;
 
-    public TransactionDaoImpl(StoreFactory factory)
+    public TransactionDaoImpl(RepositoryFactory factory)
     {
         this.factory = factory;
     }

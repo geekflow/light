@@ -15,7 +15,8 @@
  */
 package com.geeksaga.light.repository;
 
-import com.geeksaga.light.repository.store.StoreFactory;
+import com.geeksaga.light.repository.entity.Transaction;
+import com.geeksaga.light.repository.store.RepositoryFactory;
 import com.geeksaga.light.util.SystemProperty;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import org.junit.BeforeClass;
@@ -30,9 +31,9 @@ import static org.junit.Assert.assertThat;
 /**
  * @author geeksaga
  */
-public class StoreFactoryTest
+public class RepositoryFactoryTest
 {
-    private static StoreFactory factory;
+    private static RepositoryFactory factory;
     private static final String DEFAULT_PATH = "/../databases/";
 
     @BeforeClass
@@ -41,7 +42,7 @@ public class StoreFactoryTest
         System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
 //        System.setProperty("light.db.url", String.format("plocal:.%s", DEFAULT_PATH));
 
-        factory = StoreFactory.getInstance(Product.NAME);
+        factory = RepositoryFactory.getInstance(Product.NAME.toLowerCase());
     }
 
     private String replaceWindowsSeparator(String path)
@@ -70,25 +71,16 @@ public class StoreFactoryTest
     @Test
     public void testGetSameInstance()
     {
-        assertThat(factory, is(StoreFactory.getInstance(Product.NAME)));
-        assertThat(factory.getObjectDatabaseTx(), is(StoreFactory.getInstance(Product.NAME).getObjectDatabaseTx()));
+        assertThat(factory, is(RepositoryFactory.getInstance(Product.NAME)));
+        assertThat(factory.getObjectDatabaseTx(), is(RepositoryFactory.getInstance(Product.NAME).getObjectDatabaseTx()));
     }
 
     @Test
     public void testFindClass()
     {
-        OClass oClass = factory.findClass("Transaction");
+        OClass transactionClass = factory.findClass(Transaction.class.getSimpleName());
 
-        assertThat(oClass, notNullValue());
-
-        assertThat(oClass.existsProperty("tid"), is(true));
-    }
-
-    @Test
-    public void testStore()
-    {
-        //        assertThat(factory.store(StoreFactoryTest.class.getName(), "name", StoreFactoryTest.class.getName()), is(true));
-        //        assertThat(factory.store(StoreFactoryTest.class.getName(), "name", StoreFactoryTest.class.getName()), is(true));
-        //        assertThat(factory.store(StoreFactoryTest.class.getName(), "name", StoreFactoryTest.class.getName()), is(true));
+        assertThat(transactionClass, notNullValue());
+        assertThat(transactionClass.existsProperty("tid"), is(true));
     }
 }

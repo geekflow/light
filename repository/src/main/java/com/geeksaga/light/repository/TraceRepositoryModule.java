@@ -16,32 +16,40 @@
 package com.geeksaga.light.repository;
 
 import com.geeksaga.light.agent.Module;
-import com.geeksaga.light.agent.RepositoryContext;
-import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.repository.store.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 
 import java.util.concurrent.BlockingQueue;
 
 import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_instance_id;
 import static com.geeksaga.light.repository.util.ModuleExecutors.REPOSITORY_WORKER;
 import static com.geeksaga.light.repository.util.ModuleExecutors.shutdownNowAll;
 
 /**
  * @author geeksaga
  */
-public class RepositoryModule implements Module
+public class TraceRepositoryModule implements Module
 {
-    private LightLogger logger;
-    private RepositoryContext repositoryContext;
-    private BlockingQueue<ActiveObject> queue;
+    private final LightLogger logger;
+    private final TraceRepository traceRepository;
+    private final RepositoryFactory repositoryFactory;
+    private final BlockingQueue<ActiveObject> queue;
 
-    public RepositoryModule(RepositoryContext repositoryContext, BlockingQueue<ActiveObject> queue)
+    public TraceRepositoryModule(TraceRepository traceRepository, BlockingQueue<ActiveObject> queue)
+    {
+        this(traceRepository, RepositoryFactory.getInstance(), queue);
+    }
+
+    public TraceRepositoryModule(TraceRepository traceRepository, RepositoryFactory repositoryFactory, BlockingQueue<ActiveObject> queue)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
-        this.repositoryContext = repositoryContext;
+        this.traceRepository = traceRepository;
+        this.repositoryFactory = repositoryFactory;
         this.queue = queue;
     }
 
@@ -50,9 +58,9 @@ public class RepositoryModule implements Module
     {
         logger.info("repository module start");
 
-        IdentifierUtils.seed(System.nanoTime() ^ repositoryContext.getConfig().read(instance_id, ConfigDefaultValueDef.default_instance_id));
+        IdentifierUtils.seed(System.nanoTime() ^ traceRepository.getConfig().read(instance_id, default_instance_id));
 
-        REPOSITORY_WORKER.execute(new RepositoryWorker(queue, repositoryContext));
+        REPOSITORY_WORKER.execute(new TraceRepositoryWorker(traceRepository, repositoryFactory, queue));
     }
 
     @Override

@@ -21,7 +21,7 @@ import com.geeksaga.light.config.Config;
 /**
  * @author geeksaga
  */
-public interface RepositoryContext
+public interface TraceRepository
 {
     void save(ActiveObject activeObject);
 

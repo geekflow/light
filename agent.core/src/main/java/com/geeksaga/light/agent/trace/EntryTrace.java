@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.agent.trace;
 
-import com.geeksaga.light.agent.RepositoryContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
@@ -30,7 +30,7 @@ public class EntryTrace implements Trace
 {
     private LightLogger logger;
     private TraceContext traceContext;
-    private RepositoryContext repositoryContext;
+    private TraceRepository traceRepository;
 
     public EntryTrace(TraceContext traceContext)
     {
@@ -38,11 +38,11 @@ public class EntryTrace implements Trace
         this.traceContext = traceContext;
     }
 
-    public EntryTrace(TraceContext traceContext, RepositoryContext repositoryContext)
+    public EntryTrace(TraceContext traceContext, TraceRepository traceRepository)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.traceContext = traceContext;
-        this.repositoryContext = repositoryContext;
+        this.traceRepository = traceRepository;
     }
 
     public void begin(MethodInfo methodInfo)
@@ -75,7 +75,7 @@ public class EntryTrace implements Trace
             {
                 logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
 
-                repositoryContext.save(activeObject);
+                traceRepository.save(activeObject);
 
                 logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
             }

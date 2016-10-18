@@ -15,9 +15,9 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.agent.RepositoryContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.core.AgentRepositoryContext;
+import com.geeksaga.light.agent.core.TransactionTraceRepository;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
 import com.geeksaga.light.agent.trace.EntryTrace;
 import com.geeksaga.light.agent.trace.MethodInfo;
@@ -54,7 +54,7 @@ public class EntryPointTransformer implements LightClassFileTransformer
 
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
-    private RepositoryContext repositoryContext;
+    private TraceRepository traceRepository;
 
     private int traceId;
 
@@ -77,18 +77,18 @@ public class EntryPointTransformer implements LightClassFileTransformer
         this(traceRegisterBinder, traceContext, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, RepositoryContext repositoryContext)
+    public EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, TraceRepository traceRepository)
     {
-        this(traceRegisterBinder, traceContext, repositoryContext, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
+        this(traceRegisterBinder, traceContext, traceRepository, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    private EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, RepositoryContext repositoryContext, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
+    private EntryPointTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, TraceRepository traceRepository, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
-        this.repositoryContext = repositoryContext;
+        this.traceRepository = traceRepository;
 
         this.traceId = createTrace();
 
@@ -108,7 +108,7 @@ public class EntryPointTransformer implements LightClassFileTransformer
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
-        this.repositoryContext = new AgentRepositoryContext(traceContext.getConfig());
+        this.traceRepository = new TransactionTraceRepository(traceContext.getConfig());
 
         this.traceId = createTrace();
 
@@ -124,7 +124,7 @@ public class EntryPointTransformer implements LightClassFileTransformer
 
     private int createTrace()
     {
-        return traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext, repositoryContext));
+        return traceRegisterBinder.getTraceRegistryAdaptor().add(new EntryTrace(traceContext, traceRepository));
     }
 
     @Override

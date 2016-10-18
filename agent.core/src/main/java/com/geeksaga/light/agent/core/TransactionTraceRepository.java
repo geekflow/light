@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.agent.core;
 
-import com.geeksaga.light.agent.RepositoryContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
@@ -26,18 +26,18 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author geeksaga
  */
-public class AgentRepositoryContext implements RepositoryContext
+public class TransactionTraceRepository implements TraceRepository
 {
     private LightLogger logger;
     private Config config;
     private BlockingQueue<ActiveObject> queue;
 
-    public AgentRepositoryContext(Config config)
+    public TransactionTraceRepository(Config config)
     {
         this(config, new ArrayBlockingQueue<ActiveObject>(1000));
     }
 
-    public AgentRepositoryContext(Config config, BlockingQueue<ActiveObject> queue)
+    public TransactionTraceRepository(Config config, BlockingQueue<ActiveObject> queue)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.config = config;

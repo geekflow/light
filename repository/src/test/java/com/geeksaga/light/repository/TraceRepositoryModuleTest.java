@@ -16,9 +16,10 @@
 package com.geeksaga.light.repository;
 
 import com.geeksaga.light.agent.Module;
-import com.geeksaga.light.agent.RepositoryContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.config.Config;
+import com.geeksaga.light.repository.store.RepositoryFactory;
 import com.geeksaga.light.repository.util.ModuleExecutors;
 import org.junit.Test;
 
@@ -26,22 +27,26 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * @author geeksaga
  */
-public class RepositoryModuleTest
+public class TraceRepositoryModuleTest
 {
     @Test
     public void testLifeCycle() throws InterruptedException
     {
         Config config = mock(Config.class);
-        RepositoryContext repositoryContext = mock(RepositoryContext.class);
-        when(repositoryContext.getConfig()).thenReturn(config);
+        TraceRepository traceRepository = mock(TraceRepository.class);
+        RepositoryFactory repositoryFactory = mock(RepositoryFactory.class);
+        when(traceRepository.getConfig()).thenReturn(config);
 
-        Module module = new RepositoryModule(repositoryContext, new ArrayBlockingQueue<ActiveObject>(10));
+//        when(config.read(any(String.class), any(String.class))).thenReturn("memory:/%s/");
+
+        Module module = new TraceRepositoryModule(traceRepository, repositoryFactory, new ArrayBlockingQueue<ActiveObject>(10));
         module.start();
 
         assertThat(false, is(ModuleExecutors.REPOSITORY_WORKER.isShutdown()));

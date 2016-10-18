@@ -15,13 +15,12 @@
  */
 package com.geeksaga.light.repository.dao;
 
-import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.profiler.config.ProfilerConfiguration;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.StoreFactory;
+import com.geeksaga.light.repository.store.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;
@@ -31,6 +30,8 @@ import java.io.File;
 
 import static com.geeksaga.light.agent.config.ConfigDef.db_url;
 import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_db_url;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_instance_id;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -39,7 +40,7 @@ import static org.hamcrest.Matchers.*;
  */
 public class TransactionDaoTest
 {
-    private static StoreFactory factory;
+    private static RepositoryFactory factory;
     private static TransactionDao transactionDao;
 
     @BeforeClass
@@ -52,9 +53,9 @@ public class TransactionDaoTest
 
         Config config = ProfilerConfiguration.load();
 
-        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", config.read(db_url, ConfigDefaultValueDef.default_db_url))));
+        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", config.read(db_url, default_db_url))));
 
-        factory = StoreFactory.getInstance(Product.NAME + "/" + config.read(instance_id, ConfigDefaultValueDef.default_instance_id));
+        factory = RepositoryFactory.getInstance(Product.NAME + "/" + config.read(instance_id, default_instance_id));
         transactionDao = new TransactionDaoImpl(factory);
     }
 

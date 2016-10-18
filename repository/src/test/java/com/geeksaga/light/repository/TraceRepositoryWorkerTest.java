@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.repository;
 
-import com.geeksaga.light.agent.RepositoryContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.config.ConfigDefaultValueDef;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.agent.trace.MethodInfo;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author geeksaga
  */
-public class RepositoryWorkerTest
+public class TraceRepositoryWorkerTest
 {
     private BlockingQueue<ActiveObject> queue = new ArrayBlockingQueue<ActiveObject>(100);
 
@@ -42,11 +42,11 @@ public class RepositoryWorkerTest
     public void testExecute() throws InterruptedException
     {
         Config config = mock(Config.class);
-        RepositoryContext repositoryContext = mock(RepositoryContext.class);
-        when(repositoryContext.getConfig()).thenReturn(config);
+        TraceRepository traceRepository = mock(TraceRepository.class);
+        when(traceRepository.getConfig()).thenReturn(config);
         when(config.read(db_url, ConfigDefaultValueDef.default_db_url)).thenReturn(String.format("memory:/%s/", Product.NAME.toLowerCase()));
 
-        Executors.newSingleThreadExecutor(createFactory(Product.NAME + getClass().getName(), Thread.NORM_PRIORITY)).execute(new RepositoryWorker(queue, repositoryContext));
+        Executors.newSingleThreadExecutor(createFactory(Product.NAME + getClass().getName(), Thread.NORM_PRIORITY)).execute(new TraceRepositoryWorker(traceRepository, queue));
 
         ActiveObject activeObject = new ActiveObject(Thread.currentThread(), new MethodInfo(getClass().getName(), getClass().getSimpleName()));
         activeObject.setStartTimeMillis(System.currentTimeMillis());

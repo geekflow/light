@@ -16,8 +16,8 @@
 package com.geeksaga.light.profiler;
 
 import com.geeksaga.light.agent.Module;
-import com.geeksaga.light.agent.RepositoryContext;
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.*;
 import com.geeksaga.light.config.ConfigBinder;
 import com.geeksaga.light.logger.CommonLogger;
@@ -28,7 +28,8 @@ import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDi
 import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
-import com.geeksaga.light.repository.RepositoryModule;
+import com.geeksaga.light.repository.TraceRepositoryModule;
+import com.geeksaga.light.repository.store.RepositoryFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class ProfilerModule implements Module
     private Instrumentation instrumentation;
     private TraceRegisterBinder traceRegisterBinder;
     private TraceContext traceContext;
-    private RepositoryContext repositoryContext;
+    private TraceRepository traceRepository;
     private LightLogger logger;
     private LightLoggerBinder loggerBinder;
     private ConfigBinder configBinder;
@@ -71,7 +72,7 @@ public class ProfilerModule implements Module
         //        this.traceContext = new AgentTraceContext(configBinder.getConfig());
 
         this.traceContext = new AgentTraceContext(ProfilerConfiguration.load());
-        this.repositoryContext = new AgentRepositoryContext(traceContext.getConfig(), queue);
+        this.traceRepository = new TransactionTraceRepository(traceContext.getConfig(), queue);
 
         this.classFileTransformerList = Collections.synchronizedList(new ArrayList<LightClassFileTransformer>());
     }
@@ -83,7 +84,7 @@ public class ProfilerModule implements Module
 
         registPointCut();
 
-        Module module = new RepositoryModule(repositoryContext, queue);
+        Module module = new TraceRepositoryModule(traceRepository, RepositoryFactory.getInstance(), queue);
         module.start();
 
         addTransformer(instrumentation.isRetransformClassesSupported());
@@ -102,7 +103,7 @@ public class ProfilerModule implements Module
         //        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext));
         //        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
         //        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
-        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext, repositoryContext)); // must be last put for EntryPointTransformer
+        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext, traceRepository)); // must be last put for EntryPointTransformer
     }
 
     private void addTransformer(boolean canRetransform)

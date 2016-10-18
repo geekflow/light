@@ -20,14 +20,12 @@ import com.geeksaga.light.repository.Product;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.geeksaga.light.repository.util.ModuleThreadFactory.createFactory;
-
 /**
  * @author geeksaga
  */
 public class ModuleExecutors
 {
-    public static final ExecutorService REPOSITORY_WORKER = Executors.newSingleThreadExecutor(ModuleThreadFactory.createFactory(Product.NAME + "-RepositoryWorker", Thread.MAX_PRIORITY));
+    public static final ExecutorService REPOSITORY_WORKER = Executors.newSingleThreadExecutor(ModuleThreadFactory.createFactory(Product.NAME + "-TraceRepositoryWorker", Thread.MAX_PRIORITY));
 
     public static void shutdownNowAll()
     {
