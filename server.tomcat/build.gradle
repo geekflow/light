@@ -28,4 +28,6 @@ dependencies {
     compile "org.apache.tomcat:tomcat-jasper:${tomcatVersion}"
     compile "org.apache.tomcat:tomcat-jasper-el:${tomcatVersion}"
     compile "org.apache.tomcat:tomcat-jsp-api:${tomcatVersion}"
+
+    compile "com.mitchellbosecke:pebble:2.2.3"
 }

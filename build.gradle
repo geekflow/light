@@ -145,9 +145,15 @@ project(':repository') {
 }
 
 project(':server.jetty') {
+    dependencies {
+        compile project(':repository')
+    }
 }
 
 project(':server.tomcat') {
+    dependencies {
+        compile project(':repository')
+    }
 }
 
 task jacocoRootReport(type: JacocoReport) {
