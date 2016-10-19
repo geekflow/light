@@ -18,7 +18,7 @@ package com.geeksaga.flow.analysis;
 import com.geeksaga.flow.dao.ClassDao;
 import com.geeksaga.flow.dao.orientdb.ClassDaoImpl;
 import com.geeksaga.flow.entity.Classes;
-import com.geeksaga.flow.store.StoreFactory;
+import com.geeksaga.flow.store.RepositoryFactory;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
@@ -41,7 +41,7 @@ public class Analysis
 {
     private static final LightLogger logger = CommonLogger.getLogger(Analysis.class.getName());
 
-    private static StoreFactory storeFactory = StoreFactory.getInstance();
+    private static RepositoryFactory repositoryFactory = RepositoryFactory.getInstance();
     private static Printer printer = new Textifier();
     private static TraceMethodVisitor mp = new TraceMethodVisitor(printer);
 
@@ -67,7 +67,7 @@ public class Analysis
             debug(classNodeWrapper);
         }
 
-        //        storeFactory.store("Classes", "name", classNodeWrapper.name);
+        //        repositoryFactory.store("Classes", "name", classNodeWrapper.name);
 
         Classes classes = new Classes();
         classes.setName(classNodeWrapper.name);

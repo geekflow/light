@@ -70,15 +70,16 @@ public class EntryTrace implements Trace
         try
         {
             ActiveObject activeObject = traceContext.current();
-
-            if (activeObject != null)
+            if (activeObject == null)
             {
-                logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
-
-                traceRepository.save(activeObject);
-
-                logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
+                return;
             }
+
+            logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
+
+            traceRepository.save(activeObject);
+
+            logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
         }
         catch (Throwable innerThrowable)
         {

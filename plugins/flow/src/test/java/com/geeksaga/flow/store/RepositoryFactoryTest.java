@@ -27,22 +27,22 @@ import static org.junit.Assert.assertThat;
  */
 public class RepositoryFactoryTest
 {
-    private static StoreFactory factory;
+    private static RepositoryFactory factory;
 
     @BeforeClass
     public static void init()
     {
         System.setProperty("flow.db.path", String.format("memory:/%s/", Product.NAME.toUpperCase()));
 
-        factory = StoreFactory.getInstance("flowtest");
+        factory = RepositoryFactory.getInstance("flowtest");
     }
 
     @Test
     public void testGetInstance()
     {
-        StoreFactory factory = StoreFactory.getInstance("flowtest");
+        RepositoryFactory factory = RepositoryFactory.getInstance("flowtest");
 
-        assertThat(factory, is(StoreFactory.getInstance()));
+        assertThat(factory, is(RepositoryFactory.getInstance()));
     }
 
     @Test

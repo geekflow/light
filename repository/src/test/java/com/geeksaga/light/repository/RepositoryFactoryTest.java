@@ -16,7 +16,7 @@
 package com.geeksaga.light.repository;
 
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.RepositoryFactory;
+import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.util.SystemProperty;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import org.junit.BeforeClass;

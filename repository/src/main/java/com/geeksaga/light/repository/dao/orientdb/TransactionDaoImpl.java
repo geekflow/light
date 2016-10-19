@@ -17,7 +17,7 @@ package com.geeksaga.light.repository.dao.orientdb;
 
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.RepositoryFactory;
+import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;

@@ -20,7 +20,7 @@ import com.geeksaga.light.profiler.config.ProfilerConfiguration;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.RepositoryFactory;
+import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;

@@ -22,7 +22,7 @@ import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.store.RepositoryFactory;
+import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
@@ -38,6 +38,8 @@ public class TraceRepositoryWorker implements Runnable
     private final RepositoryFactory repositoryFactory;
     private final BlockingQueue<ActiveObject> queue;
 
+    private TransactionDao transactionDao;
+
     public TraceRepositoryWorker(TraceRepository traceRepository, BlockingQueue<ActiveObject> queue)
     {
         this(traceRepository, RepositoryFactory.getInstance(), queue);
@@ -51,6 +53,13 @@ public class TraceRepositoryWorker implements Runnable
         this.repositoryFactory = repositoryFactory;
 
         this.queue = queue;
+
+        init();
+    }
+
+    private void init()
+    {
+        this.transactionDao = new TransactionDaoImpl(repositoryFactory);
     }
 
     @Override
@@ -77,27 +86,27 @@ public class TraceRepositoryWorker implements Runnable
     {
         try
         {
-            OObjectDatabaseTx objectDatabaseTx = repositoryFactory.getObjectDatabaseTx();
+            Transaction transaction = createTransaction(activeObject);
 
-            Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
-            transaction.setTransactionName(activeObject.getTransactionName());
-            transaction.setEndTimeMillis(System.currentTimeMillis());
-            transaction.setElapsedTime((int) (transaction.getEndTimeMillis() - activeObject.getStartTimeMillis()));
-
-            TransactionDao transactionDao = new TransactionDaoImpl(repositoryFactory);
             transactionDao.save(transaction);
 
-            logger.info("application = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), transaction.getEndTimeMillis(), transaction.getElapsedTime());
-
-            logger.info("find =========================================>");
-            for (Transaction t : transactionDao.findList())
-            {
-                logger.info("{}", t.toString());
-            }
+            logger.info("application = {}, end time = {}, elapsed time = {}", transaction.getTransactionName(), transaction.getEndTimeMillis(), transaction.getElapsedTime());
         }
         catch (Exception exception)
         {
             logger.info(exception);
         }
+    }
+
+    private Transaction createTransaction(final ActiveObject activeObject)
+    {
+        OObjectDatabaseTx objectDatabaseTx = repositoryFactory.getObjectDatabaseTx();
+
+        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
+        transaction.setTransactionName(activeObject.getTransactionName());
+        transaction.setEndTimeMillis(System.currentTimeMillis());
+        transaction.setElapsedTime((int) (transaction.getEndTimeMillis() - activeObject.getStartTimeMillis()));
+
+        return transaction;
     }
 }

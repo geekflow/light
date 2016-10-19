@@ -19,7 +19,7 @@ import com.geeksaga.light.agent.Module;
 import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.config.Config;
-import com.geeksaga.light.repository.store.RepositoryFactory;
+import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.repository.util.ModuleExecutors;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;

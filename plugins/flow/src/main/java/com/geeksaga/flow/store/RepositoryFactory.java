@@ -15,7 +15,6 @@
  */
 package com.geeksaga.flow.store;
 
-import com.geeksaga.light.util.SystemProperty;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -29,25 +28,25 @@ import java.util.List;
 /**
  * @author geeksaga
  */
-public class StoreFactory
+public class RepositoryFactory
 {
-    private static StoreFactory instance = null;
+    private static RepositoryFactory instance = null;
     private static OrientGraphFactory factory = null;
 
     private static String path = System.getProperty("flow.db.path", "plocal:./databases/");
 
-    private StoreFactory() {}
+    private RepositoryFactory() {}
 
-    public static StoreFactory getInstance()
+    public static RepositoryFactory getInstance()
     {
         return getInstance("flow");
     }
 
-    public static StoreFactory getInstance(String database)
+    public static RepositoryFactory getInstance(String database)
     {
         if (instance == null)
         {
-            instance = new StoreFactory();
+            instance = new RepositoryFactory();
 
             init(database);
 

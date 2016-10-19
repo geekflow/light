@@ -15,7 +15,7 @@
  */
 package com.geeksaga.flow.analysis;
 
-import com.geeksaga.flow.store.StoreFactory;
+import com.geeksaga.flow.store.RepositoryFactory;
 import com.geeksaga.light.util.SystemProperty;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.junit.BeforeClass;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertThat;
  */
 public class AnalysisTest
 {
-    private static StoreFactory factory = null;
+    private static RepositoryFactory factory = null;
     private static final String DEFAULT_PATH = "/../../databases/";
     private static final String LOGFILE_PATH = "/src/test/resources/log4j2.xml";
 
@@ -42,7 +42,7 @@ public class AnalysisTest
         System.setProperty("flow.db.path", String.format("plocal:%s%s", System.getProperty("user.dir"), replaceWindowsSeparator(DEFAULT_PATH)));
         System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, System.getProperty("user.dir") + replaceWindowsSeparator(LOGFILE_PATH));
 
-        factory = StoreFactory.getInstance("flowtest");
+        factory = RepositoryFactory.getInstance("flowtest");
     }
 
     private static String replaceWindowsSeparator(String path)

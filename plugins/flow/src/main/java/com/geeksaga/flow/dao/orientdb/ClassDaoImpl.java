@@ -17,7 +17,7 @@ package com.geeksaga.flow.dao.orientdb;
 
 import com.geeksaga.flow.dao.ClassDao;
 import com.geeksaga.flow.entity.Classes;
-import com.geeksaga.flow.store.StoreFactory;
+import com.geeksaga.flow.store.RepositoryFactory;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -29,12 +29,12 @@ import java.util.List;
  */
 public class ClassDaoImpl implements ClassDao
 {
-    private StoreFactory factory = StoreFactory.getInstance();
+    private RepositoryFactory repositoryFactory = RepositoryFactory.getInstance();
 
     @Override
     public boolean save(Classes classes)
     {
-        ODatabaseDocumentTx documentTx = factory.getDatabase();
+        ODatabaseDocumentTx documentTx = repositoryFactory.getDatabase();
 
         try
         {

@@ -29,7 +29,7 @@ import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 import com.geeksaga.light.repository.TraceRepositoryModule;
-import com.geeksaga.light.repository.store.RepositoryFactory;
+import com.geeksaga.light.repository.factory.RepositoryFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
