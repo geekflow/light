@@ -46,8 +46,8 @@ public class OrientDBEmbeddable
     public static void main(String[] args) throws Exception
     {
         OServer server = OServerMain.create();
-        //        server.startup(OrientDBEmbeddable.class.getResourceAsStream("db.config"));
-        server.startup(new File("src/main/resources/db.config")); // test
+        //        server.startup(OrientDBEmbedServer.class.getResourceAsStream("db.xml"));
+        server.startup(new File("src/main/resources/db.xml")); // test
 
         System.out.println(sun_boot_class_path);
 

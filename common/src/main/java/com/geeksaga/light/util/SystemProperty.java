@@ -54,6 +54,9 @@ public class SystemProperty
     public static final String LIGHT_CONFIG = getSystemProperty("light.config", "light.conf");
     public static final String EMBEDDED_LIGHT_CONFIG = "embedded.light.conf";
 
+    public static final String ORIENTDB_HOME = getSystemProperty("ORIENTDB_HOME");
+    public static final String LIGHT_REPOSITORY_CONFIG = getSystemProperty("light.repository.config", "db.xml");
+
     private static String getSystemProperty(String key)
     {
         return getSystemProperty(key, "");

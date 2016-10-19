@@ -13,52 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.repository.store.orientdb;
+package com.geeksaga.light.repository.orientdb;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.server.OServer;
-import com.orientechnologies.orient.server.OServerMain;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 
 /**
  * @author geeksaga
  */
-public class OrientDBEmbeddable
+public class OrientDBEmbedServerTest
 {
-    public static final String sun_boot_class_path = System.getProperty("sun.boot.class.path");
-    public static final String line_separator = System.getProperty("line.separator");
-    public static final String path_separator = System.getProperty("path.separator");
+    private static final OrientDBEmbedServer server = new OrientDBEmbedServer();
+    private static final String REPOSITORY_CONFIG = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml";
 
-    private static String flowPath = null;
 
-    public static void main(String[] args) throws Exception
+    @BeforeClass
+    public static void init()
     {
-        OServer server = OServerMain.create();
-        //        server.startup(OrientDBEmbeddable.class.getResourceAsStream("db.config"));
-        server.startup(new File("src/main/resources/db.config")); // test
-
-        System.out.println(sun_boot_class_path);
-
-        server.activate();
-
-        test();
-
-        server.shutdown();
+        System.setProperty("light.repository.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml");
     }
 
-    public static void test()
+    @Test
+    public void testStartup()
+    {
+        server.startup(REPOSITORY_CONFIG);
+
+        assertThat(server.isActive(), is(true));
+        assertThat(server.shutdown(), is(true));
+    }
+
+    @Test
+    public void testShutdown()
+    {
+        assumeThat(server, notNullValue());
+        assumeThat(server.isActive(), is(true));
+
+        assertThat(server.shutdown(), is(true));
+    }
+
+    @Ignore
+    @Test
+    public void test()
     {
 
         //        ODatabaseDocumentTx db = new ODatabaseDocumentTx("local:petshop").open("admin", "admin");
@@ -159,81 +171,12 @@ public class OrientDBEmbeddable
         graph.shutdown();
     }
 
-    public static String getConfigPath()
+
+    @AfterClass
+    public static void teardown()
     {
-        if (flowPath == null)
-        {
-            String path = sun_boot_class_path;
+        assumeThat(server, notNullValue());
 
-            try
-            {
-                int x = path.indexOf("geeksaga.flow.jar");
-                if (x > -1)
-                {
-                    String path_sep = path_separator;
-                    int x1 = path.lastIndexOf(path_sep, x);
-
-                    if (x1 < 0)
-                    {
-                        flowPath = path.substring(0, x);
-                    }
-                    else
-                    {
-                        flowPath = path.substring(x1 + 1, x);
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                // Logger.info(exception);
-            }
-        }
-
-        return flowPath;
-    }
-
-    public void loadJarFile(File file, String name)
-    {
-        if (file != null && file.exists())
-        {
-            JarFile jfile = null;
-            try
-            {
-                jfile = new JarFile(file);
-                ZipEntry ent = jfile.getEntry(name);
-                if (ent != null)
-                {
-                    InputStream fin = jfile.getInputStream(ent);
-
-                    try
-                    {
-                        //                        load(fin);
-                        fin.close();
-                    }
-                    finally
-                    {
-                        fin = null;
-                    }
-                }
-            }
-            catch (Throwable e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                try
-                {
-                    if (jfile != null)
-                    {
-                        jfile.close();
-                        jfile = null;
-                    }
-                }
-                catch (IOException e)
-                {
-                }
-            }
-        }
+        server.shutdown();
     }
 }
