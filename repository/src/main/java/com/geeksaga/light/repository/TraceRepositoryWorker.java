@@ -24,7 +24,6 @@ import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
 import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -100,9 +99,7 @@ public class TraceRepositoryWorker implements Runnable
 
     private Transaction createTransaction(final ActiveObject activeObject)
     {
-        OObjectDatabaseTx objectDatabaseTx = repositoryFactory.getObjectDatabaseTx();
-
-        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
+        Transaction transaction = repositoryFactory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
         transaction.setTransactionName(activeObject.getTransactionName());
         transaction.setEndTimeMillis(System.currentTimeMillis());
         transaction.setElapsedTime((int) (transaction.getEndTimeMillis() - activeObject.getStartTimeMillis()));

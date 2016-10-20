@@ -17,12 +17,13 @@ package com.geeksaga.light.config;
 
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.util.SystemProperty;
 
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
+import static com.geeksaga.light.util.SystemProperty.LIGHT_CONFIG;
 
 /**
  * @author geeksaga
@@ -38,7 +39,7 @@ public class MultiLineConfigure
 
     public MultiLineConfigure()
     {
-        loadSystemResource(null, SystemProperty.LIGHT_CONFIG);
+        loadSystemResource(null, LIGHT_CONFIG);
     }
 
     public MultiLineConfigure(String name)
@@ -53,12 +54,12 @@ public class MultiLineConfigure
 
     public MultiLineConfigure(String path, String name)
     {
-        loadFormFile(path, name);
+        loadFormJar(path, name);
     }
 
     public MultiLineConfigure(File file, String name)
     {
-        loadFormFile(file, name);
+        loadFormJar(file, name);
     }
 
     public int size()
@@ -142,17 +143,17 @@ public class MultiLineConfigure
         }
     }
 
-    private void loadFormFile(String path, String name)
+    private void loadFormJar(String path, String name)
     {
-        if(path == null)
+        if (path == null)
         {
             return;
         }
 
-        loadFormFile(new File(path), name);
+        loadFormJar(new File(path), name);
     }
 
-    private void loadFormFile(File file, String name)
+    private void loadFormJar(File file, String name)
     {
         if (file == null || !file.exists())
         {
@@ -209,6 +210,9 @@ public class MultiLineConfigure
 
     public void load(String name, String encoding) throws IOException
     {
+        System.out.println(name);
+        System.out.println(name);
+        System.out.println(name);
         load(new FileInputStream(name), encoding);
     }
 
@@ -222,7 +226,6 @@ public class MultiLineConfigure
         }
 
         InputStream inputStream = classLoader.getResourceAsStream(name);
-
         if (inputStream != null)
         {
             load(inputStream, DEFAULT_ENCODING);
