@@ -16,87 +16,117 @@
 package com.geeksaga.light.repository.dao;
 
 import com.geeksaga.light.config.Config;
-import com.geeksaga.light.profiler.config.ProfilerConfiguration;
-import com.geeksaga.light.repository.Product;
+import com.geeksaga.light.repository.connect.RepositoryConnection;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
-import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
+import com.geeksaga.light.test.TestConfigure;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
-
-import static com.geeksaga.light.agent.config.ConfigDef.db_url;
 import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
-import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_db_url;
 import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_instance_id;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author geeksaga
  */
+@Ignore
 public class TransactionDaoTest
 {
-    private static RepositoryFactory factory;
-    private static TransactionDao transactionDao;
+    private RepositoryConnection repositoryConnection;
+    private TransactionDao transactionDao;
 
-    @BeforeClass
-    public static void init()
+    //    @BeforeClass
+    @Before
+    public void init()
     {
-        System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
-        System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
+        TestConfigure.load();
 
-        System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
+        final Config config = TestConfigure.getConfig();
 
-        Config config = ProfilerConfiguration.load();
-
-        System.setProperty("light.db.url", String.format("%s", System.getProperty("light.db.url", config.read(db_url, default_db_url))));
-
-        factory = RepositoryFactory.getInstance(Product.NAME + "/" + config.read(instance_id, default_instance_id));
-        transactionDao = new TransactionDaoImpl(factory);
+        //        repositoryConnection = new RepositoryConnection(config, TestConfigure.read(config, instance_id, default_instance_id) + "Test");
+        repositoryConnection = TestConfigure.getConnection();
+        transactionDao = new TransactionDaoImpl(repositoryConnection);
     }
 
     @Test
     public void testSave()
     {
-        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+
+        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
+
+//        if (objectDatabaseTx.isActiveOnCurrentThread())
+//        {
+//            objectDatabaseTx.close();
+//        }
     }
 
     @Test(expected = com.orientechnologies.orient.core.storage.ORecordDuplicatedException.class)
     public void testUniqueIndex()
     {
-        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 1L);
+        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+
+        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
 
         transactionDao.save(transaction);
 
-        transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, 1L);
+        //        if(objectDatabaseTx.isActiveOnCurrentThread())
+        //        {
+        //            objectDatabaseTx.close();
+        //        }
+
+        objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+
+        transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
 
         transactionDao.save(transaction);
+
+        //        if(objectDatabaseTx.isActiveOnCurrentThread())
+        //        {
+        //            objectDatabaseTx.close();
+        //        }
     }
 
     @Test
     public void testFind()
     {
-        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+
+        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
 
         assertThat(transactionDao.find(transaction).getTid(), is(transaction.getTid()));
+
+//        if (objectDatabaseTx.isActiveOnCurrentThread())
+//        {
+//            objectDatabaseTx.close();
+//        }
     }
 
     @Test
     public void testFindList()
     {
-        Transaction transaction = factory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+
+        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
 
         assertThat(transactionDao.findList(), notNullValue());
         assertThat(transactionDao.findList().size(), greaterThanOrEqualTo(1));
+
+//        if (objectDatabaseTx.isActiveOnCurrentThread())
+//        {
+//            objectDatabaseTx.close();
+//        }
     }
 }

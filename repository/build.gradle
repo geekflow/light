@@ -11,6 +11,8 @@ jar {
 dependencies {
     compile 'com.orientechnologies:orientdb-graphdb:2.2.2'
     compile 'com.orientechnologies:orientdb-object:2.2.2'
+
+    testCompile 'com.orientechnologies:orientdb-jdbc:2.2.2'
 }
 
 task install(dependsOn: [copyToLibrary]) {

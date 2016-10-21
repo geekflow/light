@@ -15,9 +15,9 @@
  */
 package com.geeksaga.light.repository.dao.orientdb;
 
+import com.geeksaga.light.repository.connect.RepositoryConnection;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
@@ -29,17 +29,17 @@ import java.util.List;
  */
 public class TransactionDaoImpl implements TransactionDao
 {
-    private RepositoryFactory repositoryFactory;
+    private RepositoryConnection repositoryConnection;
 
-    public TransactionDaoImpl(RepositoryFactory repositoryFactory)
+    public TransactionDaoImpl(RepositoryConnection repositoryConnection)
     {
-        this.repositoryFactory = repositoryFactory;
+        this.repositoryConnection = repositoryConnection;
     }
 
     @Override
     public boolean save(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = repositoryFactory.getObjectDatabaseTx();
+        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
         documentTx.save(transaction);
 
         return true;
@@ -48,7 +48,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction modify(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = repositoryFactory.getObjectDatabaseTx();
+        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
 
         try
         {
@@ -97,7 +97,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction find(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = repositoryFactory.getObjectDatabaseTx();
+        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
 
         List<Transaction> result = documentTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
 
@@ -112,7 +112,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public List<Transaction> findList()
     {
-        OObjectDatabaseTx documentTx = repositoryFactory.getObjectDatabaseTx();
+        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
 
         return documentTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
     }

@@ -19,10 +19,10 @@ import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.repository.connect.RepositoryConnection;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 
 import java.util.concurrent.BlockingQueue;
@@ -34,22 +34,22 @@ public class TraceRepositoryWorker implements Runnable
 {
     private final LightLogger logger;
     private final TraceRepository traceRepository;
-    private final RepositoryFactory repositoryFactory;
+    private final RepositoryConnection repositoryConnection;
     private final BlockingQueue<ActiveObject> queue;
 
     private TransactionDao transactionDao;
 
     public TraceRepositoryWorker(TraceRepository traceRepository, BlockingQueue<ActiveObject> queue)
     {
-        this(traceRepository, RepositoryFactory.getInstance(), queue);
+        this(traceRepository, new RepositoryConnection(Product.NAME.toLowerCase()), queue);
     }
 
-    public TraceRepositoryWorker(TraceRepository traceRepository, RepositoryFactory repositoryFactory, BlockingQueue<ActiveObject> queue)
+    public TraceRepositoryWorker(TraceRepository traceRepository, RepositoryConnection repositoryConnection, BlockingQueue<ActiveObject> queue)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
 
         this.traceRepository = traceRepository;
-        this.repositoryFactory = repositoryFactory;
+        this.repositoryConnection = repositoryConnection;
 
         this.queue = queue;
 
@@ -58,7 +58,7 @@ public class TraceRepositoryWorker implements Runnable
 
     private void init()
     {
-        this.transactionDao = new TransactionDaoImpl(repositoryFactory);
+        this.transactionDao = new TransactionDaoImpl(repositoryConnection);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class TraceRepositoryWorker implements Runnable
 
     private Transaction createTransaction(final ActiveObject activeObject)
     {
-        Transaction transaction = repositoryFactory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        Transaction transaction = repositoryConnection.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
         transaction.setTransactionName(activeObject.getTransactionName());
         transaction.setEndTimeMillis(System.currentTimeMillis());
         transaction.setElapsedTime((int) (transaction.getEndTimeMillis() - activeObject.getStartTimeMillis()));

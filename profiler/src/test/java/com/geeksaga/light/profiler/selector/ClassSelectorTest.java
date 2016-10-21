@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
  */
 public class ClassSelectorTest
 {
-    private String[] target = { "javax.sql.DataSource getConnection(String, String)", //
+    private String[] target = { "javax.sql.RepositorySource getConnection(String, String)", //
             "test.trace.ServiceDummy param(1, 2, 3)", //
             "test.trace.ServiceDummy param(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", //
             "jlink.channel.soap.JLSOAPClntOBConnection", //
@@ -77,11 +77,11 @@ public class ClassSelectorTest
     @Test
     public void testDescriptionSelector()
     {
-        ClassSelector selector = ClassSelector.create(new String[] { "javax.sql.DataSource getConnection(String, String)" });
+        ClassSelector selector = ClassSelector.create(new String[] { "javax.sql.RepositorySource getConnection(String, String)" });
 
-        assertThat(selector.selectByClass("javax.sql.DataSource"), notNullValue());
+        assertThat(selector.selectByClass("javax.sql.RepositorySource"), notNullValue());
 
-        MethodSelector methodSelector = selector.selectByClass("javax.sql.DataSource");
+        MethodSelector methodSelector = selector.selectByClass("javax.sql.RepositorySource");
 
         assertThat(methodSelector.size(), is(1));
         assertThat(methodSelector.isSelected("getConnection", "(String, String)"), is(true));

@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThat;
 /**
  * @author geeksaga
  */
-public class RepositoryFactoryTest
+public class RepositoryConnectionTest
 {
     private static RepositoryFactory factory;
 
@@ -48,8 +48,8 @@ public class RepositoryFactoryTest
     @Test
     public void testStore()
     {
-        assertThat(factory.store(RepositoryFactoryTest.class.getName(), "name", RepositoryFactoryTest.class.getName()), is(true));
-        assertThat(factory.store(RepositoryFactoryTest.class.getName(), "name", RepositoryFactoryTest.class.getName()), is(true));
-        assertThat(factory.store(RepositoryFactoryTest.class.getName(), "name", RepositoryFactoryTest.class.getName()), is(true));
+        assertThat(factory.store(RepositoryConnectionTest.class.getName(), "name", RepositoryConnectionTest.class.getName()), is(true));
+        assertThat(factory.store(RepositoryConnectionTest.class.getName(), "name", RepositoryConnectionTest.class.getName()), is(true));
+        assertThat(factory.store(RepositoryConnectionTest.class.getName(), "name", RepositoryConnectionTest.class.getName()), is(true));
     }
 }

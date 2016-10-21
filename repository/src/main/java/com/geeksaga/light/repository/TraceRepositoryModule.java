@@ -20,7 +20,7 @@ import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.repository.factory.RepositoryFactory;
+import com.geeksaga.light.repository.connect.RepositoryConnection;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 
 import java.util.concurrent.BlockingQueue;
@@ -37,19 +37,14 @@ public class TraceRepositoryModule implements Module
 {
     private final LightLogger logger;
     private final TraceRepository traceRepository;
-    private final RepositoryFactory repositoryFactory;
+    private final RepositoryConnection repositoryConnection;
     private final BlockingQueue<ActiveObject> queue;
 
-    public TraceRepositoryModule(TraceRepository traceRepository, BlockingQueue<ActiveObject> queue)
-    {
-        this(traceRepository, RepositoryFactory.getInstance(), queue);
-    }
-
-    public TraceRepositoryModule(TraceRepository traceRepository, RepositoryFactory repositoryFactory, BlockingQueue<ActiveObject> queue)
+    public TraceRepositoryModule(TraceRepository traceRepository, RepositoryConnection repositoryConnection, BlockingQueue<ActiveObject> queue)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.traceRepository = traceRepository;
-        this.repositoryFactory = repositoryFactory;
+        this.repositoryConnection = repositoryConnection;
         this.queue = queue;
     }
 
@@ -60,7 +55,7 @@ public class TraceRepositoryModule implements Module
 
         IdentifierUtils.seed(System.nanoTime() ^ traceRepository.getConfig().read(instance_id, default_instance_id));
 
-        REPOSITORY_WORKER.execute(new TraceRepositoryWorker(traceRepository, repositoryFactory, queue));
+        REPOSITORY_WORKER.execute(new TraceRepositoryWorker(traceRepository, repositoryConnection, queue));
     }
 
     @Override

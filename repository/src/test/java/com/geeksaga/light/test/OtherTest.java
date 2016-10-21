@@ -13,37 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.repository;
+package com.geeksaga.light.test;
 
-import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.factory.RepositoryFactory;
 import com.geeksaga.light.util.SystemProperty;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import org.junit.BeforeClass;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
 import java.io.File;
 
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 /**
  * @author geeksaga
  */
-public class RepositoryFactoryTest
+public class OtherTest
 {
-    private static RepositoryFactory factory;
     private static final String DEFAULT_PATH = "/../databases/";
-
-    @BeforeClass
-    public static void init()
-    {
-        System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
-//        System.setProperty("light.db.url", String.format("plocal:.%s", DEFAULT_PATH));
-
-        factory = RepositoryFactory.getInstance(Product.NAME.toLowerCase());
-    }
 
     private String replaceWindowsSeparator(String path)
     {
@@ -58,7 +45,7 @@ public class RepositoryFactoryTest
     @Test
     public void testOSSeparator()
     {
-        if(SystemProperty.WINDOWS_OS)
+        if (SystemProperty.WINDOWS_OS)
         {
             assertThat(DEFAULT_PATH.replace("/", "\\"), is(replaceWindowsSeparator(DEFAULT_PATH)));
         }
@@ -68,19 +55,32 @@ public class RepositoryFactoryTest
         }
     }
 
-    @Test
-    public void testGetSameInstance()
+    static class MyRunnable implements Runnable
     {
-        assertThat(factory, is(RepositoryFactory.getInstance(Product.NAME)));
-        assertThat(factory.getObjectDatabaseTx(), is(RepositoryFactory.getInstance(Product.NAME).getObjectDatabaseTx()));
+        @Override
+        public void run()
+        {
+            ODatabaseDocumentTx tx = getDatabase("memory:Test", "admin", "admin");
+            ODocument animal = tx.newInstance("Animal").field("name", "Gaudi").field("location", "Madrid");
+            tx.save(animal);
+            tx.close();
+        }
+
+        private ODatabaseDocumentTx getDatabase(String url, String userName, String password)
+        {
+            ODatabaseDocumentTx tx = new ODatabaseDocumentTx(url);
+            if (!tx.exists())
+            {
+                tx.create();
+                return tx;
+            }
+            return tx.open(userName, password);
+        }
     }
 
-    @Test
-    public void testFindClass()
+    public static void main(String[] args)
     {
-        OClass transactionClass = factory.findClass(Transaction.class.getSimpleName());
-
-        assertThat(transactionClass, notNullValue());
-        assertThat(transactionClass.existsProperty("tid"), is(true));
+        new Thread(new MyRunnable()).start();
+        new Thread(new MyRunnable()).start();
     }
 }

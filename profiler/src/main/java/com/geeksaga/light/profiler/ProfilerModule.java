@@ -28,8 +28,9 @@ import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDi
 import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
+import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.TraceRepositoryModule;
-import com.geeksaga.light.repository.factory.RepositoryFactory;
+import com.geeksaga.light.repository.connect.RepositoryConnection;
 
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class ProfilerModule implements Module
 
         registPointCut();
 
-        Module module = new TraceRepositoryModule(traceRepository, RepositoryFactory.getInstance(), queue);
+        Module module = new TraceRepositoryModule(traceRepository, new RepositoryConnection(Product.NAME.toLowerCase()), queue);
         module.start();
 
         addTransformer(instrumentation.isRetransformClassesSupported());
