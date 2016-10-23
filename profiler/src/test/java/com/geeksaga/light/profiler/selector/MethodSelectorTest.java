@@ -30,7 +30,7 @@ import static org.junit.Assert.assertThat;
  */
 public class MethodSelectorTest
 {
-    private String[] target = { "javax.sql.RepositorySource getConnection(String, String)", //
+    private String[] target = { "javax.sql.DataSource getConnection(String, String)", //
             "test.trace.ServiceDummy param(1, 2, 3)", //
             "test.trace.ServiceDummy param(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", //
             "org.apache.http.impl.client.CloseableHttpClient execute(Lorg/apache/http/client/methods/HttpUriRequest;Lorg/apache/http/protocol/HttpContext;)Lorg/apache/http/client/methods/CloseableHttpResponse;", //

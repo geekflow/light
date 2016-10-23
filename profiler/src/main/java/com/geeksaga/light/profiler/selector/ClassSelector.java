@@ -90,15 +90,17 @@ public class ClassSelector
 
     private MethodSelector selectBySuperOrInterface(String[] superOrInterfaces)
     {
-        if (superOrInterfaces != null)
+        if (superOrInterfaces == null)
         {
-            for (String superOrInterface : superOrInterfaces)
+            return null;
+        }
+
+        for (String superOrInterface : superOrInterfaces)
+        {
+            Object o = selectors.get(superOrInterface);
+            if (o != null)
             {
-                Object o = selectors.get(superOrInterface);
-                if (o != null)
-                {
-                    return (MethodSelector) o;
-                }
+                return (MethodSelector) o;
             }
         }
 
@@ -144,12 +146,14 @@ public class ClassSelector
     {
         ClassSelector classSelector = new ClassSelector();
 
-        if (list != null)
+        if (list == null)
         {
-            for (String value : list)
-            {
-                classSelector.add(value);
-            }
+            return classSelector;
+        }
+
+        for (String value : list)
+        {
+            classSelector.add(value);
         }
 
         return classSelector;

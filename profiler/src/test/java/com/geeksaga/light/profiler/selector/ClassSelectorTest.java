@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
  */
 public class ClassSelectorTest
 {
-    private String[] target = { "javax.sql.RepositorySource getConnection(String, String)", //
+    private static final String[] target = { "javax.sql.DataSource getConnection(String, String)", //
             "test.trace.ServiceDummy param(1, 2, 3)", //
             "test.trace.ServiceDummy param(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", //
             "jlink.channel.soap.JLSOAPClntOBConnection", //
@@ -52,9 +52,9 @@ public class ClassSelectorTest
     {
         ClassSelector selector = ClassSelector.create(target);
 
-        assertNotNull(selector.selectByClass(DataSource.class.getName()));
-        assertNotNull(selector.selectByClass(TestMethods.class.getName()));
-        assertNotNull(selector.selectByClass("simula.P"));
+        assertThat(selector.selectByClass(DataSource.class.getName()), notNullValue());
+        assertThat(selector.selectByClass(TestMethods.class.getName()), notNullValue());
+        assertThat(selector.selectByClass("simula.P"), notNullValue());
 
         MethodSelector methodSelector = selector.selectByClass("java.lang.String");
 
