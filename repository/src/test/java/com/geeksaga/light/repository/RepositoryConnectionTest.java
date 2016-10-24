@@ -16,9 +16,14 @@
 package com.geeksaga.light.repository;
 
 import com.geeksaga.light.repository.connect.RepositoryConnection;
+import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.entity.Transaction;
 import com.geeksaga.light.test.TestConfigure;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,18 +36,17 @@ import static org.junit.Assert.assertThat;
  */
 public class RepositoryConnectionTest
 {
-    private static RepositoryConnection repositoryConnection;
+//    private static RepositoryConnection repositoryConnection;
+    private static RepositorySource repositorySource;
 
     @BeforeClass
-    //    @Before
     public static void init()
     {
         TestConfigure.load();
 
-        //        Config config = TestConfigure.getConfig();
+//        repositoryConnection = TestConfigure.getConnection();
 
-        //        repositoryConnection = new RepositoryConnection(config, TestConfigure.read(config, instance_id, default_instance_id) + "R");
-        repositoryConnection = TestConfigure.getConnection();
+//        repositorySource = TestConfigure.getRepositorySource();
     }
 
     @Test
@@ -55,9 +59,29 @@ public class RepositoryConnectionTest
     @Test
     public void testFindClass()
     {
-        OClass transactionClass = repositoryConnection.findClass(Transaction.class.getSimpleName());
+//        OClass transactionClass = repositoryConnection.findClass(Transaction.class.getSimpleName());
+//        OClass transactionClass = repositorySource.findClass(Transaction.class.getSimpleName());
 
-        assertThat(transactionClass, notNullValue());
-        assertThat(transactionClass.existsProperty("tid"), is(true));
+//        assertThat(transactionClass, notNullValue());
+//        assertThat(transactionClass.existsProperty("tid"), is(true));
+    }
+
+    @AfterClass
+    public static void destroy()
+    {
+//        System.out.println("call destroy");
+
+//        ODatabaseRecordThreadLocal.INSTANCE.set((ODatabaseDocumentInternal)repositoryConnection.activateOnCurrentThread());
+//        ODatabaseRecordThreadLocal.INSTANCE.set((ODatabaseDocumentInternal)repositorySource.activateOnCurrentThread());
+//        ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.INSTANCE.getIfDefined();
+//        if (database != null)
+//        {
+//            System.out.println("call destroy");
+//
+//            database.close();
+//            ODatabaseRecordThreadLocal.INSTANCE.remove();
+//        }
+//        repositoryConnection.close();
+//        ODatabaseRecordThreadLocal.INSTANCE.remove();
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.geeksaga.light.repository.dao.orientdb;
 
-import com.geeksaga.light.repository.connect.RepositoryConnection;
+import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.entity.Transaction;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -29,18 +29,26 @@ import java.util.List;
  */
 public class TransactionDaoImpl implements TransactionDao
 {
-    private RepositoryConnection repositoryConnection;
+    private RepositorySource repositorySource;
 
-    public TransactionDaoImpl(RepositoryConnection repositoryConnection)
+    public TransactionDaoImpl(RepositorySource repositorySource)
     {
-        this.repositoryConnection = repositoryConnection;
+        this.repositorySource = repositorySource;
     }
 
     @Override
     public boolean save(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
-        documentTx.save(transaction);
+        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
+
+        try
+        {
+            databaseTx.save(transaction);
+        }
+        finally
+        {
+            databaseTx.close();
+        }
 
         return true;
     }
@@ -48,14 +56,14 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction modify(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
+        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
 
         try
         {
-            documentTx.begin();
+            databaseTx.begin();
 
             //            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction WHERE id = " + transaction.getId() + ""));
-            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction"));
+            List<ODocument> result = databaseTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction"));
 
 
             //                int recordsUpdated = documentTx.command(new OCommandSQL("UPDATE Classes SET byteCode = " + classes.getByteCodes() + " WHERE name = " + classes.getName())).execute();
@@ -80,15 +88,15 @@ public class TransactionDaoImpl implements TransactionDao
             //                }
             //                documentTx.getMetadata().getSchema().reload();
 
-            documentTx.commit();
+            databaseTx.commit();
         }
         catch (Exception exception)
         {
-            documentTx.rollback();
+            databaseTx.rollback();
         }
         finally
         {
-            documentTx.close();
+            databaseTx.close();
         }
 
         return transaction;
@@ -97,9 +105,11 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction find(Transaction transaction)
     {
-        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
+        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
-        List<Transaction> result = documentTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
+        List<Transaction> result = objectDatabaseTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
+
+        objectDatabaseTx.close();
 
         for (Transaction storedTransaction : result)
         {
@@ -112,8 +122,12 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public List<Transaction> findList()
     {
-        OObjectDatabaseTx documentTx = repositoryConnection.getObjectDatabaseTx();
+        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
 
-        return documentTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
+        List<Transaction> list = databaseTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
+
+        databaseTx.close();
+
+        return list;
     }
 }

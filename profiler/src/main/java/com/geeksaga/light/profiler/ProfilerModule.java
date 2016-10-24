@@ -31,6 +31,7 @@ import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.TraceRepositoryModule;
 import com.geeksaga.light.repository.connect.RepositoryConnection;
+import com.geeksaga.light.repository.connect.RepositorySource;
 
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class ProfilerModule implements Module
 
         registPointCut();
 
-        Module module = new TraceRepositoryModule(traceRepository, new RepositoryConnection(Product.NAME.toLowerCase()), queue);
+        Module module = new TraceRepositoryModule(traceRepository, new RepositorySource(Product.NAME.toLowerCase()), queue);
         module.start();
 
         addTransformer(instrumentation.isRetransformClassesSupported());

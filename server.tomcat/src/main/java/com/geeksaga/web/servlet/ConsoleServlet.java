@@ -18,7 +18,7 @@ package com.geeksaga.web.servlet;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.repository.Product;
-import com.geeksaga.light.repository.connect.RepositoryConnection;
+import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
@@ -47,7 +47,7 @@ import java.util.Map;
 public class ConsoleServlet extends HttpServlet
 {
     private LightLogger logger;
-    private RepositoryConnection factory;
+    private RepositorySource repositorySource;
     private TransactionDao transactionDao;
 
     private static final String DEFAULT_PATH = "/../databases/";
@@ -62,8 +62,8 @@ public class ConsoleServlet extends HttpServlet
         //        System.setProperty("light.db.url", String.format("plocal:.%s", DEFAULT_PATH));
         System.setProperty("light.db.url", String.format("plocal:%s", "/home/jennifer/jennifer5_simula/apache-tomcat-7.0.30-2/bin/databases/"));
 
-        factory = new RepositoryConnection(Product.NAME.toLowerCase());
-        transactionDao = new TransactionDaoImpl(factory);
+        repositorySource = new RepositorySource(Product.NAME.toLowerCase());
+        transactionDao = new TransactionDaoImpl(repositorySource);
 
 //        engine = new PebbleEngine.Builder().loader(new ServletLoader(getServletContext())).build();
     }
@@ -71,7 +71,7 @@ public class ConsoleServlet extends HttpServlet
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        Transaction transaction1 = factory.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        Transaction transaction1 = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction1);
 

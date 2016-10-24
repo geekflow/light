@@ -25,8 +25,7 @@ import org.junit.runners.Suite;
 /**
  * @author geeksaga
  */
-@Ignore
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ RepositoryConnectionTest.class, TransactionDaoTest.class, TraceRepositoryWorkerTest.class })
+//@RunWith(Suite.class)
+//@Suite.SuiteClasses({ RepositoryConnectionTest.class, TransactionDaoTest.class, TraceRepositoryWorkerTest.class })
 public class RepositorySuite
 {}

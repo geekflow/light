@@ -47,9 +47,10 @@ public class OrientDBEmbedServerTest
     @BeforeClass
     public static void init()
     {
-        System.setProperty("light.repository.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml");
+        System.setProperty("light.repository.config", REPOSITORY_CONFIG);
     }
 
+    @Ignore
     @Test
     public void testStartup()
     {
@@ -170,7 +171,6 @@ public class OrientDBEmbedServerTest
 
         graph.shutdown();
     }
-
 
     @AfterClass
     public static void teardown()

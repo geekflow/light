@@ -15,90 +15,97 @@
  */
 package com.geeksaga.light.repository.dao;
 
-import com.geeksaga.light.config.Config;
-import com.geeksaga.light.repository.connect.RepositoryConnection;
+import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
 import com.geeksaga.light.repository.util.IdentifierUtils;
 import com.geeksaga.light.test.TestConfigure;
+import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
-import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
-import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_instance_id;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 /**
  * @author geeksaga
  */
-@Ignore
 public class TransactionDaoTest
 {
-    private RepositoryConnection repositoryConnection;
+    private static RepositorySource repositorySource;
     private TransactionDao transactionDao;
 
-    //    @BeforeClass
-    @Before
-    public void init()
+    @BeforeClass
+    public static void init()
     {
         TestConfigure.load();
 
-        final Config config = TestConfigure.getConfig();
+        repositorySource = TestConfigure.getRepositorySource();
+    }
 
-        //        repositoryConnection = new RepositoryConnection(config, TestConfigure.read(config, instance_id, default_instance_id) + "Test");
-        repositoryConnection = TestConfigure.getConnection();
-        transactionDao = new TransactionDaoImpl(repositoryConnection);
+    @AfterClass
+    public static void destroy()
+    {
+        OPartitionedDatabasePool partitionedDatabasePool = repositorySource.getPartitionedDatabasePool();
+
+        assertThat(partitionedDatabasePool.getAvailableConnections(), is(partitionedDatabasePool.getCreatedInstances()));
+    }
+
+    @Before
+    public void setup()
+    {
+        transactionDao = new TransactionDaoImpl(repositorySource);
+    }
+
+    @After
+    public void teardown()
+    {
+        OPartitionedDatabasePool partitionedDatabasePool = repositorySource.getPartitionedDatabasePool();
+
+        System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());
     }
 
     @Test
     public void testSave()
     {
-        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
 
-//        if (objectDatabaseTx.isActiveOnCurrentThread())
-//        {
-//            objectDatabaseTx.close();
-//        }
+        objectDatabaseTx.close();
     }
 
     @Test(expected = com.orientechnologies.orient.core.storage.ORecordDuplicatedException.class)
     public void testUniqueIndex()
     {
-        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
 
         transactionDao.save(transaction);
 
-        //        if(objectDatabaseTx.isActiveOnCurrentThread())
-        //        {
-        //            objectDatabaseTx.close();
-        //        }
+        objectDatabaseTx.close();
 
-        objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+        objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
-        transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
+        try
+        {
+            transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
 
-        transactionDao.save(transaction);
-
-        //        if(objectDatabaseTx.isActiveOnCurrentThread())
-        //        {
-        //            objectDatabaseTx.close();
-        //        }
+            transactionDao.save(transaction);
+        }
+        finally
+        {
+            objectDatabaseTx.close();
+        }
     }
 
     @Test
     public void testFind()
     {
-        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
@@ -106,16 +113,13 @@ public class TransactionDaoTest
 
         assertThat(transactionDao.find(transaction).getTid(), is(transaction.getTid()));
 
-//        if (objectDatabaseTx.isActiveOnCurrentThread())
-//        {
-//            objectDatabaseTx.close();
-//        }
+        objectDatabaseTx.close();
     }
 
     @Test
     public void testFindList()
     {
-        OObjectDatabaseTx objectDatabaseTx = repositoryConnection.getObjectDatabaseTx();
+        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
@@ -124,9 +128,6 @@ public class TransactionDaoTest
         assertThat(transactionDao.findList(), notNullValue());
         assertThat(transactionDao.findList().size(), greaterThanOrEqualTo(1));
 
-//        if (objectDatabaseTx.isActiveOnCurrentThread())
-//        {
-//            objectDatabaseTx.close();
-//        }
+        objectDatabaseTx.close();
     }
 }

@@ -20,6 +20,7 @@ import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.repository.connect.RepositoryConnection;
+import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.util.ModuleExecutors;
 import com.geeksaga.light.test.TestConfigure;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
@@ -50,12 +51,12 @@ public class TraceRepositoryModuleTest
     {
         Config config = mock(Config.class);
         TraceRepository traceRepository = mock(TraceRepository.class);
-        RepositoryConnection repositoryConnection = mock(RepositoryConnection.class);
+        RepositorySource repositorySource = mock(RepositorySource.class);
         when(traceRepository.getConfig()).thenReturn(config);
 
         //        when(config.read(any(String.class), any(String.class))).thenReturn("memory:/%s/");
 
-        Module module = new TraceRepositoryModule(traceRepository, repositoryConnection, new ArrayBlockingQueue<ActiveObject>(10));
+        Module module = new TraceRepositoryModule(traceRepository, repositorySource, new ArrayBlockingQueue<ActiveObject>(10));
         module.start();
 
         assertThat(false, is(ModuleExecutors.REPOSITORY_WORKER.isShutdown()));
