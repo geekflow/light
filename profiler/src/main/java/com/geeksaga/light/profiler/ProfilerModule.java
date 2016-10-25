@@ -30,7 +30,6 @@ import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransfor
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.TraceRepositoryModule;
-import com.geeksaga.light.repository.connect.RepositoryConnection;
 import com.geeksaga.light.repository.connect.RepositorySource;
 
 import java.lang.instrument.Instrumentation;
