@@ -59,13 +59,18 @@ public class ConsoleServlet extends HttpServlet
         logger = CommonLogger.getLogger(getClass().getName());
 
         //        System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
-        //        System.setProperty("light.db.url", String.format("plocal:.%s", DEFAULT_PATH));
-        System.setProperty("light.db.url", String.format("plocal:%s", "/home/jennifer/jennifer5_simula/apache-tomcat-7.0.30-2/bin/databases/"));
+        System.setProperty("light.db.url", String.format("plocal:.%s", DEFAULT_PATH));
 
         repositorySource = new RepositorySource(Product.NAME.toLowerCase());
         transactionDao = new TransactionDaoImpl(repositorySource);
 
-//        engine = new PebbleEngine.Builder().loader(new ServletLoader(getServletContext())).build();
+        IdentifierUtils.seed(System.currentTimeMillis() ^ new Object().hashCode());
+    }
+
+    @Override
+    public void init() throws ServletException
+    {
+        engine = new PebbleEngine.Builder().loader(new ServletLoader(getServletContext())).build();
     }
 
     @Override
@@ -77,8 +82,7 @@ public class ConsoleServlet extends HttpServlet
 
         ServletOutputStream out = response.getOutputStream();
 
-
-        engine = new PebbleEngine.Builder().loader(new ServletLoader(getServletContext())).build();
+        //        engine = new PebbleEngine.Builder().loader(new ServletLoader(getServletContext())).build();
 
         try
         {
@@ -103,21 +107,19 @@ public class ConsoleServlet extends HttpServlet
 
         compiledTemplate.evaluate(writer, context);
 
+        StringBuilder sb = new StringBuilder();
+
         for (Transaction transaction : transactionDao.findList())
         {
-            logger.info("{}", transaction.toString());
-
-            context.put("name", transaction.toString());
-
-            //            out.write(transaction.toString().getBytes());
-            //            out.write("<br />".getBytes());
+            sb.append(transaction.toString()).append("<br />");
         }
+
+        context.put("name", sb.toString());
 
         compiledTemplate.evaluate(writer, context);
 
         String output = writer.toString();
 
         out.write(output.getBytes());
-
     }
 }
