@@ -89,7 +89,7 @@ public class TraceRepositoryWorker implements Runnable
 
             transactionDao.save(transaction);
 
-            logger.info("application = {}, end time = {}, elapsed time = {}", transaction.getTransactionName(), transaction.getEndTimeMillis(), transaction.getElapsedTime());
+            logger.info("application = {}, end time = {}, elapsed time = {}", transaction.getTransactionName(), transaction.getEndTime(), transaction.getElapsedTime());
         }
         catch (Exception exception)
         {
@@ -101,8 +101,8 @@ public class TraceRepositoryWorker implements Runnable
     {
         Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
         transaction.setTransactionName(activeObject.getTransactionName());
-        transaction.setEndTimeMillis(System.currentTimeMillis());
-        transaction.setElapsedTime((int) (transaction.getEndTimeMillis() - activeObject.getStartTimeMillis()));
+        transaction.setEndTime(System.currentTimeMillis());
+        transaction.setElapsedTime((int) (transaction.getEndTime() - activeObject.getStartTimeMillis()));
 
         return transaction;
     }

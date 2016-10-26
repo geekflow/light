@@ -3,6 +3,19 @@
 {% block title %} Home {% endblock %}
 
 {% block content %}
-<h1> Home </h1>
-<p> Welcome to my home page. My name is {{ name }}.</p>
+<table >
+  <thead>
+    <th>TID</th>
+    <th>ELAPSED TIME</th>
+    <th>TRANSACTION NAME</th>
+  </thead>
+  <tbody>
+{% for transaction in transactions %}
+    <tr>
+      <td>{{ transaction.tid }}</td><td>{{ transaction.elapsedTime }}</td><td>{{ transaction.transactionName }}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+{{ name | raw }}
 {% endblock %}

@@ -76,46 +76,30 @@ public class ConsoleServlet extends HttpServlet
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        Transaction transaction1 = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        transaction.setEndTime(System.currentTimeMillis());
+        transaction.setElapsedTime(790827);
+        transaction.setTransactionName("GeekSaga Light APM TEST - " + System.currentTimeMillis());
 
-        transactionDao.save(transaction1);
+        transactionDao.save(transaction);
 
-        ServletOutputStream out = response.getOutputStream();
-
-        //        engine = new PebbleEngine.Builder().loader(new ServletLoader(getServletContext())).build();
-
-        try
+        try (ServletOutputStream out = response.getOutputStream())
         {
             write(out);
         }
         catch (PebbleException e)
         {
-            e.printStackTrace();
+            logger.info(e);
         }
-
-        out.flush();
-        out.close();
     }
 
     private void write(ServletOutputStream out) throws IOException, PebbleException
     {
-        PebbleTemplate compiledTemplate = engine.getTemplate("transactionList.html");
-
         Writer writer = new StringWriter();
-
         Map<String, Object> context = new HashMap<>();
+        context.put("transactions", transactionDao.findList());
 
-        compiledTemplate.evaluate(writer, context);
-
-        StringBuilder sb = new StringBuilder();
-
-        for (Transaction transaction : transactionDao.findList())
-        {
-            sb.append(transaction.toString()).append("<br />");
-        }
-
-        context.put("name", sb.toString());
-
+        PebbleTemplate compiledTemplate = engine.getTemplate("transactionList.html");
         compiledTemplate.evaluate(writer, context);
 
         String output = writer.toString();

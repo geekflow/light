@@ -124,7 +124,7 @@ public class TransactionDaoImpl implements TransactionDao
     {
         OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
 
-        List<Transaction> list = databaseTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction"));
+        List<Transaction> list = databaseTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction ORDER BY endTime DESC"));
 
         databaseTx.close();
 

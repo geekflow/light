@@ -42,7 +42,7 @@ public class Transaction implements Serializable
     private byte[] guid;
 
     @Column
-    private long endTimeMillis;
+    private long endTime;
 
     @Column
     private int elapsedTime;
@@ -119,14 +119,14 @@ public class Transaction implements Serializable
         this.guid = guid;
     }
 
-    public long getEndTimeMillis()
+    public long getEndTime()
     {
-        return endTimeMillis;
+        return endTime;
     }
 
-    public void setEndTimeMillis(long endTimeMillis)
+    public void setEndTime(long endTime)
     {
-        this.endTimeMillis = endTimeMillis;
+        this.endTime = endTime;
     }
 
     public int getElapsedTime()
@@ -242,6 +242,6 @@ public class Transaction implements Serializable
     @Override
     public String toString()
     {
-        return ToString.toString(getTid(), getTransactionName(), getElapsedTime());
+        return ToString.toString(getTid(), getTransactionName(), getEndTime(), getElapsedTime());
     }
 }
