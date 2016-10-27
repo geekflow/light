@@ -17,9 +17,9 @@ buildscript {
         mavenCentral()
         mavenLocal()
         jcenter()
-        maven {
-            url "https://plugins.gradle.org/"
-        }
+//        maven {
+//            url "https://plugins.gradle.org/"
+//        }
     }
 
     dependencies {

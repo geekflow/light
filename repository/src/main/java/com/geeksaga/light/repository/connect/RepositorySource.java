@@ -59,13 +59,15 @@ public class RepositorySource
         return new RepositoryConnection(partitionedDatabasePool.acquire());
     }
 
+    public ODatabaseDocumentTx acquire()
+    {
+        return partitionedDatabasePool.acquire();
+    }
+
     public OObjectDatabaseTx getObjectDatabaseTx()
     {
         OObjectDatabaseTx objectDatabaseTx = new OObjectDatabaseTx(partitionedDatabasePool.acquire());
-        if (!objectDatabaseTx.isActiveOnCurrentThread())
-        {
-            objectDatabaseTx.activateOnCurrentThread();
-        }
+        objectDatabaseTx.activateOnCurrentThread();
 
         return objectDatabaseTx;
     }
@@ -99,14 +101,14 @@ public class RepositorySource
     private void initObjectDatabaseSchema()
     {
         objectDatabaseTx = new OObjectDatabaseTx(getPartitionedDatabasePool().acquire());
-//        if (objectDatabaseTx.exists())
-//        {
-//            objectDatabaseTx.open("admin", "admin");
-//        }
-//        else
-//        {
-//            objectDatabaseTx.create();
-//        }
+        //        if (objectDatabaseTx.exists())
+        //        {
+        //            objectDatabaseTx.open("admin", "admin");
+        //        }
+        //        else
+        //        {
+        //            objectDatabaseTx.create();
+        //        }
 
         objectDatabaseTx.setAutomaticSchemaGeneration(true);
 

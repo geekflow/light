@@ -54,20 +54,25 @@ public class AsyncServlet extends HttpServlet
     {
         final AsyncContext asyncContext = servletRequest.startAsync();
 
-        executor.execute(() ->
+        executor.execute(new Runnable()
         {
-            HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
-
-            try (PrintWriter writer = response.getWriter())
+            @Override
+            public void run()
             {
-                writer.print("Ok");
-            }
-            catch (IOException e)
-            {
-                logger.info(e);
-            }
 
-            asyncContext.complete();
+                HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
+
+                try (PrintWriter writer = response.getWriter())
+                {
+                    writer.print("Ok");
+                }
+                catch (IOException e)
+                {
+                    logger.info(e);
+                }
+
+                asyncContext.complete();
+            }
         });
     }
 }

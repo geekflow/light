@@ -26,9 +26,7 @@ import java.io.IOException;
 /**
  * @author geeksaga
  */
-@WebServlet(
-        name = "HelloServlet",
-        urlPatterns = { "/hello" })
+@WebServlet(name = "HelloServlet", urlPatterns = { "/hello" })
 public class HelloServlet extends HttpServlet
 {
     @Override

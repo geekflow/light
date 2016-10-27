@@ -47,17 +47,19 @@ public class EntryTrace implements Trace
 
     public void begin(MethodInfo methodInfo)
     {
+        if (traceContext.current() != null)
+        {
+            return;
+        }
+
         try
         {
-            if (traceContext.current() == null)
-            {
-                logger.info(methodInfo.getName() + methodInfo.getDesc());
+            logger.info(methodInfo.getName() + methodInfo.getDesc());
 
-                ActiveObject activeObject = create(methodInfo);
-                activeObject.setStartTimeMillis(System.currentTimeMillis());
-                activeObject.setStartNanoTime(System.nanoTime());
-                activeObject.setTransactionName(getRequestURI(methodInfo.getParameter()));
-            }
+            ActiveObject activeObject = create(methodInfo);
+            activeObject.setStartTimeMillis(System.currentTimeMillis());
+            activeObject.setStartNanoTime(System.nanoTime());
+            activeObject.setTransactionName(getRequestURI(methodInfo.getParameter()));
         }
         catch (Throwable throwable)
         {
@@ -67,14 +69,14 @@ public class EntryTrace implements Trace
 
     public void end(MethodInfo methodInfo, Throwable throwable)
     {
+        ActiveObject activeObject = traceContext.current();
+        if (activeObject == null)
+        {
+            return;
+        }
+
         try
         {
-            ActiveObject activeObject = traceContext.current();
-            if (activeObject == null)
-            {
-                return;
-            }
-
             logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
 
             traceRepository.save(activeObject);

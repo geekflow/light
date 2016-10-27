@@ -99,10 +99,11 @@ public class TraceRepositoryWorker implements Runnable
 
     private Transaction createTransaction(final ActiveObject activeObject)
     {
-        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+//        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        Transaction transaction = new Transaction(IdentifierUtils.nextLong());
         transaction.setTransactionName(activeObject.getTransactionName());
         transaction.setEndTime(System.currentTimeMillis());
-        transaction.setElapsedTime((int) (transaction.getEndTime() - activeObject.getStartTimeMillis()));
+        transaction.setElapsedTime((int) (System.nanoTime() - activeObject.getStartTimeMillis()));
 
         return transaction;
     }

@@ -28,10 +28,8 @@ import java.io.Serializable;
 public class Transaction implements Serializable
 {
     @Id
-    //    @Column(nullable = false, updatable = false)
     private Object id;
 
-    //    @Id
     @Column(nullable = false, updatable = false)
     private long tid;
 
