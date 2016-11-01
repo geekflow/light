@@ -17,8 +17,10 @@ package com.geeksaga.light.profiler.instrument.transformer;
 
 import com.geeksaga.light.agent.core.AgentTraceContext;
 import com.geeksaga.light.agent.core.DefaultTraceRegisterBinder;
+import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.config.ProfilerConfig;
 import com.geeksaga.light.profiler.TestUtil;
+import com.geeksaga.light.profiler.util.ASMUtil;
 import org.junit.Test;
 import target.TestMethods;
 
@@ -40,10 +42,17 @@ public class MethodTransformerTest
     {
         String className = TestMethods.class.getName();
 
-        ClassFileTransformer transformer = new MethodTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
+//        ClassFileTransformer transformer = new MethodTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
+        LightClassFileTransformer transformer = new MethodTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
 
         byte[] original = TestUtil.load(className);
-        byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
+//        byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
+
+        ClassNodeWrapper classNodeWrapper = ASMUtil.parse(original);
+
+        transformer.transform(getClass().getClassLoader(), null, original, classNodeWrapper);
+
+        byte[] transform = ASMUtil.toBytes(classNodeWrapper);
 
         assertThat(original, not(transform));
 

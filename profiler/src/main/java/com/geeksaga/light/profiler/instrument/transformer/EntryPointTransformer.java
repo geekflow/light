@@ -15,10 +15,10 @@
  */
 package com.geeksaga.light.profiler.instrument.transformer;
 
-import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.TraceContext;
-import com.geeksaga.light.agent.core.TransactionTraceRepository;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.agent.core.TransactionTraceRepository;
 import com.geeksaga.light.agent.trace.EntryTrace;
 import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.Parameter;
@@ -41,6 +41,7 @@ import java.security.ProtectionDomain;
 import static com.geeksaga.light.agent.config.ConfigDef.entry_point;
 import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_entry_point;
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
+import static com.geeksaga.light.profiler.util.ASMUtil.isStatic;
 
 /**
  * The type Entry point transformer.
@@ -130,12 +131,14 @@ public class EntryPointTransformer implements LightClassFileTransformer
     @Override
     public byte[] transform(final ClassLoader classLoader, final String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
     {
+        if (!filter.allow(classLoader, className))
+        {
+            return null;
+        }
+
         try
         {
-            if (filter.allow(classLoader, className))
-            {
-                return transform(classLoader, className, classfileBuffer);
-            }
+            return transform(classLoader, className, classfileBuffer);
         }
         catch (Exception exception)
         {
@@ -150,10 +153,12 @@ public class EntryPointTransformer implements LightClassFileTransformer
     {
         try
         {
-            if (filter.allow(classLoader, classNodeWrapper.getClassName()))
+            if (!filter.allow(classLoader, classNodeWrapper.getClassName()))
             {
-                return transform(classLoader, classfileBuffer, classNodeWrapper);
+                return classNodeWrapper;
             }
+
+            return transform(classLoader, classfileBuffer, classNodeWrapper);
         }
         catch (Exception exception)
         {
@@ -167,67 +172,66 @@ public class EntryPointTransformer implements LightClassFileTransformer
     {
         final MethodSelector methodSelector = getMethodSelectorOrNull(className);
 
-        if (methodSelector != null)
+        if (methodSelector == null)
         {
-            ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
-            ClassReader reader = new ClassReaderWrapper(classfileBuffer);
-            reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
-            {
-                @Override
-                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
-                {
-                    MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-
-                    if (!name.startsWith("<") && methodSelector.isSelected(name, desc))
-                    {
-                        logger.debug("Transform => {}.{}{}", className, name, desc);
-
-                        return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
-                    }
-
-                    return mv;
-                }
-            }, ClassReader.EXPAND_FRAMES);
-
-            return ASMUtil.toBytes(classNodeWrapper);
+            return null;
         }
 
-        return null;
+        ClassNodeWrapper classNodeWrapper = new ClassNodeWrapper();
+        ClassReader reader = new ClassReaderWrapper(classfileBuffer);
+        reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
+        {
+            @Override
+            public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+            {
+                MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+
+                if (!name.startsWith("<") && methodSelector.isSelected(name, desc))
+                {
+                    logger.debug("Transform => {}.{}{}", className, name, desc);
+
+                    return new EntryPointAdapter(access, name, desc, mv, isStatic(access));
+                }
+
+                return mv;
+            }
+        }, ClassReader.EXPAND_FRAMES);
+
+        return ASMUtil.toBytes(classNodeWrapper);
     }
 
     private ClassNodeWrapper transform(final ClassLoader classLoader, byte[] classfileBuffer, final ClassNodeWrapper classNodeWrapper)
     {
         final MethodSelector methodSelector = getMethodSelectorOrNull(classNodeWrapper.getClassName());
-
-        if (methodSelector != null)
+        if (methodSelector == null)
         {
-            ClassNodeWrapper newClassNodeWrapper = new ClassNodeWrapper();
-            classNodeWrapper.accept(new ClassVisitor(Opcodes.ASM5, newClassNodeWrapper)
-            {
-                @Override
-                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
-                {
-                    MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-
-                    if (!name.startsWith("<") && methodSelector.isSelected(name, desc))
-                    {
-                        logger.debug("Transform => {}.{}{}", classNodeWrapper.getClassName(), name, desc);
-
-                        return new EntryPointAdapter(access, name, desc, mv, ASMUtil.isStatic(access));
-                    }
-
-                    return mv;
-                }
-            });
-
-            byte[] hookedClassFileBuffer = ASMUtil.toBytes(newClassNodeWrapper);
-
-            ClassFileDumper.dump(classNodeWrapper.getClassName(), classfileBuffer, hookedClassFileBuffer);
-
-            return newClassNodeWrapper;
+            return classNodeWrapper;
         }
 
-        return classNodeWrapper;
+        ClassNodeWrapper newClassNodeWrapper = new ClassNodeWrapper();
+        classNodeWrapper.accept(new ClassVisitor(Opcodes.ASM5, newClassNodeWrapper)
+        {
+            @Override
+            public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+            {
+                MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+
+                if (!name.startsWith("<") && methodSelector.isSelected(name, desc))
+                {
+                    logger.debug("Transform => {}.{}{}", classNodeWrapper.getClassName(), name, desc);
+
+                    return new EntryPointAdapter(access, name, desc, mv, isStatic(access));
+                }
+
+                return mv;
+            }
+        });
+
+        byte[] hookedClassFileBuffer = ASMUtil.toBytes(newClassNodeWrapper);
+
+        ClassFileDumper.dump(classNodeWrapper.getClassName(), classfileBuffer, hookedClassFileBuffer);
+
+        return newClassNodeWrapper;
     }
 
     public void refresh()

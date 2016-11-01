@@ -16,7 +16,9 @@
 package com.geeksaga.light.agent.trace;
 
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
+import com.geeksaga.light.agent.core.TraceRegistry;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 
@@ -29,11 +31,19 @@ public class MethodTrace implements Trace
 {
     private LightLogger logger;
     private TraceContext traceContext;
+    private TraceRepository traceRepository;
 
     public MethodTrace(TraceContext traceContext)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.traceContext = traceContext;
+    }
+
+    public MethodTrace(TraceContext traceContext, TraceRepository traceRepository)
+    {
+        this.logger = CommonLogger.getLogger(getClass().getName());
+        this.traceContext = traceContext;
+        this.traceRepository = traceRepository;
     }
 
     public void begin(MethodInfo methodInfo)

@@ -27,6 +27,7 @@ import com.geeksaga.light.profiler.config.ProfilerConfiguration;
 import com.geeksaga.light.profiler.instrument.transformer.ClassFileTransformerDispatcher;
 import com.geeksaga.light.profiler.instrument.transformer.EntryPointTransformer;
 import com.geeksaga.light.profiler.instrument.transformer.LightClassFileTransformer;
+import com.geeksaga.light.profiler.instrument.transformer.MethodTransformer;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.TraceRepositoryModule;
@@ -101,9 +102,8 @@ public class ProfilerModule implements Module
         // FIXME need to order
         //        classFileTransformerList.add(new MethodParameterTransformer(traceRegisterBinder, traceContext));
         //        classFileTransformerList.add(new MethodReturnTransformer(traceRegisterBinder, traceContext));
-        //        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext));
+        classFileTransformerList.add(new MethodTransformer(traceRegisterBinder, traceContext, traceRepository));
         //        classFileTransformerList.add(new PluginsTransformer(traceRegisterBinder, traceContext));
-        //        classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext)); // must be last put for EntryPointTransformer
         classFileTransformerList.add(new EntryPointTransformer(traceRegisterBinder, traceContext, traceRepository)); // must be last put for EntryPointTransformer
     }
 
