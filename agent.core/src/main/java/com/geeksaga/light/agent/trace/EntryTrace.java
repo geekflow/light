@@ -18,6 +18,7 @@ package com.geeksaga.light.agent.trace;
 import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.ActiveObject;
+import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 
@@ -31,12 +32,6 @@ public class EntryTrace implements Trace
     private LightLogger logger;
     private TraceContext traceContext;
     private TraceRepository traceRepository;
-
-    public EntryTrace(TraceContext traceContext)
-    {
-        this.logger = CommonLogger.getLogger(getClass().getName());
-        this.traceContext = traceContext;
-    }
 
     public EntryTrace(TraceContext traceContext, TraceRepository traceRepository)
     {
@@ -60,6 +55,9 @@ public class EntryTrace implements Trace
             activeObject.setStartTimeMillis(System.currentTimeMillis());
             activeObject.setStartNanoTime(System.nanoTime());
             activeObject.setTransactionName(getRequestURI(methodInfo.getParameter()));
+
+            // FIXME custom root profile
+            ProfileMethod root = new ProfileMethod((byte) 0, 0, 0);
         }
         catch (Throwable throwable)
         {
