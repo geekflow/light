@@ -23,7 +23,7 @@ import com.geeksaga.light.util.ToString;
 public class ProfileMethod extends ProfileData
 {
     private final int hash;
-    private final int startTime;
+    private int startTime;
     private final int startCpuTime;
     private int elapsedTime;
     private int elapsedCpuTime;
@@ -44,6 +44,31 @@ public class ProfileMethod extends ProfileData
         this.hash = hash;
         this.startTime = startTime;
         this.startCpuTime = startCpuTime;
+    }
+
+    public void markBeforeTime(long beforeTime)
+    {
+        this.setStartTime((int) (System.currentTimeMillis() - beforeTime));
+    }
+
+    public void markAfterTime()
+    {
+        final int after = (int) (System.currentTimeMillis() - this.getStartTime());
+
+        if (after != 0)
+        {
+            this.setElapsedTime(after);
+        }
+    }
+
+    public void setStartTime(int startTime)
+    {
+        this.startTime = startTime;
+    }
+
+    public int getStartTime()
+    {
+        return startTime;
     }
 
     public void setElapsedTime(int elapsedTime)

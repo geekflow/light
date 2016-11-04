@@ -42,14 +42,10 @@ public class MethodTransformerTest
     {
         String className = TestMethods.class.getName();
 
-//        ClassFileTransformer transformer = new MethodTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
-        LightClassFileTransformer transformer = new MethodTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
-
         byte[] original = TestUtil.load(className);
-//        byte[] transform = transformer.transform(getClass().getClassLoader(), className, null, null, original);
-
         ClassNodeWrapper classNodeWrapper = ASMUtil.parse(original);
 
+        LightClassFileTransformer transformer = new MethodTransformer(new DefaultTraceRegisterBinder(), new AgentTraceContext(ProfilerConfig.load(getClass().getClassLoader(), "light.conf")));
         transformer.transform(getClass().getClassLoader(), null, original, classNodeWrapper);
 
         byte[] transform = ASMUtil.toBytes(classNodeWrapper);
