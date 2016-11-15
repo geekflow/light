@@ -16,19 +16,25 @@
 package com.geeksaga.light.profiler.config;
 
 import com.geeksaga.light.config.Config;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import target.TestMethods;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static com.geeksaga.light.agent.config.ConfigDef.*;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_entry_point;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_method_min_size;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.isIn;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -54,6 +60,12 @@ public class ProfilerConfigTest
         this.valueTwo = valueTwo;
     }
 
+    @BeforeClass
+    public static void init()
+    {
+        System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
+    }
+
     @Test
     public void testValidationValue()
     {
@@ -65,13 +77,13 @@ public class ProfilerConfigTest
     {
         ProfilerConfig profilerConfig = new ProfilerConfig();
 
-        assertThat(profilerConfig.read(entry_point, "default"), is("default"));
+        assertThat(profilerConfig.read(method_min_size, default_method_min_size), is(default_method_min_size));
 
         Config config = ProfilerConfig.load(ProfilerConfigTest.class.getClassLoader(), "light.conf");
 
         assertThat(config, instanceOf(ProfilerConfig.class));
 
-        assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
+        assertThat(config.read(method_min_size, default_method_min_size), is(default_method_min_size));
     }
 
     @Test
@@ -79,12 +91,10 @@ public class ProfilerConfigTest
     {
         Config config = ProfilerConfig.load(ProfilerConfigTest.class.getClassLoader(), "light.conf");
 
-        assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
+        // assertThat(config.read(entry_point, "default"), containsString(TestMethods.class.getName()));
         assertThat(config.read(class_max_size, 1024 * 1024), is(1048576));
         assertThat(config.read(method_min_size, -1), is(0));
         assertThat(config.read(method_max_size, -1), is(48000));
-
-        System.out.println(config.read(entry_point, "default"));
     }
 
     @Test
