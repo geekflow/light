@@ -210,9 +210,6 @@ public class MultiLineConfigure
 
     public void load(String name, String encoding) throws IOException
     {
-        System.out.println(name);
-        System.out.println(name);
-        System.out.println(name);
         load(new FileInputStream(name), encoding);
     }
 
