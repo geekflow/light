@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.geeksaga.light.repository.util;
+package com.geeksaga.light.util;
 
 import java.util.UUID;
 
