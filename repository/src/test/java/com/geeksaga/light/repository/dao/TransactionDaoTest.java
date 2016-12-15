@@ -18,8 +18,8 @@ package com.geeksaga.light.repository.dao;
 import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.util.IdentifierUtils;
 import com.geeksaga.light.test.TestConfigure;
+import com.geeksaga.light.util.IdentifierUtils;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.*;
@@ -61,8 +61,6 @@ public class TransactionDaoTest
     public void teardown()
     {
         OPartitionedDatabasePool partitionedDatabasePool = repositorySource.getPartitionedDatabasePool();
-
-        System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());
     }
 
     @Test
@@ -72,9 +70,9 @@ public class TransactionDaoTest
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
-        transactionDao.save(transaction);
-
         objectDatabaseTx.close();
+
+        transactionDao.save(transaction);
     }
 
     @Test(expected = com.orientechnologies.orient.core.storage.ORecordDuplicatedException.class)
@@ -109,6 +107,8 @@ public class TransactionDaoTest
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
+        //        objectDatabaseTx.close();
+
         transactionDao.save(transaction);
 
         assertThat(transactionDao.find(transaction).getTid(), is(transaction.getTid()));
@@ -119,15 +119,17 @@ public class TransactionDaoTest
     @Test
     public void testFindList()
     {
-        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
+        //        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
+        //        repositorySource.acquire();
 
-        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
+        //        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
+        //        objectDatabaseTx.close();
+
+        Transaction transaction = new Transaction(IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
 
         assertThat(transactionDao.findList(), notNullValue());
         assertThat(transactionDao.findList().size(), greaterThanOrEqualTo(1));
-
-        objectDatabaseTx.close();
     }
 }

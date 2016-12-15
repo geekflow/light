@@ -15,10 +15,18 @@
  */
 package com.geeksaga.light.repository.orientdb;
 
+import com.geeksaga.light.repository.connect.RepositorySource;
+import com.geeksaga.light.repository.dao.TransactionDao;
+import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
+import com.geeksaga.light.repository.entity.Transaction;
+import com.geeksaga.light.test.TestConfigure;
+import com.geeksaga.light.util.IdentifierUtils;
+import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
@@ -41,25 +49,48 @@ import static org.junit.Assume.assumeThat;
 public class OrientDBEmbedServerTest
 {
     private static final OrientDBEmbedServer server = new OrientDBEmbedServer();
-    private static final String REPOSITORY_CONFIG = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml";
-
+        private static final String REPOSITORY_CONFIG = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml";
 
     @BeforeClass
     public static void init()
     {
+        System.setProperty("server.database.path", System.getProperty("user.dir") + File.separator + "databases");
         System.setProperty("light.repository.config", REPOSITORY_CONFIG);
+        System.setProperty("light.db.url", "remote:localhost/");
     }
 
-    @Ignore
+        @Ignore
     @Test
     public void testStartup()
     {
         server.startup(REPOSITORY_CONFIG);
 
         assertThat(server.isActive(), is(true));
+
+        TestConfigure.load();
+
+        RepositorySource repositorySource = TestConfigure.getRepositorySource();
+
+        TransactionDao transactionDao = new TransactionDaoImpl(repositorySource);
+        OPartitionedDatabasePool partitionedDatabasePool = repositorySource.getPartitionedDatabasePool();
+
+        System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());
+
+        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
+
+        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
+
+        objectDatabaseTx.close();
+
+        transactionDao.save(transaction);
+
+//        System.out.println(transactionDao.findList());
+        System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());
+
         assertThat(server.shutdown(), is(true));
     }
 
+    @Ignore
     @Test
     public void testShutdown()
     {

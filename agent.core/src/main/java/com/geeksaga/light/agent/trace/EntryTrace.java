@@ -19,10 +19,9 @@ import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.agent.profile.ProfileMethod;
+import com.geeksaga.light.agent.profile.ProfileCallStack;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-
-import java.util.Arrays;
 
 /**
  * @author geeksaga
@@ -58,6 +57,9 @@ public class EntryTrace implements Trace
 
             // FIXME custom root profile
             ProfileMethod root = new ProfileMethod((byte) 0, 0, 0);
+            root.markBeforeTime(activeObject.getStartTimeMillis());
+
+            activeObject.setProfileCallStack(new ProfileCallStack(root));
         }
         catch (Throwable throwable)
         {
@@ -75,10 +77,12 @@ public class EntryTrace implements Trace
 
         try
         {
-            logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
+            ProfileMethod profileMethod = (ProfileMethod) activeObject.getProfileCallStack().getRoot();
+            profileMethod.markAfterTime(activeObject.getStartTimeMillis());
 
             traceRepository.save(activeObject);
 
+            logger.info("profile = {}, start time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getStartTime(), profileMethod.getElapsedTime());
             logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
         }
         catch (Throwable innerThrowable)

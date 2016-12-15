@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.repository.orientdb;
 
+import com.geeksaga.light.Product;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.orientechnologies.orient.core.Orient;
@@ -77,7 +78,7 @@ public class OrientDBEmbedServer
     {
         if (ORIENTDB_HOME.length() == 0)
         {
-            System.setProperty(Orient.ORIENTDB_HOME, new File("").getAbsolutePath()); //Set OrientDB home to current directory
+            System.setProperty(Orient.ORIENTDB_HOME, String.format("%s/%s", new File("").getAbsolutePath(), Product.NAME.toLowerCase())); //Set OrientDB home to current directory
         }
     }
 

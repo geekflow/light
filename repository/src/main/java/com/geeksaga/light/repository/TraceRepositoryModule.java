@@ -21,7 +21,7 @@ import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.repository.connect.RepositorySource;
-import com.geeksaga.light.repository.util.IdentifierUtils;
+import com.geeksaga.light.util.IdentifierUtils;
 
 import java.util.concurrent.BlockingQueue;
 

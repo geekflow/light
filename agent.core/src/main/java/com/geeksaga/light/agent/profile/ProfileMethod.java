@@ -61,6 +61,21 @@ public class ProfileMethod extends ProfileData
         }
     }
 
+    public void markAfterTime(long beforeTime)
+    {
+        final int after = (int) (System.currentTimeMillis() - beforeTime) - this.getStartTime();
+
+        if (after != 0)
+        {
+            this.setElapsedTime(after);
+        }
+    }
+
+    public int getHash()
+    {
+        return hash;
+    }
+
     public void setStartTime(int startTime)
     {
         this.startTime = startTime;
@@ -71,14 +86,29 @@ public class ProfileMethod extends ProfileData
         return startTime;
     }
 
+    public int getStartCpuTime()
+    {
+        return startCpuTime;
+    }
+
     public void setElapsedTime(int elapsedTime)
     {
         this.elapsedTime = elapsedTime;
     }
 
+    public int getElapsedTime()
+    {
+        return elapsedTime;
+    }
+
     public void setElapsedCpuTime(int elapsedCpuTime)
     {
         this.elapsedCpuTime = elapsedCpuTime;
+    }
+
+    public int getElapsedCpuTime()
+    {
+        return elapsedCpuTime;
     }
 
     @Override

@@ -15,7 +15,11 @@
  */
 package com.geeksaga.light.agent.core;
 
+import com.geeksaga.light.agent.profile.ProfileData;
+import com.geeksaga.light.agent.profile.ProfileMethod;
+import com.geeksaga.light.agent.profile.ProfileCallStack;
 import com.geeksaga.light.agent.trace.MethodInfo;
+import com.geeksaga.light.util.IdentifierUtils;
 
 /**
  * @author geeksaga
@@ -24,19 +28,30 @@ public class ActiveObject
 {
     private Thread currentThread;
     private MethodInfo methodInfo;
+    private long transactionId;
     private long startTimeMillis;
     private long startNanoTime;
     private String transactionName;
+    private ProfileCallStack profileCallStack;
 
     public ActiveObject(Thread currentThread)
     {
-        this(currentThread, null);
+        this(currentThread, null, new ProfileMethod((byte) 0, 0, 0));
     }
 
     public ActiveObject(Thread currentThread, MethodInfo methodInfo)
     {
+        this(currentThread, methodInfo, new ProfileMethod((byte) 0, 0, 0));
+    }
+
+    public ActiveObject(Thread currentThread, MethodInfo methodInfo, ProfileData rootProfile)
+    {
         this.currentThread = currentThread;
         this.methodInfo = methodInfo;
+
+        this.transactionId = IdentifierUtils.nextLong();
+
+        this.profileCallStack = new ProfileCallStack(rootProfile);
     }
 
     public ActiveObject(Thread currentThread, MethodInfo methodInfo, String transactionName)
@@ -44,6 +59,16 @@ public class ActiveObject
         this.currentThread = currentThread;
         this.methodInfo = methodInfo;
         this.transactionName = transactionName;
+    }
+
+    public void setProfileCallStack(ProfileCallStack profileCallStack)
+    {
+        this.profileCallStack = profileCallStack;
+    }
+
+    public ProfileCallStack getProfileCallStack()
+    {
+        return profileCallStack;
     }
 
     public Thread getCurrentThread()
@@ -54,6 +79,16 @@ public class ActiveObject
     public MethodInfo getMethodInfo()
     {
         return methodInfo;
+    }
+
+    public void setTransactionId(long transactionId)
+    {
+        this.transactionId = transactionId;
+    }
+
+    public long getTransactionId()
+    {
+        return transactionId;
     }
 
     public void setStartTimeMillis(long startTimeMillis)

@@ -17,13 +17,16 @@ package com.geeksaga.light.repository;
 
 import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
+import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.TransactionDao;
+import com.geeksaga.light.repository.dao.TransactionProfileDao;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
+import com.geeksaga.light.repository.dao.orientdb.TransactionProfileDaoImpl;
+import com.geeksaga.light.repository.entity.ProfileData;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.util.IdentifierUtils;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -38,6 +41,7 @@ public class TraceRepositoryWorker implements Runnable
     private final BlockingQueue<ActiveObject> queue;
 
     private TransactionDao transactionDao;
+    private TransactionProfileDao transactionProfileDao;
 
     public TraceRepositoryWorker(TraceRepository traceRepository, BlockingQueue<ActiveObject> queue)
     {
@@ -59,6 +63,7 @@ public class TraceRepositoryWorker implements Runnable
     private void init()
     {
         this.transactionDao = new TransactionDaoImpl(repositorySource);
+        this.transactionProfileDao = new TransactionProfileDaoImpl(repositorySource);
     }
 
     @Override
@@ -86,8 +91,10 @@ public class TraceRepositoryWorker implements Runnable
         try
         {
             Transaction transaction = createTransaction(activeObject);
-
             transactionDao.save(transaction);
+
+            ProfileData rootProfile = createProfile(activeObject, (ProfileMethod) activeObject.getProfileCallStack().getRoot());
+            transactionProfileDao.save(rootProfile);
 
             logger.info("application = {}, end time = {}, elapsed time = {}", transaction.getTransactionName(), transaction.getEndTime(), transaction.getElapsedTime());
         }
@@ -99,12 +106,17 @@ public class TraceRepositoryWorker implements Runnable
 
     private Transaction createTransaction(final ActiveObject activeObject)
     {
-//        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
-        Transaction transaction = new Transaction(IdentifierUtils.nextLong());
+        //        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        Transaction transaction = new Transaction(activeObject.getTransactionId());
         transaction.setTransactionName(activeObject.getTransactionName());
         transaction.setEndTime(System.currentTimeMillis());
         transaction.setElapsedTime((int) (System.nanoTime() - activeObject.getStartTimeMillis()));
 
         return transaction;
+    }
+
+    private ProfileData createProfile(final ActiveObject activeObject, ProfileMethod profileMethod)
+    {
+        return new ProfileData(activeObject.getTransactionId(), profileMethod);
     }
 }

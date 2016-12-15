@@ -23,19 +23,49 @@ import com.geeksaga.light.util.ToString;
 public abstract class ProfileData
 {
     private byte type;
-    private int index;
-    private int parentIndex;
+    private int sequence;
+    private int level;
 
-    public ProfileData(byte type, int index, int parentIndex)
+    public ProfileData(byte type)
+    {
+        this(type, 0, 0);
+    }
+
+    public ProfileData(byte type, int sequence, int level)
     {
         this.type = type;
-        this.index = index;
-        this.parentIndex = parentIndex;
+        this.sequence = sequence;
+        this.level = level;
+    }
+
+    public void setSequence(int sequence)
+    {
+        this.sequence = sequence;
+    }
+
+    public void setLevel(int level)
+    {
+        this.level = level;
+    }
+
+    public byte getType()
+    {
+        return type;
+    }
+
+    public int getSequence()
+    {
+        return sequence;
+    }
+
+    public int getLevel()
+    {
+        return level;
     }
 
     @Override
     public String toString()
     {
-        return ToString.toString(type, index, parentIndex);
+        return ToString.toString(type, sequence, level);
     }
 }

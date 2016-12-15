@@ -43,6 +43,7 @@ public class TestConfigure
         System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
 
         System.setProperty("light.db.url", String.format("memory:%s/", Product.NAME.toLowerCase()));
+//        System.setProperty("light.db.url", "remote:localhost/");
 //        System.setProperty("light.db.url", String.format("plocal:../databases/%s/", Product.NAME.toLowerCase()));
     }
 

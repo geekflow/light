@@ -16,12 +16,18 @@
 package com.geeksaga.light.repository.connect;
 
 import com.geeksaga.light.config.Config;
+import com.geeksaga.light.logger.CommonLogger;
+import com.geeksaga.light.logger.LightLogger;
+import com.geeksaga.light.repository.entity.ProfileData;
 import com.geeksaga.light.repository.entity.Transaction;
+import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+
+import java.io.IOException;
 
 import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_db_url;
 
@@ -30,6 +36,7 @@ import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_db_u
  */
 public class RepositorySource
 {
+    private final LightLogger logger;
     private OPartitionedDatabasePool partitionedDatabasePool;
     private OObjectDatabaseTx objectDatabaseTx = null;
     private Config config;
@@ -44,6 +51,7 @@ public class RepositorySource
 
     public RepositorySource(Config config, String database)
     {
+        this.logger = CommonLogger.getLogger(getClass().getName());
         this.config = config;
         this.database = database;
 
@@ -67,7 +75,7 @@ public class RepositorySource
     public OObjectDatabaseTx getObjectDatabaseTx()
     {
         OObjectDatabaseTx objectDatabaseTx = new OObjectDatabaseTx(partitionedDatabasePool.acquire());
-        objectDatabaseTx.activateOnCurrentThread();
+        //        objectDatabaseTx.activateOnCurrentThread();
 
         return objectDatabaseTx;
     }
@@ -91,11 +99,27 @@ public class RepositorySource
         //        OPartitionedDatabasePoolFactory poolFactory = new OPartitionedDatabasePoolFactory(30);
         //        OPartitionedDatabasePool pool = poolFactory.get(dbUrl,  "admin", "admin");
 
-        partitionedDatabasePool = new OPartitionedDatabasePool(dbUrl, "admin", "admin", 32, 10);
-        partitionedDatabasePool.setAutoCreate(true);
+        if(dbUrl.startsWith("remote"))
+        {
+            OServerAdmin serverAdmin;
 
-        //        OServerAdmin serverAdmin = new OServerAdmin(dbUrl).connect("root", "root");
-        //        serverAdmin.createDatabase(database, "object", "plocal");
+            try
+            {
+                serverAdmin = new OServerAdmin(dbUrl + database).connect("admin", "admin");
+
+                if (!serverAdmin.existsDatabase())
+                {
+                    serverAdmin.createDatabase(database, "object", "plocal");
+                }
+            }
+            catch (IOException e)
+            {
+                logger.info(e);
+            }
+        }
+
+        partitionedDatabasePool = new OPartitionedDatabasePool(dbUrl + database, "admin", "admin", 32, 10);
+        partitionedDatabasePool.setAutoCreate(true);
     }
 
     private void initObjectDatabaseSchema()
@@ -128,6 +152,13 @@ public class RepositorySource
         if (oClass != null && !oClass.areIndexed("tid"))
         {
             oClass.createIndex("TransactionIdUnique", OClass.INDEX_TYPE.UNIQUE, "tid");
+        }
+
+        oClass = objectDatabaseTx.getMetadata().getSchema().getClass(ProfileData.class);
+
+        if (oClass != null && !oClass.areIndexed("tid", "sequence"))
+        {
+            oClass.createIndex("TransactionIdSequenceUnique", OClass.INDEX_TYPE.UNIQUE, "tid", "sequence");
         }
 
         objectDatabaseTx.close();

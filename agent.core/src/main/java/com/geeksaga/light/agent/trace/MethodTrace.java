@@ -18,11 +18,9 @@ package com.geeksaga.light.agent.trace;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
-import com.geeksaga.light.agent.core.TraceRegistry;
+import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-
-import java.util.Arrays;
 
 /**
  * @author geeksaga
@@ -50,8 +48,16 @@ public class MethodTrace implements Trace
     {
         logger.info(methodInfo.getName() + methodInfo.getDesc());
 
-        ActiveObject activeObject = create(methodInfo);
-        activeObject.setStartTimeMillis(System.currentTimeMillis());
+        ActiveObject activeObject = traceContext.current();
+        if (activeObject == null)
+        {
+            return;
+        }
+
+        ProfileMethod profile = new ProfileMethod((byte) 0, 0, 0);
+        profile.markBeforeTime(activeObject.getStartTimeMillis());
+
+        activeObject.getProfileCallStack().push(profile);
     }
 
     public void end(MethodInfo methodInfo, Throwable throwable)
@@ -64,19 +70,16 @@ public class MethodTrace implements Trace
 
         try
         {
-            traceRepository.save(activeObject);
+//            traceRepository.save(activeObject);
 
-            logger.info("{} = {}", methodInfo.getParameter().size(), Arrays.toString(methodInfo.getParameter().getValues()));
-            logger.info("start time = {}, end time = {}, elapsed time = ", activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
+            ProfileMethod profileMethod = (ProfileMethod) activeObject.getProfileCallStack().pop();
+            profileMethod.markAfterTime(activeObject.getStartTimeMillis());
+
+            logger.info("profile = {}, start time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getStartTime(), profileMethod.getElapsedTime());
         }
         catch (Throwable innerThrowable)
         {
             logger.info(innerThrowable);
         }
-    }
-
-    private ActiveObject create(MethodInfo methodInfo)
-    {
-        return traceContext.create(methodInfo);
     }
 }
