@@ -22,7 +22,7 @@ import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
 import com.geeksaga.light.repository.entity.Transaction;
-import com.geeksaga.light.repository.util.IdentifierUtils;
+import com.geeksaga.light.util.IdentifierUtils;
 import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.error.PebbleException;
 import com.mitchellbosecke.pebble.loader.ServletLoader;
@@ -50,7 +50,7 @@ public class ConsoleServlet extends HttpServlet
     private RepositorySource repositorySource;
     private TransactionDao transactionDao;
 
-    private static final String DEFAULT_PATH = "/../databases/";
+    private static final String DEFAULT_PATH = "/home/albert/databases";
 
     private PebbleEngine engine;
 
@@ -59,7 +59,7 @@ public class ConsoleServlet extends HttpServlet
         logger = CommonLogger.getLogger(getClass().getName());
 
         //        System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
-        System.setProperty("light.db.url", String.format("plocal:.%s", DEFAULT_PATH));
+        System.setProperty("light.db.url", String.format("plocal:%s", DEFAULT_PATH));
 
         repositorySource = new RepositorySource(Product.NAME.toLowerCase());
         transactionDao = new TransactionDaoImpl(repositorySource);
@@ -76,12 +76,12 @@ public class ConsoleServlet extends HttpServlet
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
-        transaction.setEndTime(System.currentTimeMillis());
-        transaction.setElapsedTime(790827);
-        transaction.setTransactionName("GeekSaga Light APM TEST - " + System.currentTimeMillis());
-
-        transactionDao.save(transaction);
+//        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+//        transaction.setEndTime(System.currentTimeMillis());
+//        transaction.setElapsedTime(790827);
+//        transaction.setTransactionName("GeekSaga Light APM TEST - " + System.currentTimeMillis());
+//
+//        transactionDao.save(transaction);
 
         try (ServletOutputStream out = response.getOutputStream())
         {
