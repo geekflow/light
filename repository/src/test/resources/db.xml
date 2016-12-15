@@ -15,6 +15,9 @@
   ~ limitations under the License.
   -->
 <orient-server>
+    <properties>
+        <!--entry name="server.database.path" value="/home/light/databases" /-->
+    </properties>
     <network>
         <protocols>
             <protocol implementation="com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary" name="binary"/>
