@@ -72,9 +72,16 @@ public class RepositorySource
         return partitionedDatabasePool.acquire();
     }
 
+    public OObjectDatabaseTx openDatabase()
+    {
+        objectDatabaseTx = getObjectDatabaseTx();
+
+        return objectDatabaseTx;
+    }
+
     public OObjectDatabaseTx getObjectDatabaseTx()
     {
-        OObjectDatabaseTx objectDatabaseTx = new OObjectDatabaseTx(partitionedDatabasePool.acquire());
+        OObjectDatabaseTx objectDatabaseTx = new OObjectDatabaseTx(acquire());
         //        objectDatabaseTx.activateOnCurrentThread();
 
         return objectDatabaseTx;

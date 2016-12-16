@@ -18,6 +18,7 @@
     <properties>
         <!--entry name="server.database.path" value="/home/light/databases" /-->
     </properties>
+
     <network>
         <protocols>
             <protocol implementation="com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary" name="binary"/>
@@ -38,6 +39,9 @@
             </listener>
         </listeners>
     </network>
+
+    <!--storage name="light" path="local:/home/databases/light" userName="admin" userPassword="admin" loaded-at-startup="true" /-->
+
     <users>
         <user resources="*" password="root" name="root"/>
         <user resources="*" password="admin" name="admin"/>

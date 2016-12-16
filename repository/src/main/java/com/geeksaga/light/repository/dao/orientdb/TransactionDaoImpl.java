@@ -37,6 +37,11 @@ public class TransactionDaoImpl implements TransactionDao
         this.repositorySource = repositorySource;
     }
 
+    public OObjectDatabaseTx getObjectDatabase()
+    {
+        return repositorySource.openDatabase();
+    }
+
     @Override
     public boolean save(Transaction transaction)
     {
@@ -123,12 +128,58 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public List<Transaction> findList()
     {
-        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
+        final OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
 
         List<Transaction> list = databaseTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction ORDER BY endTime DESC"));
+
+//        List<Object> result = new ArrayList<Object>(list.size());
+//        for (Object entity : list)
+//        {
+//            result.add(databaseTx.detach(entity, true));
+//        }
 
         databaseTx.close();
 
         return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <RET extends List<?>> RET detach(RET entities)
+    {
+        final OObjectDatabaseTx db = getObjectDatabase();
+
+        List<Object> result = new ArrayList<Object>(entities.size());
+        for (Object entity : entities)
+        {
+            result.add(db.detach(entity, true));
+        }
+
+        return (RET) result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <RET extends List<?>> RET detachAll(RET entities)
+    {
+        final OObjectDatabaseTx db = getObjectDatabase();
+
+        List<Object> result = new ArrayList<Object>(entities.size());
+        for (Object entity : entities)
+        {
+            result.add(db.detachAll(entity, true));
+        }
+
+        return (RET) result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <RET> RET detach(RET entity)
+    {
+        return (RET) getObjectDatabase().detach(entity, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <RET> RET detachAll(RET entity)
+    {
+        return (RET) getObjectDatabase().detachAll(entity, true);
     }
 }

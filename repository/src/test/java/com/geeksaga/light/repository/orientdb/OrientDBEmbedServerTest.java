@@ -49,7 +49,7 @@ import static org.junit.Assume.assumeThat;
 public class OrientDBEmbedServerTest
 {
     private static final OrientDBEmbedServer server = new OrientDBEmbedServer();
-        private static final String REPOSITORY_CONFIG = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml";
+    private static final String REPOSITORY_CONFIG = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml";
 
     @BeforeClass
     public static void init()
@@ -59,7 +59,7 @@ public class OrientDBEmbedServerTest
         System.setProperty("light.db.url", "remote:localhost/");
     }
 
-        @Ignore
+    @Ignore
     @Test
     public void testStartup()
     {
@@ -84,7 +84,7 @@ public class OrientDBEmbedServerTest
 
         transactionDao.save(transaction);
 
-//        System.out.println(transactionDao.findList());
+        System.out.println(transactionDao.findList());
         System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());
 
         assertThat(server.shutdown(), is(true));
