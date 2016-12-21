@@ -82,9 +82,7 @@ public class RepositoryExecutor
 
         try
         {
-            return (RET) list;
-            // FIXME jacoco build error
-            //            return (RET) detach(databaseTx, list);
+            return (RET) detach(databaseTx, list);
         }
         finally
         {

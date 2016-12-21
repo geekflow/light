@@ -90,6 +90,10 @@ subprojects {
         filter {
             includeTestsMatching "*Test"
         }
+
+        jacoco {
+            excludes = ["com/geeksaga/light/repository/entity/**"]
+        }
     }
 
     jacocoTestReport {
