@@ -62,11 +62,6 @@ public class RepositorySource
         initTableClass();
     }
 
-    public RepositoryConnection getConnection()
-    {
-        return new RepositoryConnection(partitionedDatabasePool.acquire());
-    }
-
     public ODatabaseDocumentTx acquire()
     {
         return partitionedDatabasePool.acquire();
@@ -106,7 +101,7 @@ public class RepositorySource
         //        OPartitionedDatabasePoolFactory poolFactory = new OPartitionedDatabasePoolFactory(30);
         //        OPartitionedDatabasePool pool = poolFactory.get(dbUrl,  "admin", "admin");
 
-        if(dbUrl.startsWith("remote"))
+        if (dbUrl.startsWith("remote"))
         {
             OServerAdmin serverAdmin;
 

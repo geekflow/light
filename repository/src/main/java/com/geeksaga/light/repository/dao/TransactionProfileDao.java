@@ -25,7 +25,7 @@ import java.util.List;
  */
 public interface TransactionProfileDao
 {
-    boolean save(ProfileData profileData);
+    ProfileData save(ProfileData profileData);
 
     ProfileData modify(ProfileData profileData);
 

@@ -15,7 +15,6 @@
  */
 package com.geeksaga.light.test;
 
-import com.geeksaga.light.repository.RepositoryConnectionTest;
 import com.geeksaga.light.repository.TraceRepositoryWorkerTest;
 import com.geeksaga.light.repository.dao.TransactionDaoTest;
 import org.junit.Ignore;

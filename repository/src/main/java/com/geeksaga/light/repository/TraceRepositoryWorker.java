@@ -20,7 +20,7 @@ import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
-import com.geeksaga.light.repository.connect.RepositorySource;
+import com.geeksaga.light.repository.connect.RepositoryExecutor;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.dao.TransactionProfileDao;
 import com.geeksaga.light.repository.dao.orientdb.TransactionDaoImpl;
@@ -37,23 +37,18 @@ public class TraceRepositoryWorker implements Runnable
 {
     private final LightLogger logger;
     private final TraceRepository traceRepository;
-    private final RepositorySource repositorySource;
+    private final RepositoryExecutor repositoryExecutor;
     private final BlockingQueue<ActiveObject> queue;
 
     private TransactionDao transactionDao;
     private TransactionProfileDao transactionProfileDao;
 
-    public TraceRepositoryWorker(TraceRepository traceRepository, BlockingQueue<ActiveObject> queue)
-    {
-        this(traceRepository, new RepositorySource(Product.NAME.toLowerCase()), queue);
-    }
-
-    public TraceRepositoryWorker(TraceRepository traceRepository, RepositorySource repositorySource, BlockingQueue<ActiveObject> queue)
+    public TraceRepositoryWorker(TraceRepository traceRepository, RepositoryExecutor repositoryExecutor, BlockingQueue<ActiveObject> queue)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
 
         this.traceRepository = traceRepository;
-        this.repositorySource = repositorySource;
+        this.repositoryExecutor = repositoryExecutor;
 
         this.queue = queue;
 
@@ -62,8 +57,8 @@ public class TraceRepositoryWorker implements Runnable
 
     private void init()
     {
-        this.transactionDao = new TransactionDaoImpl(repositorySource);
-        this.transactionProfileDao = new TransactionProfileDaoImpl(repositorySource);
+        this.transactionDao = new TransactionDaoImpl(repositoryExecutor);
+        this.transactionProfileDao = new TransactionProfileDaoImpl(repositoryExecutor);
     }
 
     @Override

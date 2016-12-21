@@ -54,6 +54,8 @@ public class OrientDBEmbedServerTest
     @BeforeClass
     public static void init()
     {
+        TestConfigure.load();
+
         System.setProperty("server.database.path", System.getProperty("user.dir") + File.separator + "databases");
         System.setProperty("light.repository.config", REPOSITORY_CONFIG);
         System.setProperty("light.db.url", "remote:localhost/");
@@ -71,7 +73,7 @@ public class OrientDBEmbedServerTest
 
         RepositorySource repositorySource = TestConfigure.getRepositorySource();
 
-        TransactionDao transactionDao = new TransactionDaoImpl(repositorySource);
+        TransactionDao transactionDao = new TransactionDaoImpl(TestConfigure.getRepositoryExecutor());
         OPartitionedDatabasePool partitionedDatabasePool = repositorySource.getPartitionedDatabasePool();
 
         System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());

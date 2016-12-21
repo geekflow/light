@@ -18,9 +18,8 @@ package com.geeksaga.light.test;
 import com.geeksaga.light.config.Config;
 import com.geeksaga.light.profiler.config.ProfilerConfiguration;
 import com.geeksaga.light.repository.Product;
-import com.geeksaga.light.repository.connect.RepositoryConnection;
+import com.geeksaga.light.repository.connect.RepositoryExecutor;
 import com.geeksaga.light.repository.connect.RepositorySource;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 
 import java.io.File;
@@ -33,9 +32,8 @@ import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_inst
  */
 public class TestConfigure
 {
-    //    private static ThreadLocal<RepositoryConnection> repositoryConnection = new ThreadLocal<RepositoryConnection>();
     private static RepositorySource repositorySource;
-    private static RepositoryConnection repositoryConnection;
+    private static RepositoryExecutor repositoryExecutor;
 
     public static void load()
     {
@@ -43,13 +41,13 @@ public class TestConfigure
         System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
 
         System.setProperty("light.db.url", String.format("memory:%s/", Product.NAME.toLowerCase()));
-//        System.setProperty("light.db.url", "remote:localhost/");
-//        System.setProperty("light.db.url", String.format("plocal:../databases/%s/", Product.NAME.toLowerCase()));
+        //        System.setProperty("light.db.url", "remote:localhost/");
+        //        System.setProperty("light.db.url", String.format("plocal:../databases/%s/", Product.NAME.toLowerCase()));
     }
 
     public static RepositorySource getRepositorySource()
     {
-        if(repositorySource == null)
+        if (repositorySource == null)
         {
             repositorySource = new RepositorySource(getConfig(), read(getConfig(), instance_id, default_instance_id));
         }
@@ -57,14 +55,14 @@ public class TestConfigure
         return repositorySource;
     }
 
-    public static RepositoryConnection getConnection()
+    public static RepositoryExecutor getRepositoryExecutor()
     {
-        if (repositoryConnection == null)
+        if (repositoryExecutor == null)
         {
-//            repositoryConnection = new RepositoryConnection(getConfig(), read(getConfig(), instance_id, default_instance_id));
+            repositoryExecutor = new RepositoryExecutor(getRepositorySource());
         }
 
-        return repositoryConnection;
+        return repositoryExecutor;
     }
 
     public static Config getConfig()

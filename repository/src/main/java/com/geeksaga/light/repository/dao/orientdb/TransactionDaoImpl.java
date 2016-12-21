@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.repository.dao.orientdb;
 
+import com.geeksaga.light.repository.connect.RepositoryExecutor;
 import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.TransactionDao;
 import com.geeksaga.light.repository.entity.Transaction;
@@ -22,7 +23,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,31 +32,22 @@ public class TransactionDaoImpl implements TransactionDao
 {
     private RepositorySource repositorySource;
 
+    private RepositoryExecutor repositoryExecutor;
+
     public TransactionDaoImpl(RepositorySource repositorySource)
     {
         this.repositorySource = repositorySource;
     }
 
-    public OObjectDatabaseTx getObjectDatabase()
+    public TransactionDaoImpl(RepositoryExecutor repositoryExecutor)
     {
-        return repositorySource.openDatabase();
+        this.repositoryExecutor = repositoryExecutor;
     }
 
     @Override
-    public boolean save(Transaction transaction)
+    public Transaction save(Transaction transaction)
     {
-        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
-
-        try
-        {
-            databaseTx.save(transaction);
-        }
-        finally
-        {
-            databaseTx.close();
-        }
-
-        return true;
+        return repositoryExecutor.save(transaction);
     }
 
     @Override
@@ -111,15 +102,10 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction find(Transaction transaction)
     {
-        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
-
-        List<Transaction> result = objectDatabaseTx.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
-
-        objectDatabaseTx.close();
-
-        for (Transaction storedTransaction : result)
+        List<Transaction> result = repositoryExecutor.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
+        if (result.size() > 0)
         {
-            return storedTransaction;
+            return result.get(0);
         }
 
         return new Transaction();
@@ -128,58 +114,6 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public List<Transaction> findList()
     {
-        final OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
-
-        List<Transaction> list = databaseTx.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction ORDER BY endTime DESC"));
-
-//        List<Object> result = new ArrayList<Object>(list.size());
-//        for (Object entity : list)
-//        {
-//            result.add(databaseTx.detach(entity, true));
-//        }
-
-        databaseTx.close();
-
-        return list;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <RET extends List<?>> RET detach(RET entities)
-    {
-        final OObjectDatabaseTx db = getObjectDatabase();
-
-        List<Object> result = new ArrayList<Object>(entities.size());
-        for (Object entity : entities)
-        {
-            result.add(db.detach(entity, true));
-        }
-
-        return (RET) result;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <RET extends List<?>> RET detachAll(RET entities)
-    {
-        final OObjectDatabaseTx db = getObjectDatabase();
-
-        List<Object> result = new ArrayList<Object>(entities.size());
-        for (Object entity : entities)
-        {
-            result.add(db.detachAll(entity, true));
-        }
-
-        return (RET) result;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <RET> RET detach(RET entity)
-    {
-        return (RET) getObjectDatabase().detach(entity, true);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <RET> RET detachAll(RET entity)
-    {
-        return (RET) getObjectDatabase().detachAll(entity, true);
+        return repositoryExecutor.query(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction ORDER BY endTime DESC"));
     }
 }

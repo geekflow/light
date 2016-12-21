@@ -16,6 +16,7 @@
 package com.geeksaga.light.repository.dao.orientdb;
 
 import com.geeksaga.light.agent.profile.ProfileMethod;
+import com.geeksaga.light.repository.connect.RepositoryExecutor;
 import com.geeksaga.light.repository.connect.RepositorySource;
 import com.geeksaga.light.repository.dao.TransactionProfileDao;
 import com.geeksaga.light.repository.entity.ProfileData;
@@ -31,52 +32,41 @@ import java.util.List;
  */
 public class TransactionProfileDaoImpl implements TransactionProfileDao
 {
-    private RepositorySource repositorySource;
+    private RepositoryExecutor repositoryExecutor;
 
-    public TransactionProfileDaoImpl(RepositorySource repositorySource)
+    public TransactionProfileDaoImpl(RepositoryExecutor repositoryExecutor)
     {
-        this.repositorySource = repositorySource;
+        this.repositoryExecutor = repositoryExecutor;
     }
 
     @Override
-    public boolean save(ProfileData profileData)
+    public ProfileData save(ProfileData profileData)
     {
-        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
-
-        try
-        {
-            databaseTx.save(profileData);
-        }
-        finally
-        {
-            databaseTx.close();
-        }
-
-        return true;
+        return repositoryExecutor.save(profileData);
     }
 
     @Override
     public ProfileData modify(ProfileData profileData)
     {
-        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
-
-        try
-        {
-            databaseTx.begin();
-
-            //            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction WHERE id = " + transaction.getId() + ""));
-            List<ODocument> result = databaseTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction"));
-
-            databaseTx.commit();
-        }
-        catch (Exception exception)
-        {
-            databaseTx.rollback();
-        }
-        finally
-        {
-            databaseTx.close();
-        }
+//        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
+//
+//        try
+//        {
+//            databaseTx.begin();
+//
+//            //            List<ODocument> result = documentTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction WHERE id = " + transaction.getId() + ""));
+//            List<ODocument> result = databaseTx.query(new OSQLSynchQuery<ODocument>("SELECT * FROM transaction"));
+//
+//            databaseTx.commit();
+//        }
+//        catch (Exception exception)
+//        {
+//            databaseTx.rollback();
+//        }
+//        finally
+//        {
+//            databaseTx.close();
+//        }
 
         return profileData;
     }
@@ -84,15 +74,10 @@ public class TransactionProfileDaoImpl implements TransactionProfileDao
     @Override
     public ProfileData find(Transaction transaction)
     {
-        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
-
-        List<ProfileData> result = objectDatabaseTx.command(new OSQLSynchQuery<ProfileData>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
-
-        objectDatabaseTx.close();
-
-        for (ProfileData storedTransaction : result)
+        List<ProfileData> result = repositoryExecutor.command(new OSQLSynchQuery<ProfileData>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
+        if (result.size() > 0)
         {
-            return storedTransaction;
+            return result.get(0);
         }
 
         return new ProfileData();
@@ -101,12 +86,6 @@ public class TransactionProfileDaoImpl implements TransactionProfileDao
     @Override
     public List<ProfileData> findList()
     {
-        OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
-
-        List<ProfileData> list = databaseTx.query(new OSQLSynchQuery<ProfileData>("SELECT * FROM Transaction ORDER BY endTime DESC"));
-
-        databaseTx.close();
-
-        return list;
+        return repositoryExecutor.query(new OSQLSynchQuery<ProfileData>("SELECT * FROM Transaction ORDER BY endTime DESC"));
     }
 }

@@ -54,14 +54,12 @@ public class TransactionDaoTest
     @Before
     public void setup()
     {
-        transactionDao = new TransactionDaoImpl(repositorySource);
+        transactionDao = new TransactionDaoImpl(TestConfigure.getRepositoryExecutor());
     }
 
     @After
     public void teardown()
-    {
-        OPartitionedDatabasePool partitionedDatabasePool = repositorySource.getPartitionedDatabasePool();
-    }
+    {}
 
     @Test
     public void testSave()
@@ -107,8 +105,6 @@ public class TransactionDaoTest
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
-        //        objectDatabaseTx.close();
-
         transactionDao.save(transaction);
 
         assertThat(transactionDao.find(transaction).getTid(), is(transaction.getTid()));
@@ -119,12 +115,6 @@ public class TransactionDaoTest
     @Test
     public void testFindList()
     {
-        //        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
-        //        repositorySource.acquire();
-
-        //        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
-        //        objectDatabaseTx.close();
-
         Transaction transaction = new Transaction(IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);

@@ -50,7 +50,7 @@ public class ConsoleServlet extends HttpServlet
     private RepositorySource repositorySource;
     private TransactionDao transactionDao;
 
-    private static final String DEFAULT_PATH = "/home/albert/databases";
+//    private static final String DEFAULT_PATH = "../databases";
 
     private PebbleEngine engine;
 
@@ -59,7 +59,7 @@ public class ConsoleServlet extends HttpServlet
         logger = CommonLogger.getLogger(getClass().getName());
 
         //        System.setProperty("light.db.url", String.format("memory:/%s/", Product.NAME.toLowerCase()));
-        System.setProperty("light.db.url", String.format("plocal:%s", DEFAULT_PATH));
+//        System.setProperty("light.db.url", String.format("plocal:%s", DEFAULT_PATH));
 
         repositorySource = new RepositorySource(Product.NAME.toLowerCase());
         transactionDao = new TransactionDaoImpl(repositorySource);
@@ -76,12 +76,12 @@ public class ConsoleServlet extends HttpServlet
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-//        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
-//        transaction.setEndTime(System.currentTimeMillis());
-//        transaction.setElapsedTime(790827);
-//        transaction.setTransactionName("GeekSaga Light APM TEST - " + System.currentTimeMillis());
-//
-//        transactionDao.save(transaction);
+        Transaction transaction = repositorySource.getObjectDatabaseTx().newInstance(Transaction.class, IdentifierUtils.nextLong());
+        transaction.setEndTime(System.currentTimeMillis());
+        transaction.setElapsedTime(790827);
+        transaction.setTransactionName("GeekSaga Light APM TEST - " + System.currentTimeMillis());
+
+        transactionDao.save(transaction);
 
         try (ServletOutputStream out = response.getOutputStream())
         {
@@ -98,6 +98,11 @@ public class ConsoleServlet extends HttpServlet
         Writer writer = new StringWriter();
         Map<String, Object> context = new HashMap<>();
         context.put("transactions", transactionDao.findList());
+
+        for(Transaction t : transactionDao.findList())
+        {
+            System.out.println(t);
+        }
 
         PebbleTemplate compiledTemplate = engine.getTemplate("transactionList.html");
         compiledTemplate.evaluate(writer, context);

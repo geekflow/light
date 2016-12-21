@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface TransactionDao
 {
-    boolean save(Transaction transaction);
+    Transaction save(Transaction transaction);
 
     Transaction modify(Transaction transaction);
 
