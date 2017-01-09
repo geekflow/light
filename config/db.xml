@@ -16,7 +16,7 @@
   -->
 <orient-server>
     <properties>
-        <!--entry name="server.database.path" value="/home/light/databases" /-->
+        <entry name="server.database.path" value="../databases" />
     </properties>
 
     <network>
@@ -45,6 +45,7 @@
     <users>
         <user resources="*" password="root" name="root"/>
         <user resources="*" password="admin" name="admin"/>
+        <user resources="connect,server.listDatabases,server.dblist" password="test" name="guest"/>
     </users>
     <isAfterFirstTime>true</isAfterFirstTime>
 </orient-server>
