@@ -34,11 +34,16 @@ import static org.mockito.Mockito.when;
  */
 public class ProfilerModuleTest
 {
+    private static final String REPOSITORY_CONFIG = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml";
+
     @BeforeClass
     public static void init()
     {
         System.setProperty("light.config", System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "light.conf");
         System.setProperty(XmlConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "log4j2.xml");
+
+        System.setProperty("server.database.path", System.getProperty("user.dir") + File.separator + "databases");
+        System.setProperty("light.repository.config", REPOSITORY_CONFIG);
     }
 
     @Test
@@ -54,16 +59,6 @@ public class ProfilerModuleTest
         //        instrumentation.addTransformer(new PluginsTransformerDispatcher(traceRegisterBinder, traceContext));
 
         Module module = new ProfilerModule(instrumentation);
-        module.start();
-        module.stop();
-    }
-
-    @Test
-    public void testRegistPointCut()
-    {
-        Instrumentation instrumentation = mock(Instrumentation.class);
-        Module module = new ProfilerModule(instrumentation);
-
         module.start();
         module.stop();
     }

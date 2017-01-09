@@ -91,6 +91,4 @@ public class OrientDBEmbedServer
     {
         return server.isActive();
     }
-
-
 }

@@ -59,7 +59,7 @@ public class TestConfigure
     {
         if (repositoryExecutor == null)
         {
-            repositoryExecutor = new RepositoryExecutor(getRepositorySource());
+            repositoryExecutor = new RepositoryExecutor(getConfig(), read(getConfig(), instance_id, default_instance_id));
         }
 
         return repositoryExecutor;

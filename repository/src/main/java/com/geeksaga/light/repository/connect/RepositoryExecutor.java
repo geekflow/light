@@ -15,6 +15,7 @@
  */
 package com.geeksaga.light.repository.connect;
 
+import com.geeksaga.light.config.Config;
 import com.geeksaga.light.repository.Product;
 import com.geeksaga.light.repository.entity.Transaction;
 import com.orientechnologies.orient.core.command.OCommandRequest;
@@ -31,20 +32,23 @@ public class RepositoryExecutor
 {
     private RepositorySource repositorySource;
 
-    public RepositoryExecutor()
+    public RepositoryExecutor(Config config)
     {
-        this(new RepositorySource(Product.NAME.toLowerCase()));
+        this(config, Product.NAME.toLowerCase());
     }
 
-    public RepositoryExecutor(RepositorySource repositorySource)
+    public RepositoryExecutor(Config config, String database)
     {
-        this.repositorySource = repositorySource;
+        this.repositorySource = new RepositorySource(config, database);
+    }
+
+    public RepositorySource getRepositorySource()
+    {
+        return repositorySource;
     }
 
     public void execute()
-    {
-
-    }
+    {}
 
     public <RET> RET save(final Object iContent)
     {
@@ -67,6 +71,22 @@ public class RepositoryExecutor
         try
         {
             return (RET) databaseTx.command(iCommand);
+        }
+        finally
+        {
+            databaseTx.close();
+        }
+    }
+
+    public <RET extends List<?>> RET execute(final OCommandRequest iCommand, Object... iArgs)
+    {
+        final OObjectDatabaseTx databaseTx = repositorySource.getObjectDatabaseTx();
+
+        List<Transaction> list = databaseTx.command(iCommand).execute(iArgs);
+
+        try
+        {
+            return (RET) detach(databaseTx, list);
         }
         finally
         {

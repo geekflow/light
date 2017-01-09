@@ -61,13 +61,13 @@ public class OrientDBEmbedServerTest
         System.setProperty("light.db.url", "remote:localhost/");
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void testStartup()
     {
-        server.startup(REPOSITORY_CONFIG);
+//        server.startup(REPOSITORY_CONFIG);
 
-        assertThat(server.isActive(), is(true));
+//        assertThat(server.isActive(), is(true));
 
         TestConfigure.load();
 
@@ -76,7 +76,7 @@ public class OrientDBEmbedServerTest
         TransactionDao transactionDao = new TransactionDaoImpl(TestConfigure.getRepositoryExecutor());
         OPartitionedDatabasePool partitionedDatabasePool = repositorySource.getPartitionedDatabasePool();
 
-        System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());
+        assertThat(partitionedDatabasePool.getAvailableConnections(), is(partitionedDatabasePool.getCreatedInstances()));
 
         OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
@@ -86,10 +86,9 @@ public class OrientDBEmbedServerTest
 
         transactionDao.save(transaction);
 
-        System.out.println(transactionDao.findList());
-        System.out.println(partitionedDatabasePool.getAvailableConnections() + " = " + partitionedDatabasePool.getCreatedInstances());
+        assertThat(partitionedDatabasePool.getAvailableConnections(), is(partitionedDatabasePool.getCreatedInstances()));
 
-        assertThat(server.shutdown(), is(true));
+//        assertThat(server.shutdown(), is(true));
     }
 
     @Ignore

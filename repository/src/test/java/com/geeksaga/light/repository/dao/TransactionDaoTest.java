@@ -68,9 +68,9 @@ public class TransactionDaoTest
 
         Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
 
-        objectDatabaseTx.close();
-
         transactionDao.save(transaction);
+
+        objectDatabaseTx.close();
     }
 
     @Test(expected = com.orientechnologies.orient.core.storage.ORecordDuplicatedException.class)
@@ -78,17 +78,22 @@ public class TransactionDaoTest
     {
         OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
 
-        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
+        try
+        {
+            Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
 
-        transactionDao.save(transaction);
-
-        objectDatabaseTx.close();
-
-        objectDatabaseTx = repositorySource.getObjectDatabaseTx();
+            transactionDao.save(transaction);
+        }
+        finally
+        {
+            objectDatabaseTx.close();
+        }
 
         try
         {
-            transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
+            objectDatabaseTx = repositorySource.getObjectDatabaseTx();
+
+            Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, 1L);
 
             transactionDao.save(transaction);
         }
@@ -101,15 +106,13 @@ public class TransactionDaoTest
     @Test
     public void testFind()
     {
-        OObjectDatabaseTx objectDatabaseTx = repositorySource.getObjectDatabaseTx();
-
-        Transaction transaction = objectDatabaseTx.newInstance(Transaction.class, IdentifierUtils.nextLong());
+        Transaction transaction = new Transaction(IdentifierUtils.nextLong());
 
         transactionDao.save(transaction);
 
-        assertThat(transactionDao.find(transaction).getTid(), is(transaction.getTid()));
+        Transaction findTransaction = transactionDao.find(transaction);
 
-        objectDatabaseTx.close();
+        assertThat(findTransaction.getTid(), is(transaction.getTid()));
     }
 
     @Test

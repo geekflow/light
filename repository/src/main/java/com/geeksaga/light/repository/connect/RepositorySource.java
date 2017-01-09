@@ -29,6 +29,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 import java.io.IOException;
 
+import static com.geeksaga.light.agent.config.ConfigDef.db_url;
 import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_db_url;
 
 /**
@@ -42,8 +43,9 @@ public class RepositorySource
     private Config config;
     private String database;
 
-    private static String dbUrl = System.getProperty("light.db.url", default_db_url);
+    private String dbUrl;
 
+    @Deprecated
     public RepositorySource(String database)
     {
         this(null, database);
@@ -54,6 +56,11 @@ public class RepositorySource
         this.logger = CommonLogger.getLogger(getClass().getName());
         this.config = config;
         this.database = database;
+
+        if(config != null)
+        {
+            this.dbUrl = config.read(db_url, System.getProperty("light.db.url", default_db_url));
+        }
 
         initObjectDatabaseTx(database);
 

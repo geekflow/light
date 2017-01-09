@@ -102,7 +102,7 @@ public class TransactionDaoImpl implements TransactionDao
     @Override
     public Transaction find(Transaction transaction)
     {
-        List<Transaction> result = repositoryExecutor.command(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid())).execute();
+        List<Transaction> result = repositoryExecutor.execute(new OSQLSynchQuery<Transaction>("SELECT * FROM Transaction WHERE tid = " + transaction.getTid()));
         if (result.size() > 0)
         {
             return result.get(0);

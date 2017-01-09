@@ -31,6 +31,7 @@ import com.geeksaga.light.profiler.instrument.transformer.MethodTransformer;
 import com.geeksaga.light.profiler.logger.Slf4jLoggerBinder;
 import com.geeksaga.light.repository.TraceRepositoryModule;
 import com.geeksaga.light.repository.connect.RepositoryExecutor;
+import com.geeksaga.light.repository.orientdb.OrientDBEmbedServer;
 
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public class ProfilerModule implements Module
 
     // TEST
     private BlockingQueue<ActiveObject> queue = new ArrayBlockingQueue<ActiveObject>(1000);
+
+    private OrientDBEmbedServer dbEmbeddedServer = new OrientDBEmbedServer();
 
     private List<LightClassFileTransformer> classFileTransformerList;
 
@@ -85,10 +88,14 @@ public class ProfilerModule implements Module
 
         registPointCut();
 
-        Module module = new TraceRepositoryModule(traceRepository, new RepositoryExecutor(), queue);
+        Module module = new TraceRepositoryModule(traceRepository, new RepositoryExecutor(traceContext.getConfig()), queue);
         module.start();
 
         addTransformer(instrumentation.isRetransformClassesSupported());
+
+        // FIXME embedded data server option
+        OrientDBEmbedServer server = new OrientDBEmbedServer();
+        server.startup();
     }
 
     private void loggerBinder()
@@ -114,6 +121,8 @@ public class ProfilerModule implements Module
     @Override
     public void stop()
     {
+        dbEmbeddedServer.shutdown();
+
         logger.info("profiler module stop.");
     }
 }
