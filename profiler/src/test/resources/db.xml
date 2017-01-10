@@ -16,7 +16,7 @@
   -->
 <orient-server>
     <properties>
-        <!--entry name="server.database.path" value="/home/light/databases" /-->
+        <!--entry name="server.database.path" value="../databases" /-->
     </properties>
 
     <network>

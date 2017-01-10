@@ -17,6 +17,7 @@
 <orient-server>
     <properties>
         <entry name="server.database.path" value="../databases" />
+        <entry name="server.security.file" value="../security.json" />
     </properties>
 
     <network>
