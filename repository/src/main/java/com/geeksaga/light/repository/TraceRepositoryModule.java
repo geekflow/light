@@ -52,6 +52,7 @@ public class TraceRepositoryModule implements Module
     public void start()
     {
         logger.info("repository module start");
+        logger.info("instance id : {}", traceRepository.getConfig().read(instance_id, default_instance_id));
 
         IdentifierUtils.seed(System.nanoTime() ^ traceRepository.getConfig().read(instance_id, default_instance_id));
 

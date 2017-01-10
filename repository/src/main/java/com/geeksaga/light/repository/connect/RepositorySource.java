@@ -108,6 +108,8 @@ public class RepositorySource
         //        OPartitionedDatabasePoolFactory poolFactory = new OPartitionedDatabasePoolFactory(30);
         //        OPartitionedDatabasePool pool = poolFactory.get(dbUrl,  "admin", "admin");
 
+        logger.info("db url : {}{}", dbUrl, database);
+
         if (dbUrl.startsWith("remote"))
         {
             OServerAdmin serverAdmin;
@@ -115,7 +117,6 @@ public class RepositorySource
             try
             {
                 serverAdmin = new OServerAdmin(dbUrl + database).connect("admin", "admin");
-
                 if (!serverAdmin.existsDatabase())
                 {
                     serverAdmin.createDatabase(database, "object", "plocal");

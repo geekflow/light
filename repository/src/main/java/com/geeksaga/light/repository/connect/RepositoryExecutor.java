@@ -25,6 +25,8 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
+
 /**
  * @author geeksaga
  */
@@ -34,7 +36,7 @@ public class RepositoryExecutor
 
     public RepositoryExecutor(Config config)
     {
-        this(config, Product.NAME.toLowerCase());
+        this(config, config.read(instance_id, Product.NAME.toLowerCase()));
     }
 
     public RepositoryExecutor(Config config, String database)

@@ -16,6 +16,7 @@
 package com.geeksaga.light.repository.orientdb;
 
 import com.geeksaga.light.Product;
+import com.geeksaga.light.config.Config;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import com.orientechnologies.orient.core.Orient;
@@ -24,6 +25,9 @@ import com.orientechnologies.orient.server.OServerMain;
 
 import java.io.File;
 
+import static com.geeksaga.light.agent.config.ConfigDef.db_path;
+import static com.geeksaga.light.agent.config.ConfigDef.instance_id;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_db_path;
 import static com.geeksaga.light.util.SystemProperty.LIGHT_REPOSITORY_CONFIG;
 import static com.geeksaga.light.util.SystemProperty.ORIENTDB_HOME;
 
@@ -34,10 +38,12 @@ public class OrientDBEmbedServer
 {
     private final LightLogger logger;
     private OServer server;
+    private Config config;
 
-    public OrientDBEmbedServer()
+    public OrientDBEmbedServer(Config config)
     {
         this.logger = CommonLogger.getLogger(getClass().getName());
+        this.config = config;
 
         init();
     }
@@ -78,7 +84,9 @@ public class OrientDBEmbedServer
     {
         if (ORIENTDB_HOME.length() == 0)
         {
-            System.setProperty(Orient.ORIENTDB_HOME, String.format("%s/%s", new File("").getAbsolutePath(), Product.NAME.toLowerCase())); //Set OrientDB home to current directory
+            System.setProperty(Orient.ORIENTDB_HOME, createOrientDbHome());
+
+            logger.info("{} ORIENTDB_HOME : {}", Product.NAME.toUpperCase(), System.getProperty(Orient.ORIENTDB_HOME));
         }
     }
 
@@ -90,5 +98,12 @@ public class OrientDBEmbedServer
     public boolean isActive()
     {
         return server.isActive();
+    }
+
+    private String createOrientDbHome()
+    {
+        // Set OrientDB home to current directory
+        // return String.format("%s/%s", new File("").getAbsolutePath(), config.read(instance_id, Product.NAME.toLowerCase()));
+        return String.format("%s", config.read(db_path, default_db_path));
     }
 }

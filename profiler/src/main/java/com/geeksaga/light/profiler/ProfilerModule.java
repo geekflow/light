@@ -56,7 +56,7 @@ public class ProfilerModule implements Module
     // TEST
     private BlockingQueue<ActiveObject> queue = new ArrayBlockingQueue<ActiveObject>(1000);
 
-    private OrientDBEmbedServer dbEmbeddedServer = new OrientDBEmbedServer();
+    private OrientDBEmbedServer embeddedServer;
 
     private List<LightClassFileTransformer> classFileTransformerList;
 
@@ -88,14 +88,14 @@ public class ProfilerModule implements Module
 
         registPointCut();
 
+        // FIXME embedded data server option
+        embeddedServer = new OrientDBEmbedServer(traceContext.getConfig());
+        embeddedServer.startup();
+
         Module module = new TraceRepositoryModule(traceRepository, new RepositoryExecutor(traceContext.getConfig()), queue);
         module.start();
 
         addTransformer(instrumentation.isRetransformClassesSupported());
-
-        // FIXME embedded data server option
-        OrientDBEmbedServer server = new OrientDBEmbedServer();
-        server.startup();
     }
 
     private void loggerBinder()
@@ -121,7 +121,7 @@ public class ProfilerModule implements Module
     @Override
     public void stop()
     {
-        dbEmbeddedServer.shutdown();
+        embeddedServer.shutdown();
 
         logger.info("profiler module stop.");
     }

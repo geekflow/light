@@ -48,7 +48,7 @@ import static org.junit.Assume.assumeThat;
  */
 public class OrientDBEmbedServerTest
 {
-    private static final OrientDBEmbedServer server = new OrientDBEmbedServer();
+    private static final OrientDBEmbedServer server = new OrientDBEmbedServer(TestConfigure.getConfig());
     private static final String REPOSITORY_CONFIG = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "db.xml";
 
     @BeforeClass
