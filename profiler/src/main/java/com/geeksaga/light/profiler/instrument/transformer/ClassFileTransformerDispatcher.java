@@ -23,6 +23,7 @@ import com.geeksaga.light.profiler.asm.ClassNodeWrapper;
 import com.geeksaga.light.profiler.filter.Filter;
 import com.geeksaga.light.profiler.filter.LightFilter;
 import com.geeksaga.light.profiler.util.ASMUtil;
+import com.geeksaga.light.profiler.util.ClassFileDumper;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -30,6 +31,9 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.geeksaga.light.agent.config.ConfigDef.dump_mode;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_dump_mode;
 
 /**
  * @author geeksaga
@@ -127,7 +131,14 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             //                return bytes;
             //            }
 
-            return ASMUtil.toBytes(patchedClassNodeWrapper);
+            byte[] hookedClassFileBuffer = ASMUtil.toBytes(patchedClassNodeWrapper);
+
+            if (traceContext.getConfig().read(dump_mode, default_dump_mode))
+            {
+                ClassFileDumper.dump(classNodeWrapper.getClassName(), classfileBuffer, hookedClassFileBuffer);
+            }
+
+            return hookedClassFileBuffer;
         }
         catch (Throwable throwable)
         {

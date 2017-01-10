@@ -50,5 +50,8 @@ public class ConfigDefaultValueDef
     public static final String[] default_ignore_bci_pattern = new String[] {};
     public static final String[] default_allow_bci_pattern = new String[] {};
 
+    public static final boolean default_dump_mode = false;
+    public static final boolean default_dump_class_all = false;
+
     public static FieldNameObjectMap names = FieldNameObjectMap.toMap(ConfigDefaultValueDef.class);
 }

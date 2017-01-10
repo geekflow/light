@@ -50,5 +50,8 @@ public class ConfigDef
     public static final String ignore_bci_pattern = "ignore_bci_pattern";
     public static final String allow_bci_pattern = "allow_bci_pattern";
 
+    public static final String dump_mode = "dump_mode";
+    public static final String dump_class_all = "dump_class_all";
+
     public static FieldNameMap names = FieldNameMap.toMap(ConfigDef.class);
 }

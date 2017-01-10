@@ -32,7 +32,6 @@ import com.geeksaga.light.profiler.filter.Filter;
 import com.geeksaga.light.profiler.selector.ClassSelector;
 import com.geeksaga.light.profiler.selector.MethodSelector;
 import com.geeksaga.light.profiler.util.ASMUtil;
-import com.geeksaga.light.profiler.util.ClassFileDumper;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AdviceAdapter;
 
@@ -226,10 +225,6 @@ public class EntryPointTransformer implements LightClassFileTransformer
                 return mv;
             }
         });
-
-        byte[] hookedClassFileBuffer = ASMUtil.toBytes(newClassNodeWrapper);
-
-        ClassFileDumper.dump(classNodeWrapper.getClassName(), classfileBuffer, hookedClassFileBuffer);
 
         return newClassNodeWrapper;
     }
