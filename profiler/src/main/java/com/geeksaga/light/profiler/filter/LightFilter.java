@@ -81,7 +81,7 @@ public class LightFilter implements Filter
 
         for (String value : values)
         {
-            if (className.startsWith(value))
+            if (className != null && className.startsWith(value))
             {
                 return true;
             }
