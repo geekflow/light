@@ -70,3 +70,4 @@ hs_err_pid*
 
 /tomcat.8080
 /databases
+atlassian-ide-plugin.xml
