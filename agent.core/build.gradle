@@ -17,6 +17,7 @@ jar {
 
 dependencies {
     compile 'org.ow2.asm:asm-all:5.1'
+    compile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version: '6.2.4'
     compile 'io.dropwizard.metrics:metrics-core:3.1.2'
     compile 'io.dropwizard.metrics:metrics-jvm:3.1.2'
     compile 'io.dropwizard.metrics:metrics-servlets:3.1.2'

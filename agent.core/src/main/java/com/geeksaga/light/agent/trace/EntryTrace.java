@@ -22,6 +22,15 @@ import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.agent.profile.ProfileCallStack;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+
+import java.util.Collections;
 
 /**
  * @author geeksaga
@@ -84,6 +93,27 @@ public class EntryTrace implements Trace
 
             logger.info("profile = {}, start time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getStartTime(), profileMethod.getElapsedTime());
             logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
+
+            RestClient restClient = RestClient.builder(new HttpHost("127.0.0.1", 9200)).build();
+
+            HttpEntity entity = new NStringEntity(
+                    "{\n" +
+                            "    \"application\" : \"" + activeObject.getTransactionName() + "\",\n" +
+                            "    \"startTime\" : \"" + activeObject.getStartTimeMillis() + "\",\n" +
+                            "    \"endTime\" : \"" + System.currentTimeMillis() + "\",\n" +
+                            "    \"elapsedTime\" : \"" + (System.currentTimeMillis() - activeObject.getStartTimeMillis()) + "\"\n" +
+                            "}",
+                    ContentType.APPLICATION_JSON
+            );
+
+            logger.info(entity.toString());
+
+            Response response = restClient.performRequest("PUT", "test_index/test_type/" + activeObject.getTransactionId(), Collections.<String, String>emptyMap(), entity);
+
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            logger.info(statusCode);
+            logger.info(EntityUtils.toString(response.getEntity()));
         }
         catch (Throwable innerThrowable)
         {

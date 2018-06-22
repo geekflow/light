@@ -94,7 +94,7 @@ public class Bootstrap
 
         List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
-        ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[urlList.size()]), Bootstrap.class.getClassLoader());
+        ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[0]), Bootstrap.class.getClassLoader());
 
         try
         {
