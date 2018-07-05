@@ -67,6 +67,8 @@ hs_err_pid*
 /.classpath
 /.project
 /.settings/
+/*/out/
+/*/*/out/
 
 /tomcat.8080
 /databases
