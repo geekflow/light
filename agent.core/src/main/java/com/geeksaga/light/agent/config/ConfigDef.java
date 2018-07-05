@@ -47,6 +47,16 @@ public class ConfigDef
     public static final String entry_point_ignore_interface = "entry_point_ignore_interface";
     public static final String entry_point_ignore_class_pattern = "entry_point_ignore_class_pattern";
 
+    public static final String method_point_class = "method_point_class";
+    public static final String method_point_super_class = "method_point_super_class";
+    public static final String method_point_interface = "method_point_interface";
+    public static final String method_point_class_pattern = "method_point_class_pattern";
+
+    public static final String method_point_ignore_class = "method_point_ignore_class";
+    public static final String method_point_ignore_super_class = "method_point_ignore_super_class";
+    public static final String method_point_ignore_interface = "method_point_ignore_interface";
+    public static final String method_point_ignore_class_pattern = "method_point_ignore_class_pattern";
+
     public static final String ignore_bci_pattern = "ignore_bci_pattern";
     public static final String allow_bci_pattern = "allow_bci_pattern";
 

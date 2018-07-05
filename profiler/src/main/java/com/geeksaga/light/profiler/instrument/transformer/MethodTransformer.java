@@ -18,6 +18,7 @@ package com.geeksaga.light.profiler.instrument.transformer;
 import com.geeksaga.light.agent.TraceContext;
 import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.TraceRegisterBinder;
+import com.geeksaga.light.agent.core.TransactionTraceRepository;
 import com.geeksaga.light.agent.trace.MethodInfo;
 import com.geeksaga.light.agent.trace.MethodTrace;
 import com.geeksaga.light.agent.trace.Parameter;
@@ -37,8 +38,8 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import static com.geeksaga.light.agent.config.ConfigDef.entry_point;
-import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_entry_point;
+import static com.geeksaga.light.agent.config.ConfigDef.method_point_class;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_method_point_class;
 import static com.geeksaga.light.profiler.util.ASMUtil.getInternalName;
 import static com.geeksaga.light.profiler.util.ASMUtil.isStatic;
 
@@ -66,23 +67,26 @@ public class MethodTransformer implements LightClassFileTransformer
 
     public MethodTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext)
     {
-        this.logger = CommonLogger.getLogger(this.getClass().getName());
-        this.filter = new LightFilter(traceContext);
-
-        this.traceRegisterBinder = traceRegisterBinder;
-        this.traceContext = traceContext;
-
-        this.traceId = createTrace();
+        this(traceRegisterBinder, traceContext, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    public MethodTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, TraceRepository traceRepository)
+    public MethodTransformer(TraceRegisterBinder traceRegisterBinder,
+                             TraceContext traceContext,
+                             TraceRepository traceRepository)
     {
         this(traceRegisterBinder, traceContext, traceRepository, Profiler.INTERNAL_CLASS_NAME, Profiler.BEGIN, Profiler.BEGIN_DESCRIPTOR, Profiler.END, Profiler.END_DESCRIPTOR);
     }
 
-    public MethodTransformer(TraceRegisterBinder traceRegisterBinder, TraceContext traceContext, TraceRepository traceRepository, String ownerClassName, String begin, String beginDescriptor, String end, String endDescriptor)
+    public MethodTransformer(TraceRegisterBinder traceRegisterBinder,
+                             TraceContext traceContext,
+                             TraceRepository traceRepository,
+                             String ownerClassName,
+                             String begin,
+                             String beginDescriptor,
+                             String end,
+                             String endDescriptor)
     {
-        this.logger = CommonLogger.getLogger(this.getClass().getName());
+        this.logger = CommonLogger.getLogger(getClass().getName());
 
         this.traceRegisterBinder = traceRegisterBinder;
         this.traceContext = traceContext;
@@ -96,7 +100,34 @@ public class MethodTransformer implements LightClassFileTransformer
         this.end = end;
         this.endDescriptor = endDescriptor;
 
-        this.classSelector = ClassSelector.create(traceContext.getConfig().read(entry_point, default_entry_point));
+        this.classSelector = ClassSelector.create(traceContext.getConfig().read(method_point_class, default_method_point_class));
+
+        this.filter = new LightFilter(traceContext);
+    }
+
+    public MethodTransformer(TraceRegisterBinder traceRegisterBinder,
+                             TraceContext traceContext,
+                             String ownerClassName,
+                             String begin,
+                             String beginDescriptor,
+                             String end,
+                             String endDescriptor)
+    {
+        this.logger = CommonLogger.getLogger(getClass().getName());
+
+        this.traceRegisterBinder = traceRegisterBinder;
+        this.traceContext = traceContext;
+        this.traceRepository = new TransactionTraceRepository(traceContext.getConfig());
+
+        this.traceId = createTrace();
+
+        this.ownerClassName = ownerClassName;
+        this.begin = begin;
+        this.beginDescriptor = beginDescriptor;
+        this.end = end;
+        this.endDescriptor = endDescriptor;
+
+        this.classSelector = ClassSelector.create(traceContext.getConfig().read(method_point_class, default_method_point_class));
 
         this.filter = new LightFilter(traceContext);
     }
@@ -107,7 +138,11 @@ public class MethodTransformer implements LightClassFileTransformer
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    public byte[] transform(ClassLoader classLoader,
+                            String className,
+                            Class<?> classBeingRedefined,
+                            ProtectionDomain protectionDomain,
+                            byte[] classfileBuffer)
     {
         if (!filter.allow(classLoader, className))
         {
@@ -119,7 +154,11 @@ public class MethodTransformer implements LightClassFileTransformer
         reader.accept(new ClassVisitor(Opcodes.ASM5, classNodeWrapper)
         {
             @Override
-            public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+            public MethodVisitor visitMethod(int access,
+                                             String name,
+                                             String desc,
+                                             String signature,
+                                             String[] exceptions)
             {
                 MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
 
@@ -136,7 +175,10 @@ public class MethodTransformer implements LightClassFileTransformer
     }
 
     @Override
-    public ClassNodeWrapper transform(ClassLoader classLoader, Class<?> classBeingRedefined, byte[] classfileBuffer, ClassNodeWrapper classNodeWrapper)
+    public ClassNodeWrapper transform(ClassLoader classLoader,
+                                      Class<?> classBeingRedefined,
+                                      byte[] classfileBuffer,
+                                      ClassNodeWrapper classNodeWrapper)
     {
         try
         {
@@ -155,7 +197,9 @@ public class MethodTransformer implements LightClassFileTransformer
         return classNodeWrapper;
     }
 
-    private ClassNodeWrapper transform(final ClassLoader classLoader, byte[] classfileBuffer, final ClassNodeWrapper classNodeWrapper)
+    private ClassNodeWrapper transform(final ClassLoader classLoader,
+                                       byte[] classfileBuffer,
+                                       final ClassNodeWrapper classNodeWrapper)
     {
         final MethodSelector methodSelector = getMethodSelectorOrNull(classNodeWrapper.getClassName());
         if (methodSelector == null)
@@ -167,13 +211,17 @@ public class MethodTransformer implements LightClassFileTransformer
         classNodeWrapper.accept(new ClassVisitor(Opcodes.ASM5, newClassNodeWrapper)
         {
             @Override
-            public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+            public MethodVisitor visitMethod(int access,
+                                             String name,
+                                             String desc,
+                                             String signature,
+                                             String[] exceptions)
             {
                 MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 
                 if (!name.startsWith("<") && methodSelector.isSelected(name, desc))
                 {
-                    logger.debug("Transform => {}.{}{}", classNodeWrapper.getClassName(), name, desc);
+                    logger.debug("Transform Method => {}.{}{}", classNodeWrapper.getClassName(), name, desc);
 
                     return new MethodTransformer.MethodAdapter(access, name, desc, mv, isStatic(access));
                 }
@@ -210,7 +258,11 @@ public class MethodTransformer implements LightClassFileTransformer
 
         int methodInfoIndex;
 
-        MethodAdapter(int access, String name, String desc, MethodVisitor methodVisitor, boolean isStatic)
+        MethodAdapter(int access,
+                      String name,
+                      String desc,
+                      MethodVisitor methodVisitor,
+                      boolean isStatic)
         {
             super(Opcodes.ASM5, methodVisitor, access, name, desc);
 
@@ -276,7 +328,10 @@ public class MethodTransformer implements LightClassFileTransformer
             mv.visitCode();
         }
 
-        private void visitInstruction(Type type, int index, int parameterVariableIndex, int parameterIndex)
+        private void visitInstruction(Type type,
+                                      int index,
+                                      int parameterVariableIndex,
+                                      int parameterIndex)
         {
             switch (type.getSort())
             {
@@ -339,7 +394,10 @@ public class MethodTransformer implements LightClassFileTransformer
             }
         }
 
-        private void visitInstruction(int opcode, int index, int parameterVariableIndex, int parameterIndex)
+        private void visitInstruction(int opcode,
+                                      int index,
+                                      int parameterVariableIndex,
+                                      int parameterIndex)
         {
             mv.visitVarInsn(ALOAD, parameterVariableIndex);
             mv.visitLdcInsn(index);

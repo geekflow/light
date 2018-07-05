@@ -37,15 +37,25 @@ public class ConfigDefaultValueDef
     public static final int default_method_min_size = 0;
     public static final int default_method_max_size = 48000;
 
-    public static final String[] entry_point_class = new String[] {};
-    public static final String[] entry_point_super_class = new String[] {};
-    public static final String[] entry_point_interface = new String[] {};
-    public static final String[] entry_point_class_pattern = new String[] {};
+    public static final String[] default_entry_point_class = new String[] {};
+    public static final String[] default_entry_point_super_class = new String[] {};
+    public static final String[] default_entry_point_interface = new String[] {};
+    public static final String[] default_entry_point_class_pattern = new String[] {};
 
-    public static final String[] entry_point_ignore_class = new String[] {};
-    public static final String[] entry_point_ignore_super_class = new String[] {};
-    public static final String[] entry_point_ignore_interface = new String[] {};
-    public static final String[] entry_point_ignore_class_pattern = new String[] {};
+    public static final String[] default_entry_point_ignore_class = new String[] {};
+    public static final String[] default_entry_point_ignore_super_class = new String[] {};
+    public static final String[] default_entry_point_ignore_interface = new String[] {};
+    public static final String[] default_entry_point_ignore_class_pattern = new String[] {};
+
+    public static final String[] default_method_point_class = new String[] {};
+    public static final String[] default_method_point_super_class = new String[] {};
+    public static final String[] default_method_point_interface = new String[] {};
+    public static final String[] default_method_point_class_pattern = new String[] {};
+
+    public static final String[] default_method_point_ignore_class = new String[] {};
+    public static final String[] default_method_point_ignore_super_class = new String[] {};
+    public static final String[] default_method_point_ignore_interface = new String[] {};
+    public static final String[] default_method_point_ignore_class_pattern = new String[] {};
 
     public static final String[] default_ignore_bci_pattern = new String[] {};
     public static final String[] default_allow_bci_pattern = new String[] {};

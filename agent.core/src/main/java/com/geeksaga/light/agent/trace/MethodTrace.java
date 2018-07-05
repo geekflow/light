@@ -75,7 +75,7 @@ public class MethodTrace implements Trace
             ProfileMethod profileMethod = (ProfileMethod) activeObject.getProfileCallStack().pop();
             profileMethod.markAfterTime(activeObject.getStartTimeMillis());
 
-            logger.info("profile = {}, start time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getStartTime(), profileMethod.getElapsedTime());
+            logger.info("method profile = {}, start time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getStartTime(), profileMethod.getElapsedTime());
         }
         catch (Throwable innerThrowable)
         {
