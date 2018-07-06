@@ -124,6 +124,8 @@ project(':agent') {
 project(':agent.core') {
     dependencies {
         compile project(':common')
+
+        testCompile project(':profiler')
     }
 }
 
