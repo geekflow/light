@@ -24,8 +24,9 @@ public class ProfileMethod extends ProfileData
 {
     private final int hash;
     private int startTime;
-    private final int startCpuTime;
+    private long endTime;
     private int elapsedTime;
+    private final int startCpuTime;
     private int elapsedCpuTime;
 
     public ProfileMethod()
@@ -38,7 +39,12 @@ public class ProfileMethod extends ProfileData
         this((byte) 0, 0, 0, hash, startTime, startCpuTime);
     }
 
-    public ProfileMethod(byte type, int index, int parentIndex, int hash, int startTime, int startCpuTime)
+    public ProfileMethod(byte type,
+                         int index,
+                         int parentIndex,
+                         int hash,
+                         int startTime,
+                         int startCpuTime)
     {
         super(type, index, parentIndex);
         this.hash = hash;
@@ -48,26 +54,28 @@ public class ProfileMethod extends ProfileData
 
     public void markBeforeTime(long beforeTime)
     {
-        this.setStartTime((int) (System.currentTimeMillis() - beforeTime));
+        setStartTime((int) (System.currentTimeMillis() - beforeTime));
     }
 
     public void markAfterTime()
     {
-        final int after = (int) (System.currentTimeMillis() - this.getStartTime());
+        final int after = (int) (System.currentTimeMillis() - getStartTime());
 
         if (after != 0)
         {
-            this.setElapsedTime(after);
+            setElapsedTime(after);
         }
     }
 
     public void markAfterTime(long beforeTime)
     {
-        final int after = (int) (System.currentTimeMillis() - beforeTime) - this.getStartTime();
+        setEndTime(System.currentTimeMillis());
+
+        final int after = (int) (getEndTime() - beforeTime) - getStartTime();
 
         if (after != 0)
         {
-            this.setElapsedTime(after);
+            setElapsedTime(after);
         }
     }
 
@@ -84,6 +92,16 @@ public class ProfileMethod extends ProfileData
     public int getStartTime()
     {
         return startTime;
+    }
+
+    public void setEndTime(long endTime)
+    {
+        this.endTime = endTime;
+    }
+
+    public long getEndTime()
+    {
+        return endTime;
     }
 
     public int getStartCpuTime()
@@ -114,6 +132,6 @@ public class ProfileMethod extends ProfileData
     @Override
     public String toString()
     {
-        return ToString.toString(super.toString(), hash, startTime, startCpuTime, elapsedTime, elapsedCpuTime);
+        return ToString.toString(super.toString(), hash, startTime, endTime, startCpuTime, elapsedTime, elapsedCpuTime);
     }
 }
