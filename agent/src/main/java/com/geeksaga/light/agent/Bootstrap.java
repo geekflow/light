@@ -92,6 +92,11 @@ public class Bootstrap
         appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCoreJarAbsoluteName()));
         appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(classPathResolver.getAgentCommonJarAbsoluteName()));
 
+        for(URL url : classPathResolver.findAllBootClassPathLibrary())
+        {
+            appendToBootstrapClassLoaderSearch(classPathResolver.getJarFileOrNull(url.getPath()));
+        }
+
         List<URL> urlList = classPathResolver.findAllAgentLibrary();
 
         ClassLoader classLoader = new AgentClassLoader(urlList.toArray(new URL[0]), Bootstrap.class.getClassLoader());

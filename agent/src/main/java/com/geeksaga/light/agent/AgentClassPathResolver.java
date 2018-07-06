@@ -84,9 +84,19 @@ public class AgentClassPathResolver
         return initialize;
     }
 
+    public List<URL> findAllBootClassPathLibrary()
+    {
+        return findAllAgentLibrary(getAgentLibraryPath() + File.separator + "boot");
+    }
+
     public List<URL> findAllAgentLibrary()
     {
-        File libraryDirectory = new File(getAgentLibraryPath());
+        return findAllAgentLibrary(getAgentLibraryPath());
+    }
+
+    public List<URL> findAllAgentLibrary(String libraryPath)
+    {
+        File libraryDirectory = new File(libraryPath);
         if (!libraryDirectory.exists() && !libraryDirectory.isDirectory())
         {
             return Collections.emptyList();
@@ -101,17 +111,18 @@ public class AgentClassPathResolver
             }
         });
 
-        List<URL> list = new ArrayList<URL>();
-
-        if (files != null)
+        if (files == null)
         {
-            for (File file : files)
+            return new ArrayList<URL>();
+        }
+
+        List<URL> list = new ArrayList<URL>();
+        for (File file : files)
+        {
+            URL url = toURIOrNullIfOccurException(file);
+            if (url != null)
             {
-                URL url = toURIOrNullIfOccurException(file);
-                if (url != null)
-                {
-                    list.add(url);
-                }
+                list.add(url);
             }
         }
 
