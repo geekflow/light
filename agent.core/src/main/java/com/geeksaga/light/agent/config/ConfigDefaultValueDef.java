@@ -31,6 +31,7 @@ public class ConfigDefaultValueDef
     public static final String default_db_user = "admin";
     public static final String default_db_password = "admin";
     public static final boolean default_enable_db_in_memory = false;
+    public static final boolean default_enable_orientdb = false;
 
     public static final String[] default_entry_point = new String[] {};
     public static final int default_class_max_size = 1024 * 1024;
