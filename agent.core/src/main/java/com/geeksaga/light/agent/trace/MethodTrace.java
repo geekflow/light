@@ -21,6 +21,20 @@ import com.geeksaga.light.agent.core.ActiveObject;
 import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+
+import java.util.Collections;
+
+import static com.geeksaga.light.agent.config.ConfigDef.elasticsearch_ip;
+import static com.geeksaga.light.agent.config.ConfigDef.elasticsearch_port;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_elasticsearch_ip;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_elasticsearch_port;
 
 /**
  * @author geeksaga
@@ -70,12 +84,33 @@ public class MethodTrace implements Trace
 
         try
         {
-//            traceRepository.save(activeObject);
-
             ProfileMethod profileMethod = (ProfileMethod) activeObject.getProfileCallStack().pop();
             profileMethod.markAfterTime(activeObject.getStartTimeMillis());
 
-            logger.info("method profile = {}, start time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getStartTime(), profileMethod.getElapsedTime());
+            //            traceRepository.save(activeObject);
+
+            logger.info("method profile = {},  end time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getEndTime(), profileMethod.getElapsedTime());
+
+            RestClient restClient = RestClient.builder(new HttpHost(traceContext.getConfig().read(elasticsearch_ip, default_elasticsearch_ip), traceContext.getConfig().read(elasticsearch_port, default_elasticsearch_port))).build();
+
+            HttpEntity entity = new NStringEntity( //
+                                                   "{\n" +  //
+                                                           "    \"transactionId\" : \"" + activeObject.getTransactionId() + "\",\n" +  //
+                                                           "    \"methodName\" : \"" + methodInfo.getName() + "\",\n" +  //
+                                                           "    \"endTime\" : \"" + profileMethod.getEndTime() + "\",\n" +  //
+                                                           "    \"elapsedTime\" : \"" + profileMethod.getElapsedTime() + "\"\n" +  //
+                                                           "}",  //
+                                                   ContentType.APPLICATION_JSON  //
+            );
+
+            logger.info(entity.toString());
+
+            Response response = restClient.performRequest("PUT", "test_profile_index/type/" + activeObject.getTransactionId(), Collections.<String, String>emptyMap(), entity);
+
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            logger.info(statusCode);
+            logger.info(EntityUtils.toString(response.getEntity()));
         }
         catch (Throwable innerThrowable)
         {

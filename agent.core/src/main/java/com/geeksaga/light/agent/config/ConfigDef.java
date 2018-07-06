@@ -33,6 +33,9 @@ public class ConfigDef
     public static final String enable_db_in_memory = "enable_db_in_memory";
     public static final String enable_orientdb = "enable_orientdb";
 
+    public static final String elasticsearch_ip = "elasticsearch_ip";
+    public static final String elasticsearch_port = "elasticsearch_port";
+
     public static final String entry_point = "entry_point";
     public static final String class_max_size = "class_max_size";
     public static final String method_min_size = "method_min_size";

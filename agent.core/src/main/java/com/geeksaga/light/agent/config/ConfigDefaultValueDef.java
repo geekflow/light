@@ -33,6 +33,9 @@ public class ConfigDefaultValueDef
     public static final boolean default_enable_db_in_memory = false;
     public static final boolean default_enable_orientdb = false;
 
+    public static final String default_elasticsearch_ip = "127.0.0.1";
+    public static final int default_elasticsearch_port = 9200;
+
     public static final String[] default_entry_point = new String[] {};
     public static final int default_class_max_size = 1024 * 1024;
     public static final int default_method_min_size = 0;

@@ -15,11 +15,11 @@
  */
 package com.geeksaga.light.agent.trace;
 
-import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.TraceContext;
+import com.geeksaga.light.agent.TraceRepository;
 import com.geeksaga.light.agent.core.ActiveObject;
-import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.agent.profile.ProfileCallStack;
+import com.geeksaga.light.agent.profile.ProfileMethod;
 import com.geeksaga.light.logger.CommonLogger;
 import com.geeksaga.light.logger.LightLogger;
 import org.apache.http.HttpEntity;
@@ -30,7 +30,13 @@ import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
+
+import static com.geeksaga.light.agent.config.ConfigDef.elasticsearch_ip;
+import static com.geeksaga.light.agent.config.ConfigDef.elasticsearch_port;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_elasticsearch_ip;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_elasticsearch_port;
 
 /**
  * @author geeksaga
@@ -92,23 +98,23 @@ public class EntryTrace implements Trace
             traceRepository.save(activeObject);
 
             logger.info("profile = {}, start time = {}, elapsed time = {}", methodInfo.getName(), profileMethod.getStartTime(), profileMethod.getElapsedTime());
-            logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), System.currentTimeMillis(), (System.currentTimeMillis() - activeObject.getStartTimeMillis()));
+            logger.info("application = {}, start time = {}, end time = {}, elapsed time = {}", activeObject.getTransactionName(), activeObject.getStartTimeMillis(), profileMethod.getEndTime(), profileMethod.getElapsedTime());
 
-            RestClient restClient = RestClient.builder(new HttpHost("127.0.0.1", 9200)).build();
+            RestClient restClient = RestClient.builder(new HttpHost(traceContext.getConfig().read(elasticsearch_ip, default_elasticsearch_ip), traceContext.getConfig().read(elasticsearch_port, default_elasticsearch_port))).build();
 
-            HttpEntity entity = new NStringEntity(
-                    "{\n" +
-                            "    \"application\" : \"" + activeObject.getTransactionName() + "\",\n" +
-                            "    \"startTime\" : \"" + activeObject.getStartTimeMillis() + "\",\n" +
-                            "    \"endTime\" : \"" + System.currentTimeMillis() + "\",\n" +
-                            "    \"elapsedTime\" : \"" + (System.currentTimeMillis() - activeObject.getStartTimeMillis()) + "\"\n" +
-                            "}",
-                    ContentType.APPLICATION_JSON
+            HttpEntity entity = new NStringEntity( //
+                                                   "{\n" + //
+                                                           "    \"application\" : \"" + activeObject.getTransactionName() + "\",\n" + //
+                                                           "    \"startTime\" : \"" + activeObject.getStartTimeMillis() + "\",\n" + //
+                                                           "    \"endTime\" : \"" + profileMethod.getEndTime() + "\",\n" + //
+                                                           "    \"elapsedTime\" : \"" + profileMethod.getElapsedTime() + "\"\n" + //
+                                                           "}", //
+                                                   ContentType.APPLICATION_JSON //
             );
 
             logger.info(entity.toString());
 
-            Response response = restClient.performRequest("PUT", "test_index/test_type/" + activeObject.getTransactionId(), Collections.<String, String>emptyMap(), entity);
+            Response response = restClient.performRequest("PUT", "test_transaction_index/type/" + activeObject.getTransactionId(), Collections.<String, String>emptyMap(), entity);
 
             int statusCode = response.getStatusLine().getStatusCode();
 
@@ -146,7 +152,7 @@ public class EntryTrace implements Trace
 
         try
         {
-            java.lang.reflect.Method method = obj.getClass().getDeclaredMethod("getRequestURI");
+            Method method = obj.getClass().getDeclaredMethod("getRequestURI");
 
             return (String) method.invoke(obj);
         }
