@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import static com.geeksaga.light.agent.config.ConfigDef.enable_orientdb;
+import static com.geeksaga.light.agent.config.ConfigDefaultValueDef.default_enable_orientdb;
+
 /**
  * @author geeksaga
  */
@@ -88,9 +91,11 @@ public class ProfilerModule implements Module
 
         registPointCut();
 
-        // FIXME embedded data server option
-        embeddedServer = new OrientDBEmbedServer(traceContext.getConfig());
-        embeddedServer.startup();
+        if (traceContext.getConfig().read(enable_orientdb, default_enable_orientdb))
+        {
+            embeddedServer = new OrientDBEmbedServer(traceContext.getConfig());
+            embeddedServer.startup();
+        }
 
         Module module = new TraceRepositoryModule(traceRepository, new RepositoryExecutor(traceContext.getConfig()), queue);
         module.start();
@@ -121,7 +126,10 @@ public class ProfilerModule implements Module
     @Override
     public void stop()
     {
-        embeddedServer.shutdown();
+        if (traceContext.getConfig().read(enable_orientdb, default_enable_orientdb))
+        {
+            embeddedServer.shutdown();
+        }
 
         logger.info("profiler module stop.");
     }
