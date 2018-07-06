@@ -26,7 +26,6 @@ import com.geeksaga.light.profiler.util.ASMUtil;
 import com.geeksaga.light.profiler.util.ClassFileDumper;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +65,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
     {
         try
         {
@@ -84,12 +83,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             {
                 return classfileBuffer;
             }
-
-            //            byte[] bytes = null;
-            //            for (ClassFileTransformer classFileTransformer : classFileTransformerList)
-            //            {
-            //                bytes = classFileTransformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classfileBuffer);
-            //            }
 
             ClassNodeWrapper patchedClassNodeWrapper = classNodeWrapper;
 
@@ -123,13 +116,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer
             sb.append(" bytes ");
             sb.append((dur - now));
             sb.append(" ms");
-
-            //            logger.info(sb.toString());
-
-            //            if (bytes != null)
-            //            {
-            //                return bytes;
-            //            }
 
             byte[] hookedClassFileBuffer = ASMUtil.toBytes(patchedClassNodeWrapper);
 
